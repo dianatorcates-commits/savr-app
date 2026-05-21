@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Modal } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Colors } from '../../constants/theme';
 import { StarRating } from '../components/StarRating';
 import { BlurView } from 'expo-blur';
 import { registerVisit } from '../services/visits';
 import { authService } from '../services/auth';
+import { Ionicons } from '@expo/vector-icons';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function RegisterVisitScreen() {
   const { restaurantId, branchId, restaurantName } = useLocalSearchParams<{
@@ -22,6 +24,7 @@ export default function RegisterVisitScreen() {
   const [serviceRating, setServiceRating] = useState(0);
   const [foodRating, setFoodRating] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleSubmit = async () => {
     if (!user) {
@@ -47,9 +50,7 @@ export default function RegisterVisitScreen() {
         foodRating,
       });
 
-      Alert.alert('¡Gracias!', 'Tu visita ha sido registrada exitosamente.', [
-        { text: 'OK', onPress: () => router.back() }
-      ]);
+      setShowSuccess(true);
     } catch (error) {
       Alert.alert('Error', 'Hubo un problema al registrar la visita. Inténtalo de nuevo.');
     } finally {
@@ -140,6 +141,43 @@ export default function RegisterVisitScreen() {
           </TouchableOpacity>
         </BlurView>
       </ScrollView>
+
+      <Modal
+        visible={showSuccess}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => {
+          setShowSuccess(false);
+          router.back();
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFillObject} />
+          
+          <Animated.View 
+            entering={FadeInDown.duration(400).springify()}
+            style={styles.modalContent}
+          >
+            <View style={styles.successIconCircle}>
+              <Ionicons name="checkmark-circle" size={80} color={Colors.primary} />
+            </View>
+            
+            <Text style={styles.modalTitle}>¡Gracias!</Text>
+            <Text style={styles.modalText}>Tu visita ha sido registrada exitosamente.</Text>
+            
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => {
+                setShowSuccess(false);
+                router.back();
+              }}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.modalButtonText}>Aceptar</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -255,6 +293,69 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: Colors.background,
     fontSize: 18,
+    fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+    backgroundColor: 'rgba(10, 8, 20, 0.7)',
+  },
+  modalContent: {
+    width: '100%',
+    maxWidth: 320,
+    backgroundColor: '#2D2A45', // Colors.backgroundSecondary
+    borderRadius: 28,
+    padding: 32,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(222, 185, 141, 0.2)', // Soft gold border
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  successIconCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(222, 185, 141, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  modalTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: Colors.white,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalText: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.7)',
+    textAlign: 'center',
+    marginBottom: 28,
+    lineHeight: 22,
+  },
+  modalButton: {
+    backgroundColor: Colors.primary,
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    borderRadius: 16,
+    width: '100%',
+    alignItems: 'center',
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  modalButtonText: {
+    color: Colors.background,
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });
