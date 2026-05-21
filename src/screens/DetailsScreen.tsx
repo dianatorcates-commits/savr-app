@@ -253,6 +253,23 @@ export default function DetailsScreen() {
                       </TouchableOpacity>
                     </>
                   )}
+
+                  <TouchableOpacity
+                    style={styles.registerVisitBtn}
+                    onPress={() => {
+                      router.push({
+                        pathname: '/register-visit',
+                        params: {
+                          restaurantId: restaurantId as string,
+                          branchId: closestBranch.id,
+                          restaurantName: closestBranch.restaurant_nombre || restaurantName
+                        }
+                      });
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.registerVisitBtnText}>Registrar Visita</Text>
+                  </TouchableOpacity>
                 </>
               ) : (
                 <Text style={styles.description}>No hay sucursales registradas.</Text>
@@ -484,5 +501,17 @@ const styles = StyleSheet.create({
   branchAddressSmall: {
     fontSize: 13,
     color: 'rgba(255, 255, 255, 0.6)',
+  },
+  registerVisitBtn: {
+    backgroundColor: Colors.primary,
+    marginTop: 20,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  registerVisitBtnText: {
+    color: Colors.background,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
