@@ -1,0 +1,64 @@
+import { auth } from './firebase';
+import { signOut as firebaseSignOut, onAuthStateChanged, User } from 'firebase/auth';
+import { createOrUpdateUser, getUserProfile } from '../services/firebaseUsers';
+import { UserProfile } from '../types';
+
+class AuthService {
+  private _listeners = new Set<(user: UserProfile | null) => void>();
+
+  onAuthChange(callback: (user: UserProfile | null) => void) {
+    this._listeners.add(callback);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: User | null) => {
+      try {
+        if (firebaseUser) {
+          const userProfile = await getUserProfile(firebaseUser.uid);
+          callback(userProfile);
+        } else {
+          callback(null);
+        }
+      } catch (error) {
+        console.error('Error obteniendo perfil:', error);
+        callback(null);
+      }
+    });
+    return () => { this._listeners.delete(callback); unsubscribe(); };
+  }
+
+  async signInWithGoogle(): Promise<UserProfile> {
+    try {
+      console.log('🚀 Simulando Google Sign-In...');
+      
+      // Simulación temporal - crear usuario mock
+      const mockUser = {
+        uid: 'demo_' + Date.now(),
+        displayName: 'Usuario Demo',
+        email: 'usuario.demo@gmail.com',
+        photoURL: null
+      };
+      
+      const userProfile = await createOrUpdateUser(
+        mockUser.uid,
+        mockUser.displayName,
+        mockUser.email,
+        mockUser.photoURL,
+        'google'
+      );
+      
+      console.log('✅ Login exitoso (demo):', userProfile.email);
+      return userProfile;
+    } catch (error) {
+      console.error('❌ Error en login:', error);
+      throw error;
+    }
+  }
+
+  async signOut(): Promise<void> {
+    await firebaseSignOut(auth);
+  }
+
+  getCurrentUser(): User | null {
+    return auth.currentUser;
+  }
+}
+
+export const authService = new AuthService();

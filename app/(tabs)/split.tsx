@@ -1,0 +1,725 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { BlurView } from 'expo-blur';
+import * as ImagePicker from 'expo-image-picker';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useState } from 'react';
+import { ActivityIndicator, Alert, Modal, ScrollView, Share, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors } from '../../constants/theme';
+
+type Friend = { id: string; name: string; color: string };
+type ReceiptItem = { id: string; name: string; price: number; assignedTo: string[] }; // array of friend IDs
+
+const MOCK_ITEMS: ReceiptItem[] = [
+  { id: '1', name: 'Pizza Margarita', price: 12000, assignedTo: [] },
+  { id: '2', name: 'Cerveza Artesanal', price: 4500, assignedTo: [] },
+  { id: '3', name: 'Pisco Sour', price: 6000, assignedTo: [] },
+  { id: '4', name: 'Ceviche Mixto', price: 15000, assignedTo: [] },
+  { id: '5', name: 'Tiramisú', price: 5500, assignedTo: [] },
+];
+
+const FRIEND_COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5', '#9B59B6', '#3498DB'];
+
+// Initialize Gemini
+const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY || '';
+const genAI = new GoogleGenerativeAI(apiKey);
+
+export default function SplitScreen() {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [receiptImage, setReceiptImage] = useState<string | null>(null);
+
+  const [friends, setFriends] = useState<Friend[]>([{ id: 'me', name: 'Yo', color: FRIEND_COLORS[0] }]);
+  const [items, setItems] = useState<ReceiptItem[]>([]);
+
+  const [newFriendName, setNewFriendName] = useState('');
+  const [showAddFriend, setShowAddFriend] = useState(false);
+
+  const [selectedItem, setSelectedItem] = useState<ReceiptItem | null>(null);
+  const [showItemAssign, setShowItemAssign] = useState(false);
+
+  const [tipPercentage, setTipPercentage] = useState<number>(0);
+
+  // States for Manual Entry
+  const [manualName, setManualName] = useState('');
+  const [manualPrice, setManualPrice] = useState('');
+
+  // States for Editing
+  const [editingItem, setEditingItem] = useState<ReceiptItem | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editPrice, setEditPrice] = useState('');
+
+  // STEP 1: Image Selection
+  const pickImage = async (useCamera: boolean) => {
+    try {
+      let result;
+      const options: ImagePicker.ImagePickerOptions = { quality: 0.7, base64: true };
+
+      if (useCamera) {
+        const permission = await ImagePicker.requestCameraPermissionsAsync();
+        if (!permission.granted) {
+          Alert.alert('Permiso denegado', 'Necesitamos acceso a la cámara para tomar la foto.');
+          return;
+        }
+        result = await ImagePicker.launchCameraAsync(options);
+      } else {
+        result = await ImagePicker.launchImageLibraryAsync(options);
+      }
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        setReceiptImage(asset.uri);
+        if (asset.base64) {
+          const mimeType = asset.uri.endsWith('.png') ? 'image/png' : 'image/jpeg';
+          processReceiptWithAI(asset.base64, mimeType);
+        } else {
+          Alert.alert('Error', 'No se pudo obtener la imagen en alta calidad para procesar.');
+        }
+      }
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo cargar la imagen.');
+    }
+  };
+
+  const handleManualEntry = () => {
+    setItems([]);
+    setTipPercentage(10);
+    setStep(2);
+  };
+
+  const addManualItem = () => {
+    if (!manualName.trim() || !manualPrice.trim()) {
+      Alert.alert('Datos incompletos', 'Por favor ingresa un nombre y un precio.');
+      return;
+    }
+    const price = parseInt(manualPrice.replace(/\D/g, ''), 10);
+    if (isNaN(price) || price <= 0) {
+      Alert.alert('Precio inválido', 'El precio debe ser mayor a 0.');
+      return;
+    }
+
+    const newItem: ReceiptItem = {
+      id: `manual-${Date.now()}`,
+      name: manualName.trim(),
+      price: price,
+      assignedTo: []
+    };
+
+    setItems([...items, newItem]);
+    setManualName('');
+    setManualPrice('');
+  };
+
+  const openEditModal = (item: ReceiptItem) => {
+    setEditingItem(item);
+    setEditName(item.name);
+    setEditPrice(item.price.toString());
+  };
+
+  const saveEdit = () => {
+    if (!editingItem) return;
+    const price = parseInt(editPrice.replace(/\D/g, ''), 10);
+    if (!editName.trim() || isNaN(price) || price <= 0) {
+      Alert.alert('Datos inválidos', 'Revisa el nombre y el precio.');
+      return;
+    }
+    setItems(items.map(i => i.id === editingItem.id ? { ...i, name: editName.trim(), price } : i));
+    setEditingItem(null);
+  };
+
+  const deleteItem = (id: string) => {
+    setItems(items.filter(i => i.id !== id));
+    if (selectedItem?.id === id) setShowItemAssign(false);
+  };
+
+  const processReceiptWithAI = async (base64Data: string, mimeType: string) => {
+    setIsProcessing(true);
+    try {
+      const prompt = `Eres un sistema experto en contabilidad de restaurantes. Lee la boleta adjunta. 
+Ignora los cobros por servicio y los totales generales como items. 
+Tu tarea es extraer los platos y bebidas individuales que se consumieron, y detectar si la boleta sugiere un porcentaje de propina.
+Debes responder ÚNICAMENTE con un objeto JSON válido, con dos propiedades: "items" (arreglo de platos) y "suggestedTipPercentage" (número entero de propina, ej: 10).
+Ejemplo del formato de salida estricto:
+{
+  "suggestedTipPercentage": 10,
+  "items": [
+    {"id": "1", "name": "Pizza Margarita", "price": 12000},
+    {"id": "2", "name": "Bebida", "price": 2500}
+  ]
+}
+NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\`\`json).`;
+
+      const imageParts = [{ inlineData: { data: base64Data, mimeType } }];
+
+      let text = '';
+      const modelsToTry = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"];
+      const maxRetries = 3;
+
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+          const modelName = modelsToTry[attempt] || modelsToTry[0];
+          const model = genAI.getGenerativeModel({ model: modelName });
+          const result = await model.generateContent([prompt, ...imageParts]);
+          const response = await result.response;
+          text = response.text();
+          break; // Éxito, salimos del loop
+        } catch (err: any) {
+          console.log(`Intento ${attempt + 1} (${modelsToTry[attempt]}) falló:`, err.message);
+          if (attempt === maxRetries - 1) {
+            throw err; // Lanza el error si fue el último intento
+          }
+          // Esperar 1.5 segundos antes de reintentar (Backoff)
+          await new Promise(resolve => setTimeout(resolve, 1500));
+        }
+      }
+
+      // Clean possible markdown syntax if the AI disobeys
+      const cleanJson = text.replace(/```json/gi, '').replace(/```/gi, '').trim();
+      const parsedData = JSON.parse(cleanJson);
+
+      // Ensure the structure is correct
+      if (!parsedData.items || !Array.isArray(parsedData.items)) {
+        throw new Error("El resultado no contiene un arreglo de items válido");
+      }
+
+      setTipPercentage(parsedData.suggestedTipPercentage || 0);
+
+      const finalItems: ReceiptItem[] = parsedData.items.map((item: any, index: number) => ({
+        id: item.id || String(index + 1),
+        name: item.name || 'Ítem desconocido',
+        price: Number(item.price) || 0,
+        assignedTo: []
+      }));
+
+      setItems(finalItems);
+      setStep(2);
+    } catch (error: any) {
+      console.error('Error con IA:', error);
+      
+      let errorMsg = 'No pudimos analizar la boleta automáticamente. Por favor intenta de nuevo o usa el ingreso manual.';
+      if (error?.message?.includes('429')) {
+        errorMsg = 'Hemos alcanzado el límite de uso de la IA. Por favor, usa el ingreso manual por ahora.';
+      }
+
+      Alert.alert('Error al procesar boleta 🚦', errorMsg);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // STEP 2: Logic
+  const addFriend = () => {
+    if (!newFriendName.trim()) return;
+    const newFriend: Friend = {
+      id: Date.now().toString(),
+      name: newFriendName.trim(),
+      color: FRIEND_COLORS[friends.length % FRIEND_COLORS.length]
+    };
+    setFriends([...friends, newFriend]);
+    setNewFriendName('');
+    setShowAddFriend(false);
+  };
+
+  const toggleAssign = (friendId: string) => {
+    if (!selectedItem) return;
+    const isAssigned = selectedItem.assignedTo.includes(friendId);
+    let newAssignedTo;
+
+    if (isAssigned) {
+      newAssignedTo = selectedItem.assignedTo.filter(id => id !== friendId);
+    } else {
+      newAssignedTo = [...selectedItem.assignedTo, friendId];
+    }
+
+    const updatedItem = { ...selectedItem, assignedTo: newAssignedTo };
+    setSelectedItem(updatedItem);
+
+    setItems(items.map(i => i.id === updatedItem.id ? updatedItem : i));
+  };
+
+  const allAssigned = items.every(i => i.assignedTo.length > 0);
+
+  // STEP 3: Summary Logic
+  const getBaseTotals = () => {
+    const totals: Record<string, number> = {};
+    friends.forEach(f => totals[f.id] = 0);
+
+    items.forEach(item => {
+      if (item.assignedTo.length > 0) {
+        const splitAmount = item.price / item.assignedTo.length;
+        item.assignedTo.forEach(fId => {
+          if (totals[fId] !== undefined) {
+            totals[fId] += splitAmount;
+          }
+        });
+      }
+    });
+    return totals;
+  };
+
+  const getFinalTotals = () => {
+    const base = getBaseTotals();
+    const final: Record<string, number> = {};
+    Object.keys(base).forEach(key => {
+      final[key] = base[key] * (1 + tipPercentage / 100);
+    });
+    return { base, final };
+  };
+
+  const { base: baseTotals, final: totals } = getFinalTotals();
+
+  const grandTotalBase = Object.values(baseTotals).reduce((a, b) => a + b, 0);
+  const grandTotalTip = grandTotalBase * (tipPercentage / 100);
+  const grandTotal = grandTotalBase + grandTotalTip;
+
+  const shareSummary = async () => {
+    let message = `🧾 *Resumen de la Cuenta*\nSubtotal: $${Math.round(grandTotalBase).toLocaleString('es-CL')}\nPropina (${tipPercentage}%): $${Math.round(grandTotalTip).toLocaleString('es-CL')}\n*Total Final: $${Math.round(grandTotal).toLocaleString('es-CL')}*\n\n`;
+    message += `👤 *Detalle por persona:*\n`;
+    friends.forEach(f => {
+      const amount = totals[f.id];
+      if (amount > 0) {
+        message += `- ${f.name}: $${Math.round(amount).toLocaleString('es-CL')}\n`;
+      }
+    });
+    message += `\n💰 Por favor transferir a mi cuenta. ¡Gracias!`;
+
+    try {
+      await Share.share({ message });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const resetFlow = () => {
+    setStep(1);
+    setReceiptImage(null);
+    setFriends([{ id: 'me', name: 'Yo', color: FRIEND_COLORS[0] }]);
+    setItems([]);
+  };
+
+  return (
+    <LinearGradient
+      colors={[Colors.background, Colors.backgroundSecondary]}
+      style={styles.container}
+    >
+      {/* Círculos decorativos */}
+      <View style={[styles.decorativeCircle, styles.circle1]} />
+      <View style={[styles.decorativeCircle, styles.circle2]} />
+
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        {/* Header */}
+        <View style={styles.header}>
+          {step > 1 && (
+            <TouchableOpacity style={styles.backBtn} onPress={() => setStep(step === 3 ? 2 : 1)}>
+              <Text style={styles.backText}>←</Text>
+            </TouchableOpacity>
+          )}
+          <Text style={styles.headerTitle}>Dividir Cuenta</Text>
+          <View style={{ width: 40 }} />
+        </View>
+
+        {/* STEP 1: SCAN */}
+        {step === 1 && (
+          <View style={[styles.stepContainer, { paddingBottom: 110 }]}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={styles.stepSubtitle}>Sube una foto de la boleta y la Inteligencia Artificial extraerá los platos por ti.</Text>
+              
+              {isProcessing ? (
+                <View style={[styles.processingContent, { marginVertical: 40 }]}>
+                  <ActivityIndicator size="large" color={Colors.primary} />
+                  <Text style={styles.processingText}>Analizando boleta con IA...</Text>
+                  <Text style={styles.processingSubtext}>Detectando ítems y precios</Text>
+                </View>
+              ) : (
+                <>
+                  <View style={[styles.buttonRow, { marginTop: 40, marginBottom: 60, width: '100%' }]}>
+                    <TouchableOpacity style={styles.actionButton} onPress={() => pickImage(true)} disabled={isProcessing}>
+                      <BlurView intensity={20} tint="light" style={[styles.actionBlur, { paddingVertical: 24 }]}>
+                        <Text style={[styles.actionIcon, { fontSize: 40 }]}>📸</Text>
+                        <Text style={styles.actionText}>Tomar Foto</Text>
+                      </BlurView>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity style={styles.actionButton} onPress={() => pickImage(false)} disabled={isProcessing}>
+                      <BlurView intensity={20} tint="light" style={[styles.actionBlur, { paddingVertical: 24 }]}>
+                        <Text style={[styles.actionIcon, { fontSize: 40 }]}>🖼️</Text>
+                        <Text style={styles.actionText}>Subir Galería</Text>
+                      </BlurView>
+                    </TouchableOpacity>
+                  </View>
+
+                  <TouchableOpacity style={styles.manualLink} onPress={handleManualEntry} activeOpacity={0.7}>
+                    <Text style={styles.manualLinkText}>¿Perdiste la boleta? Ingresa manualmente</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </View>
+          </View>
+        )}
+
+        {/* STEP 2: ASSIGN */}
+        {step === 2 && (
+          <View style={styles.stepContainer}>
+            {/* Friends Strip */}
+            <View style={styles.friendsSection}>
+              <Text style={styles.sectionLabel}>Amigos en la mesa</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.friendsScroll}>
+                <TouchableOpacity style={styles.addFriendBtn} onPress={() => setShowAddFriend(true)}>
+                  <Text style={styles.addFriendPlus}>+</Text>
+                </TouchableOpacity>
+                {friends.map(f => (
+                  <View key={f.id} style={styles.friendAvatarContainer}>
+                    <View style={[styles.friendAvatar, { backgroundColor: f.color }]}>
+                      <Text style={styles.friendInitials}>{f.name.substring(0, 2).toUpperCase()}</Text>
+                    </View>
+                    <Text style={styles.friendName} numberOfLines={1}>{f.name}</Text>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+
+            {/* Formulario Ingreso Manual */}
+            <View style={styles.manualFormContainer}>
+              <Text style={styles.sectionLabel}>Añadir plato manualmente</Text>
+              <View style={styles.manualFormRow}>
+                <TextInput
+                  style={[styles.manualInput, { flex: 2 }]}
+                  placeholder="Ej: Pisco Sour"
+                  placeholderTextColor="rgba(255,255,255,0.4)"
+                  value={manualName}
+                  onChangeText={setManualName}
+                />
+                <TextInput
+                  style={[styles.manualInput, { flex: 1 }]}
+                  placeholder="$0"
+                  placeholderTextColor="rgba(255,255,255,0.4)"
+                  keyboardType="numeric"
+                  value={manualPrice}
+                  onChangeText={setManualPrice}
+                />
+                <TouchableOpacity style={styles.manualAddBtn} onPress={addManualItem} activeOpacity={0.8}>
+                  <Text style={styles.manualAddIcon}>+</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.itemsSection}>
+              <Text style={styles.sectionLabel}>Platos consumidos</Text>
+
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {items.length === 0 ? (
+                  <Text style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', marginVertical: 20 }}>
+                    Aún no hay platos registrados.
+                  </Text>
+                ) : (
+                  items.map(item => (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={[styles.itemCard]}
+                      activeOpacity={0.8}
+                      onPress={() => { setSelectedItem(item); setShowItemAssign(true); }}
+                    >
+                      <BlurView intensity={15} tint="light" style={styles.itemBlur}>
+                        <View style={styles.itemInfo}>
+                          <Text style={styles.itemName}>{item.name}</Text>
+                          <Text style={styles.itemPrice}>${item.price.toLocaleString('es-CL')}</Text>
+                        </View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginRight: 16 }}>
+                          <TouchableOpacity onPress={() => openEditModal(item)} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                            <Text style={{ fontSize: 18 }}>✏️</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => deleteItem(item.id)} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                            <Text style={{ fontSize: 18 }}>🗑️</Text>
+                          </TouchableOpacity>
+                        </View>
+                        <View style={styles.itemAvatars}>
+                          {item.assignedTo.length === 0 ? (
+                            <Text style={styles.unassignedBadge}>Sin asignar</Text>
+                          ) : (
+                            item.assignedTo.map(fId => {
+                              const friend = friends.find(f => f.id === fId);
+                              if (!friend) return null;
+                              return (
+                                <View key={fId} style={[styles.miniAvatar, { backgroundColor: friend.color }]}>
+                                  <Text style={styles.miniInitials}>{friend.name.substring(0, 1).toUpperCase()}</Text>
+                                </View>
+                              );
+                            })
+                          )}
+                        </View>
+                      </BlurView>
+                    </TouchableOpacity>
+                  ))
+                )}
+              </ScrollView>
+            </View>
+
+            {/* Next Step Button */}
+            <View style={styles.bottomNav}>
+              <TouchableOpacity
+                style={[styles.primaryButton, !allAssigned && styles.buttonDisabled]}
+                onPress={() => setStep(3)}
+                disabled={!allAssigned}
+              >
+                <Text style={styles.primaryButtonText}>Ver Resumen</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* STEP 3: SUMMARY */}
+        {step === 3 && (
+          <View style={styles.stepContainer}>
+            <Text style={[styles.stepSubtitle, { marginBottom: 16 }]}>Resumen final de lo que debe cada uno.</Text>
+
+            <BlurView intensity={20} tint="light" style={styles.summaryCard}>
+              <Text style={styles.summaryTotalLabel}>Total a Pagar</Text>
+              <Text style={styles.summaryTotalAmount}>${Math.round(grandTotal).toLocaleString('es-CL')}</Text>
+
+              <View style={styles.tipSection}>
+                <Text style={styles.tipLabel}>Propina:</Text>
+                <View style={styles.tipButtonsRow}>
+                  {[0, 10, 15].map(pct => (
+                    <TouchableOpacity
+                      key={pct}
+                      style={[styles.tipBtn, tipPercentage === pct && styles.tipBtnActive]}
+                      onPress={() => setTipPercentage(pct)}
+                    >
+                      <Text style={[styles.tipBtnText, tipPercentage === pct && styles.tipBtnTextActive]}>{pct}%</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              <View style={styles.divider} />
+
+              <ScrollView style={styles.summaryList} showsVerticalScrollIndicator={false}>
+                {friends.map(f => {
+                  const amount = totals[f.id];
+                  if (amount === 0) return null;
+                  return (
+                    <View key={f.id} style={styles.summaryRow}>
+                      <View style={styles.summaryUser}>
+                        <View style={[styles.miniAvatar, { backgroundColor: f.color, marginRight: 12, marginLeft: 0, width: 36, height: 36, borderRadius: 18 }]}>
+                          <Text style={[styles.miniInitials, { fontSize: 14 }]}>{f.name.substring(0, 1).toUpperCase()}</Text>
+                        </View>
+                        <Text style={styles.summaryName}>{f.name}</Text>
+                      </View>
+                      <Text style={styles.summaryUserAmount}>${Math.round(amount).toLocaleString('es-CL')}</Text>
+                    </View>
+                  );
+                })}
+              </ScrollView>
+            </BlurView>
+
+            <View style={styles.bottomNav}>
+              <TouchableOpacity style={styles.primaryButton} onPress={shareSummary}>
+                <Text style={styles.primaryButtonText}>Compartir Cobro 💬</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.secondaryButton} onPress={resetFlow}>
+                <Text style={styles.secondaryButtonText}>Empezar de nuevo</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* MODAL: ADD FRIEND */}
+        <Modal visible={showAddFriend} transparent animationType="fade">
+          <View style={styles.modalOverlay}>
+            <BlurView intensity={40} tint="dark" style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Añadir Persona</Text>
+              <TextInput
+                style={styles.modalInput}
+                placeholder="Nombre o apodo..."
+                placeholderTextColor="rgba(255,255,255,0.5)"
+                value={newFriendName}
+                onChangeText={setNewFriendName}
+                autoFocus
+              />
+              <View style={styles.modalActions}>
+                <TouchableOpacity style={styles.modalBtnCancel} onPress={() => setShowAddFriend(false)}>
+                  <Text style={styles.modalBtnText}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.modalBtnAdd} onPress={addFriend}>
+                  <Text style={[styles.modalBtnText, { color: Colors.background }]}>Añadir</Text>
+                </TouchableOpacity>
+              </View>
+            </BlurView>
+          </View>
+        </Modal>
+
+        {/* MODAL: EDIT ITEM */}
+        <Modal visible={!!editingItem} transparent animationType="fade">
+          <View style={styles.modalOverlay}>
+            <BlurView intensity={40} tint="dark" style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Editar Plato</Text>
+              
+              <TextInput
+                style={styles.modalInput}
+                placeholder="Nombre..."
+                placeholderTextColor="rgba(255,255,255,0.5)"
+                value={editName}
+                onChangeText={setEditName}
+              />
+              <TextInput
+                style={[styles.modalInput, { marginBottom: 30 }]}
+                placeholder="Precio ($)"
+                placeholderTextColor="rgba(255,255,255,0.5)"
+                keyboardType="numeric"
+                value={editPrice}
+                onChangeText={setEditPrice}
+              />
+
+              <View style={styles.modalActions}>
+                <TouchableOpacity style={styles.modalBtnCancel} onPress={() => setEditingItem(null)}>
+                  <Text style={styles.modalBtnText}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.modalBtnAdd} onPress={saveEdit}>
+                  <Text style={[styles.modalBtnText, { color: Colors.background }]}>Guardar</Text>
+                </TouchableOpacity>
+              </View>
+            </BlurView>
+          </View>
+        </Modal>
+
+        {/* MODAL: ASSIGN ITEM */}
+        <Modal visible={showItemAssign} transparent animationType="slide">
+          <View style={styles.modalOverlay}>
+            <BlurView intensity={40} tint="dark" style={styles.modalContentBottom}>
+              <Text style={styles.modalTitle}>¿Quién pagará esto?</Text>
+              <Text style={styles.modalSubtitle}>{selectedItem?.name} - ${selectedItem?.price.toLocaleString('es-CL')}</Text>
+
+              <View style={styles.assignGrid}>
+                {friends.map(f => {
+                  const isSelected = selectedItem?.assignedTo.includes(f.id);
+                  return (
+                    <TouchableOpacity
+                      key={f.id}
+                      style={[styles.assignChip, isSelected && { borderColor: f.color, backgroundColor: 'rgba(255,255,255,0.1)' }]}
+                      onPress={() => toggleAssign(f.id)}
+                    >
+                      <View style={[styles.miniAvatar, { backgroundColor: f.color, marginRight: 8 }]}>
+                        <Text style={styles.miniInitials}>{f.name.substring(0, 1).toUpperCase()}</Text>
+                      </View>
+                      <Text style={styles.assignChipText}>{f.name}</Text>
+                      {isSelected && <Text style={{ color: f.color, marginLeft: 'auto' }}>✓</Text>}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              <TouchableOpacity style={styles.primaryButton} onPress={() => setShowItemAssign(false)}>
+                <Text style={styles.primaryButtonText}>Listo</Text>
+              </TouchableOpacity>
+            </BlurView>
+          </View>
+        </Modal>
+
+      </SafeAreaView>
+    </LinearGradient>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  safeArea: { flex: 1 },
+  decorativeCircle: { position: 'absolute', borderRadius: 999, opacity: 0.15 },
+  circle1: { width: 350, height: 350, top: -100, right: -100, backgroundColor: Colors.primary },
+  circle2: { width: 280, height: 280, bottom: -80, left: -80, backgroundColor: Colors.primaryLight },
+  stepContainer: { flex: 1, padding: 20, paddingBottom: 120 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 16 },
+  backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' },
+  backText: { color: Colors.white, fontSize: 20, fontWeight: 'bold' },
+  headerTitle: { fontSize: 20, fontWeight: '700', color: Colors.white },
+
+  stepSubtitle: { fontSize: 15, color: 'rgba(255,255,255,0.7)', textAlign: 'center', marginBottom: 30, paddingHorizontal: 10 },
+
+  scannerBox: { width: '100%', height: 350, backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center', marginBottom: 30 },
+  scanGuide: { width: 220, height: 280, justifyContent: 'center', alignItems: 'center' },
+  scanInstruction: { color: Colors.primaryLight, opacity: 0.8, fontSize: 14, fontWeight: '600' },
+  corner: { position: 'absolute', width: 30, height: 30, borderColor: Colors.primary, borderWidth: 3 },
+  topLeft: { top: 0, left: 0, borderBottomWidth: 0, borderRightWidth: 0, borderTopLeftRadius: 16 },
+  topRight: { top: 0, right: 0, borderBottomWidth: 0, borderLeftWidth: 0, borderTopRightRadius: 16 },
+  bottomLeft: { bottom: 0, left: 0, borderTopWidth: 0, borderRightWidth: 0, borderBottomLeftRadius: 16 },
+  bottomRight: { bottom: 0, right: 0, borderTopWidth: 0, borderLeftWidth: 0, borderBottomRightRadius: 16 },
+
+  processingContent: { alignItems: 'center' },
+  processingText: { color: Colors.white, fontSize: 16, fontWeight: '600', marginTop: 16 },
+  processingSubtext: { color: Colors.primary, fontSize: 13, marginTop: 4 },
+
+  buttonRow: { flexDirection: 'row', gap: 16 },
+  actionButton: { flex: 1, borderRadius: 20, overflow: 'hidden' },
+  actionBlur: { paddingVertical: 16, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.05)' },
+  actionIcon: { fontSize: 28, marginBottom: 8 },
+  actionText: { color: Colors.primary, fontSize: 14, fontWeight: '600' },
+
+  manualLink: { marginTop: 32, padding: 8, alignItems: 'center' },
+  manualLinkText: { color: Colors.primary, fontSize: 14, fontWeight: '600', textDecorationLine: 'underline', textAlign: 'center' },
+
+  sectionLabel: { fontSize: 16, fontWeight: '700', color: Colors.white, marginBottom: 12 },
+  friendsSection: { marginBottom: 10 },
+  friendsScroll: { paddingVertical: 10, gap: 16 },
+  friendAvatarContainer: { alignItems: 'center', width: 60 },
+  friendAvatar: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', marginBottom: 6, borderWidth: 2, borderColor: 'rgba(255,255,255,0.2)' },
+  friendInitials: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
+  friendName: { color: Colors.white, fontSize: 12, opacity: 0.9 },
+  addFriendBtn: { width: 48, height: 48, borderRadius: 24, borderStyle: 'dashed', borderWidth: 2, borderColor: Colors.primary, alignItems: 'center', justifyContent: 'center', marginHorizontal: 8 },
+  addFriendPlus: { color: Colors.primary, fontSize: 24, fontWeight: '300' },
+
+  manualFormContainer: { marginBottom: 24 },
+  manualFormRow: { flexDirection: 'row', gap: 12, alignItems: 'center' },
+  manualInput: { flex: 1, backgroundColor: 'rgba(255,255,255,0.08)', color: Colors.white, height: 48, borderRadius: 12, paddingHorizontal: 16, fontSize: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  manualAddBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center' },
+  manualAddIcon: { color: Colors.background, fontSize: 24, fontWeight: 'bold', lineHeight: 28 },
+
+  itemsSection: { flex: 1 },
+  itemsList: { flex: 1 },
+  itemCard: { borderRadius: 16, overflow: 'hidden', marginBottom: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+  itemBlur: { padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(255,255,255,0.03)' },
+  itemInfo: { flex: 1 },
+  itemName: { color: Colors.white, fontSize: 15, fontWeight: '600', marginBottom: 4 },
+  itemPrice: { color: Colors.primaryLight, fontSize: 14 },
+  itemAvatars: { flexDirection: 'row', alignItems: 'center' },
+  unassignedBadge: { backgroundColor: 'rgba(255, 107, 107, 0.2)', color: '#FF6B6B', fontSize: 12, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, overflow: 'hidden' },
+  miniAvatar: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginLeft: -8, borderWidth: 1, borderColor: Colors.background },
+  miniInitials: { color: '#FFF', fontSize: 10, fontWeight: 'bold' },
+
+  bottomNav: { paddingTop: 20 },
+  primaryButton: { backgroundColor: Colors.primary, paddingVertical: 16, borderRadius: 24, alignItems: 'center' },
+  primaryButtonText: { color: Colors.background, fontSize: 16, fontWeight: '700' },
+  secondaryButton: { paddingVertical: 16, alignItems: 'center', marginTop: 8 },
+  secondaryButtonText: { color: Colors.primaryLight, fontSize: 15, fontWeight: '600' },
+  buttonDisabled: { opacity: 0.4 },
+
+  summaryCard: { flex: 1, borderRadius: 24, padding: 16, backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  summaryTotalLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 14, textAlign: 'center', marginBottom: 2 },
+  summaryTotalAmount: { color: Colors.primary, fontSize: 32, fontWeight: 'bold', textAlign: 'center' },
+  tipSection: { marginTop: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12 },
+  tipLabel: { color: Colors.white, fontSize: 14, fontWeight: '500' },
+  tipButtonsRow: { flexDirection: 'row', gap: 8 },
+  tipBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' },
+  tipBtnActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  tipBtnText: { color: Colors.white, fontSize: 13, fontWeight: '600' },
+  tipBtnTextActive: { color: Colors.background },
+  divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.1)', marginVertical: 16 },
+  summaryList: { flex: 1, paddingHorizontal: 4 },
+  summaryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, backgroundColor: 'rgba(255,255,255,0.08)', padding: 16, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+  summaryUser: { flexDirection: 'row', alignItems: 'center' },
+  summaryName: { color: Colors.white, fontSize: 16, fontWeight: '600' },
+  summaryUserAmount: { color: Colors.primaryLight, fontSize: 18, fontWeight: 'bold' },
+
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
+  modalContent: { width: '85%', borderRadius: 24, padding: 24, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', backgroundColor: 'rgba(30, 27, 50, 0.85)' },
+  modalContentBottom: { width: '100%', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, overflow: 'hidden', marginTop: 'auto', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', backgroundColor: 'rgba(30, 27, 50, 0.95)' },
+  modalTitle: { color: Colors.white, fontSize: 20, fontWeight: 'bold', marginBottom: 8, textAlign: 'center' },
+  modalSubtitle: { color: Colors.primary, fontSize: 15, textAlign: 'center', marginBottom: 20 },
+  modalInput: { backgroundColor: 'rgba(255,255,255,0.1)', color: Colors.white, fontSize: 16, padding: 16, borderRadius: 12, marginBottom: 20 },
+  modalActions: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
+  modalBtnCancel: { flex: 1, paddingVertical: 14, alignItems: 'center', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' },
+  modalBtnAdd: { flex: 1, paddingVertical: 14, alignItems: 'center', borderRadius: 12, backgroundColor: Colors.primary },
+  modalBtnText: { color: Colors.white, fontSize: 16, fontWeight: '600' },
+
+  assignGrid: { gap: 12, marginBottom: 24 },
+  assignChip: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'transparent' },
+  assignChipText: { color: Colors.white, fontSize: 16, fontWeight: '500' },
+});

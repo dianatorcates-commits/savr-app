@@ -1,0 +1,61 @@
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from './firebase';
+import { UserProfile } from '../types';
+
+export async function createOrUpdateUser(
+  uid: string,
+  displayName: string | null,
+  email: string | null,
+  photoURL: string | null,
+  proveedor: string = 'google'
+): Promise<UserProfile> {
+  const userRef = doc(db, 'users', uid);
+  const now = Date.now();
+  
+  const userSnap = await getDoc(userRef);
+  
+  if (userSnap.exists()) {
+    // Usuario existente - solo actualizar ultimoLogin
+    await updateDoc(userRef, {
+      ultimoLogin: now
+    });
+    
+    const userData = userSnap.data() as UserProfile;
+    return { ...userData, uid };
+  } else {
+    // Nuevo usuario - crear documento SIN campos undefined
+    const newUserData: any = {
+      uid,
+      displayName: displayName || 'Usuario',
+      email: email || '',
+      initials: getInitials(displayName),
+      banks: [],
+      preferences: [],
+      fechaRegistro: now,
+      nombre: displayName || 'Usuario',
+      proveedor,
+      ultimoLogin: now
+    };
+    
+    // Solo agregar foto si no es null
+    if (photoURL) {
+      newUserData.foto = photoURL;
+      newUserData.photoURL = photoURL;
+    }
+    
+    await setDoc(userRef, newUserData);
+    console.log('✅ Usuario creado:', email);
+    return newUserData as UserProfile;
+  }
+}
+
+export async function getUserProfile(uid: string): Promise<UserProfile | null> {
+  try {
+    const userRef = doc(db, 'users', uid);
+    const userSnap = await getDoc(userRef);
+    return userSnap.exists() ? userSnap.data() as UserProfile : null;
+  } catch (error) {
+    console.error('❌ Error obteniendo perfil:', error);
+    return null;
+  }
+}
