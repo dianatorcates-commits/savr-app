@@ -2,9 +2,15 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { BlurView } from 'expo-blur';
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { ActivityIndicator, Alert, Modal, ScrollView, Share, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
+import * as Haptics from 'expo-haptics';
+import { Ionicons } from '@expo/vector-icons';
+import { authService } from '../../src/services/auth';
+import { getRecentFriends } from '../../src/services/friends';
+import { Friend as DbFriend } from '../../src/types';
 import { Colors } from '../../constants/theme';
 
 type Friend = { id: string; name: string; color: string };
@@ -48,6 +54,70 @@ export default function SplitScreen() {
   const [editingItem, setEditingItem] = useState<ReceiptItem | null>(null);
   const [editName, setEditName] = useState('');
   const [editPrice, setEditPrice] = useState('');
+
+  // States for DB Friends
+  const [dbFriends, setDbFriends] = useState<DbFriend[]>([]);
+  const [dbFriendsLoading, setDbFriendsLoading] = useState(false);
+  const [dbFriendsPage, setDbFriendsPage] = useState(1);
+
+  // Fetch db friends on screen focus
+  const fetchDbFriends = useCallback(async () => {
+    const user = authService.getCurrentUser();
+    if (!user) return;
+    setDbFriendsLoading(true);
+    try {
+      const recent = await getRecentFriends(user.uid);
+      setDbFriends(recent);
+    } catch (error) {
+      console.error('Error fetching friends in split screen:', error);
+    } finally {
+      setDbFriendsLoading(false);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchDbFriends();
+    }, [fetchDbFriends])
+  );
+
+  const getInitials = (friendName: string): string => {
+    if (!friendName) return '?';
+    const parts = friendName.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  };
+
+  const toggleExistingFriend = (item: DbFriend) => {
+    if (!item.id) return;
+    const isSelected = friends.some(f => f.id === item.id);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (isSelected) {
+      // Remove friend
+      setFriends(friends.filter(f => f.id !== item.id));
+      // Remove from assignments
+      setItems(items.map(i => ({
+        ...i,
+        assignedTo: i.assignedTo.filter(id => id !== item.id)
+      })));
+      if (selectedItem) {
+        setSelectedItem({
+          ...selectedItem,
+          assignedTo: selectedItem.assignedTo.filter(id => id !== item.id)
+        });
+      }
+    } else {
+      // Add friend
+      setFriends([
+        ...friends,
+        {
+          id: item.id,
+          name: item.name,
+          color: FRIEND_COLORS[friends.length % FRIEND_COLORS.length]
+        }
+      ]);
+    }
+  };
 
   // STEP 1: Image Selection
   const pickImage = async (useCamera: boolean) => {
@@ -209,15 +279,23 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
 
   // STEP 2: Logic
   const addFriend = () => {
-    if (!newFriendName.trim()) return;
+    const name = newFriendName.trim();
+    if (!name) return;
+
+    if (friends.some(f => f.name.toLowerCase() === name.toLowerCase())) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      Alert.alert('Ya agregado', 'Esta persona ya está en la mesa.');
+      return;
+    }
+
     const newFriend: Friend = {
       id: Date.now().toString(),
-      name: newFriendName.trim(),
+      name,
       color: FRIEND_COLORS[friends.length % FRIEND_COLORS.length]
     };
     setFriends([...friends, newFriend]);
     setNewFriendName('');
-    setShowAddFriend(false);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   };
 
   const toggleAssign = (friendId: string) => {
@@ -370,7 +448,7 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
                 {friends.map(f => (
                   <View key={f.id} style={styles.friendAvatarContainer}>
                     <View style={[styles.friendAvatar, { backgroundColor: f.color }]}>
-                      <Text style={styles.friendInitials}>{f.name.substring(0, 2).toUpperCase()}</Text>
+                      <Text style={styles.friendInitials}>{getInitials(f.name)}</Text>
                     </View>
                     <Text style={styles.friendName} numberOfLines={1}>{f.name}</Text>
                   </View>
@@ -524,28 +602,115 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
         )}
 
         {/* MODAL: ADD FRIEND */}
-        <Modal visible={showAddFriend} transparent animationType="fade">
-          <View style={styles.modalOverlay}>
-            <BlurView intensity={40} tint="dark" style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Añadir Persona</Text>
-              <TextInput
-                style={styles.modalInput}
-                placeholder="Nombre o apodo..."
-                placeholderTextColor="rgba(255,255,255,0.5)"
-                value={newFriendName}
-                onChangeText={setNewFriendName}
-                autoFocus
-              />
-              <View style={styles.modalActions}>
-                <TouchableOpacity style={styles.modalBtnCancel} onPress={() => setShowAddFriend(false)}>
-                  <Text style={styles.modalBtnText}>Cancelar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.modalBtnAdd} onPress={addFriend}>
-                  <Text style={[styles.modalBtnText, { color: Colors.background }]}>Añadir</Text>
-                </TouchableOpacity>
+        <Modal visible={showAddFriend} transparent animationType="slide">
+          {(() => {
+            const totalPages = Math.ceil(dbFriends.length / 6);
+            const currentPage = Math.max(1, Math.min(dbFriendsPage, totalPages));
+            const paginatedDbFriends = dbFriends.slice((currentPage - 1) * 6, currentPage * 6);
+            return (
+              <View style={styles.modalOverlay}>
+                <BlurView intensity={45} tint="dark" style={styles.modalContentBottom}>
+                  <Text style={styles.modalTitle}>Añadir Amigos</Text>
+                  
+                  <Text style={styles.modalSubtitleSection}>Amigos guardados</Text>
+                  {dbFriendsLoading ? (
+                    <View style={styles.loadingContainer}>
+                      <ActivityIndicator size="small" color={Colors.primary} />
+                    </View>
+                  ) : dbFriends.length === 0 ? (
+                    <Text style={styles.noDbFriendsText}>
+                      No tienes amigos guardados. Agrégalos en la pestaña de Amigos.
+                    </Text>
+                  ) : (
+                    <>
+                      <View style={styles.dbFriendsGrid}>
+                        {paginatedDbFriends.map(friend => {
+                          const isSelected = friends.some(f => f.id === friend.id);
+                          return (
+                            <TouchableOpacity
+                              key={friend.id}
+                              style={[styles.dbFriendCard, isSelected && styles.dbFriendCardSelected]}
+                              onPress={() => toggleExistingFriend(friend)}
+                              activeOpacity={0.8}
+                            >
+                              <View style={styles.dbFriendAvatarWrapper}>
+                                <View style={[styles.dbFriendAvatar, { backgroundColor: isSelected ? Colors.primary : 'rgba(255, 255, 255, 0.08)' }]}>
+                                  <Text style={[styles.dbFriendAvatarText, isSelected && { color: Colors.background }]}>
+                                    {getInitials(friend.name)}
+                                  </Text>
+                                </View>
+                                {isSelected && (
+                                  <View style={styles.checkmarkBadge}>
+                                    <Ionicons name="checkmark-circle" size={16} color={Colors.primary} />
+                                  </View>
+                                )}
+                              </View>
+                              <Text style={styles.dbFriendName} numberOfLines={1}>{friend.name}</Text>
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </View>
+
+                      {totalPages > 1 && (
+                        <View style={styles.paginationRow}>
+                          <TouchableOpacity
+                            style={[styles.paginationBtn, currentPage === 1 && styles.paginationBtnDisabled]}
+                            disabled={currentPage === 1}
+                            onPress={() => {
+                              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                              setDbFriendsPage(currentPage - 1);
+                            }}
+                          >
+                            <Ionicons name="chevron-back" size={20} color={currentPage === 1 ? 'rgba(255,255,255,0.2)' : Colors.primary} />
+                          </TouchableOpacity>
+                          <Text style={styles.paginationText}>
+                            Página {currentPage} de {totalPages}
+                          </Text>
+                          <TouchableOpacity
+                            style={[styles.paginationBtn, currentPage === totalPages && styles.paginationBtnDisabled]}
+                            disabled={currentPage === totalPages}
+                            onPress={() => {
+                              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                              setDbFriendsPage(currentPage + 1);
+                            }}
+                          >
+                            <Ionicons name="chevron-forward" size={20} color={currentPage === totalPages ? 'rgba(255,255,255,0.2)' : Colors.primary} />
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                    </>
+                  )}
+
+                  <View style={styles.modalDivider} />
+
+                  <Text style={styles.modalSubtitleSection}>Añadir persona nueva</Text>
+                  <View style={styles.customFriendInputRow}>
+                    <TextInput
+                      style={styles.customFriendInput}
+                      placeholder="Nombre o apodo..."
+                      placeholderTextColor="rgba(255,255,255,0.4)"
+                      value={newFriendName}
+                      onChangeText={setNewFriendName}
+                    />
+                    <TouchableOpacity style={styles.customFriendAddBtn} onPress={addFriend} activeOpacity={0.8}>
+                      <Text style={styles.customFriendAddBtnText}>Añadir</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <TouchableOpacity
+                    style={[styles.primaryButton, { marginTop: 20 }]}
+                    onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                      setShowAddFriend(false);
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.primaryButtonText}>Listo</Text>
+                  </TouchableOpacity>
+                </BlurView>
               </View>
-            </BlurView>
-          </View>
+            );
+          })()}
         </Modal>
 
         {/* MODAL: EDIT ITEM */}
@@ -722,4 +887,26 @@ const styles = StyleSheet.create({
   assignGrid: { gap: 12, marginBottom: 24 },
   assignChip: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'transparent' },
   assignChipText: { color: Colors.white, fontSize: 16, fontWeight: '500' },
+
+  // New styles for Issue #19 friends grid bottom sheet
+  modalSubtitleSection: { fontSize: 14, fontWeight: '600', color: 'rgba(222, 185, 141, 0.9)', marginBottom: 12 },
+  loadingContainer: { paddingVertical: 20, alignItems: 'center', justifyContent: 'center' },
+  noDbFriendsText: { color: 'rgba(255,255,255,0.5)', fontSize: 14, textAlign: 'center', marginVertical: 12, paddingHorizontal: 20 },
+  dbFriendsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 12, marginBottom: 16 },
+  dbFriendCard: { width: '48%', flexDirection: 'row', alignItems: 'center', padding: 10, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+  dbFriendCardSelected: { borderColor: Colors.primary, backgroundColor: 'rgba(222, 185, 141, 0.05)' },
+  dbFriendAvatarWrapper: { position: 'relative', marginRight: 10 },
+  dbFriendAvatar: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  dbFriendAvatarText: { color: Colors.white, fontSize: 12, fontWeight: 'bold' },
+  checkmarkBadge: { position: 'absolute', bottom: -4, right: -4, backgroundColor: Colors.background, borderRadius: 8, width: 16, height: 16, alignItems: 'center', justifyContent: 'center' },
+  dbFriendName: { color: Colors.white, fontSize: 14, fontWeight: '500', flex: 1 },
+  paginationRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 16, marginVertical: 8 },
+  paginationBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' },
+  paginationBtnDisabled: { opacity: 0.5 },
+  paginationText: { color: Colors.white, fontSize: 14, fontWeight: '600' },
+  modalDivider: { height: 1, backgroundColor: 'rgba(255,255,255,0.1)', marginVertical: 16 },
+  customFriendInputRow: { flexDirection: 'row', gap: 12, alignItems: 'center' },
+  customFriendInput: { flex: 1, backgroundColor: 'rgba(255,255,255,0.08)', color: Colors.white, height: 44, borderRadius: 10, paddingHorizontal: 12, fontSize: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  customFriendAddBtn: { paddingHorizontal: 16, height: 44, borderRadius: 10, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center' },
+  customFriendAddBtnText: { color: Colors.background, fontSize: 14, fontWeight: '700' },
 });
