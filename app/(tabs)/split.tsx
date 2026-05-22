@@ -1106,7 +1106,7 @@ const styles = StyleSheet.create({
   },
   stepScrollContent: {
     padding: 20,
-    paddingBottom: 40,
+    paddingBottom: 120,
   },
   billMetaContainer: {
     marginBottom: 20,
