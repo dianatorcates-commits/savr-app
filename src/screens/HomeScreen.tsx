@@ -15,6 +15,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { authService } from '../services/auth';
 import { useDiscounts, DiscountCard } from '../hooks/useDiscounts';
 import { getUserVisitsCountForCurrentMonth } from '../services/visits';
+import { getUserMonthlySavings } from '../services/bills';
 import { Colors } from '../../constants/theme';
 
 export default function HomeScreen() {
@@ -22,6 +23,7 @@ export default function HomeScreen() {
   const nombre = user?.nombre || 'Usuario';
   const { discounts, loading: loadingDiscounts } = useDiscounts();
   const [visitsCount, setVisitsCount] = useState(0);
+  const [savingsCount, setSavingsCount] = useState(0);
 
   useFocusEffect(
     useCallback(() => {
@@ -32,6 +34,14 @@ export default function HomeScreen() {
           })
           .catch((err) => {
             console.error('Error fetching visits count:', err);
+          });
+
+        getUserMonthlySavings(user.uid)
+          .then((savings) => {
+            setSavingsCount(savings);
+          })
+          .catch((err) => {
+            console.error('Error fetching monthly savings:', err);
           });
       }
     }, [user?.uid])
@@ -108,7 +118,7 @@ export default function HomeScreen() {
           <View style={styles.statsRow}>
             <View style={styles.statChip}>
               <Text style={styles.statNumber}>{visitsCount} restaurantes visitados</Text>
-              <Text style={styles.statNumber}>$5.000 Ahorrados</Text>
+              <Text style={styles.statNumber}>${Math.round(savingsCount).toLocaleString('es-CL')} Ahorrados</Text>
             </View>
           </View>
         </BlurView>
