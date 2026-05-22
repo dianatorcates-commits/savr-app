@@ -8,3 +8,12 @@ export interface UserProfile {
   ultimoLogin: number;
   bancoPrincipal?: string;
 }
+
+export interface Friend {
+  id?: string;
+  userId: string;
+  name: string;
+  email?: string;
+  status: 'solicitud enviada' | 'agregado';
+  createdAt?: any;
+}
