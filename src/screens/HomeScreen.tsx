@@ -38,15 +38,11 @@ export default function HomeScreen() {
   );
 
   const getDiaActual = () => {
-    const dias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-    // In case the DB uses unaccented days, we can normalize it, but let's assume it matches or we check both
     const dayIndex = new Date().getDay();
-    // Normalizing just in case:
     const unaccentedDays = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
     return unaccentedDays[dayIndex];
   };
   const diaActual = getDiaActual();
-  const diaCapitalizado = diaActual.charAt(0).toUpperCase() + diaActual.slice(1);
 
   const descuentosHoy = useMemo(() => {
     return discounts.filter(d => 
@@ -56,13 +52,6 @@ export default function HomeScreen() {
     );
   }, [discounts, diaActual]);
 
-  const handleSignOut = async () => {
-    try {
-      await authService.signOut();
-    } catch (error) {
-      console.error('Error cerrando sesión:', error);
-    }
-  };
 
   const renderDiscountCard = ({ item }: { item: DiscountCard }) => (
     <TouchableOpacity
@@ -183,26 +172,6 @@ export default function HomeScreen() {
           />
         )}
 
-        {/* Quick Actions */}
-        <View style={styles.quickActions}>
-          <TouchableOpacity style={styles.actionButton} activeOpacity={0.8}>
-            <BlurView intensity={20} tint="light" style={styles.actionBlur}>
-              <Text style={styles.actionIcon}>👥</Text>
-              <Text style={styles.actionText}>Dividir Cuenta</Text>
-            </BlurView>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} activeOpacity={0.8}>
-            <BlurView intensity={20} tint="light" style={styles.actionBlur}>
-              <Text style={styles.actionIcon}>🗺️</Text>
-              <Text style={styles.actionText}>Mapa</Text>
-            </BlurView>
-          </TouchableOpacity>
-        </View>
-
-        {/* Sign Out Button */}
-        <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-          <Text style={styles.signOutText}>Cerrar sesión</Text>
-        </TouchableOpacity>
       </ScrollView>
     </LinearGradient>
   );
@@ -367,48 +336,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.primaryLight,
     fontWeight: '500',
-  },
-  quickActions: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    marginBottom: 32,
-    gap: 16,
-  },
-  actionButton: {
-    flex: 1,
-    borderRadius: 20,
-    overflow: 'hidden',
-  },
-  actionBlur: {
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  actionIcon: {
-    fontSize: 32,
-    marginBottom: 10,
-  },
-  actionText: {
-    color: Colors.primary,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  signOutButton: {
-    marginHorizontal: 20,
-    paddingVertical: 16,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: Colors.primary,
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-  },
-  signOutText: {
-    color: Colors.primary,
-    fontSize: 15,
-    fontWeight: '600',
   },
   skeletonContainer: {
     flexDirection: 'row',

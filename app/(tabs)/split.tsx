@@ -12,6 +12,7 @@ import { authService } from '../../src/services/auth';
 import { getRecentFriends } from '../../src/services/friends';
 import { Friend as DbFriend } from '../../src/types';
 import { Colors } from '../../constants/theme';
+import { saveBill } from '../../src/services/bills';
 
 type Friend = { id: string; name: string; color: string };
 type ReceiptItem = { id: string; name: string; price: number; assignedTo: string[] }; // array of friend IDs
@@ -54,6 +55,11 @@ export default function SplitScreen() {
   const [editingItem, setEditingItem] = useState<ReceiptItem | null>(null);
   const [editName, setEditName] = useState('');
   const [editPrice, setEditPrice] = useState('');
+
+  // States for Restaurant & Discounts (Issue #7)
+  const [restaurantName, setRestaurantName] = useState<string>('');
+  const [discount, setDiscount] = useState<number>(0);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   // States for DB Friends
   const [dbFriends, setDbFriends] = useState<DbFriend[]>([]);
@@ -162,10 +168,17 @@ export default function SplitScreen() {
       Alert.alert('Datos incompletos', 'Por favor ingresa un nombre y un precio.');
       return;
     }
-    const price = parseInt(manualPrice.replace(/\D/g, ''), 10);
-    if (isNaN(price) || price <= 0) {
-      Alert.alert('Precio inválido', 'El precio debe ser mayor a 0.');
+    
+    // Permitir precios negativos para representar descuentos específicos
+    const isNegative = manualPrice.trim().startsWith('-');
+    const cleanPrice = manualPrice.replace(/[^0-9]/g, '');
+    let price = parseInt(cleanPrice, 10);
+    if (isNaN(price) || price === 0) {
+      Alert.alert('Precio inválido', 'El precio no puede ser 0.');
       return;
+    }
+    if (isNegative) {
+      price = -price;
     }
 
     const newItem: ReceiptItem = {
@@ -188,10 +201,15 @@ export default function SplitScreen() {
 
   const saveEdit = () => {
     if (!editingItem) return;
-    const price = parseInt(editPrice.replace(/\D/g, ''), 10);
-    if (!editName.trim() || isNaN(price) || price <= 0) {
+    const isNegative = editPrice.trim().startsWith('-');
+    const cleanPrice = editPrice.replace(/[^0-9]/g, '');
+    let price = parseInt(cleanPrice, 10);
+    if (!editName.trim() || isNaN(price) || price === 0) {
       Alert.alert('Datos inválidos', 'Revisa el nombre y el precio.');
       return;
+    }
+    if (isNegative) {
+      price = -price;
     }
     setItems(items.map(i => i.id === editingItem.id ? { ...i, name: editName.trim(), price } : i));
     setEditingItem(null);
@@ -207,14 +225,23 @@ export default function SplitScreen() {
     try {
       const prompt = `Eres un sistema experto en contabilidad de restaurantes. Lee la boleta adjunta. 
 Ignora los cobros por servicio y los totales generales como items. 
-Tu tarea es extraer los platos y bebidas individuales que se consumieron, y detectar si la boleta sugiere un porcentaje de propina.
-Debes responder ÚNICAMENTE con un objeto JSON válido, con dos propiedades: "items" (arreglo de platos) y "suggestedTipPercentage" (número entero de propina, ej: 10).
+Tu tarea es extraer:
+1. El nombre del restaurante (restaurantName).
+2. El descuento general de la cuenta si se indica (generalDiscount - número entero positivo).
+3. Los platos y bebidas individuales que se consumieron.
+4. Descuentos específicos de platos: regístralos dentro de la lista de items con precio NEGATIVO (ej: {"name": "Descuento Pizza", "price": -2000}).
+5. Si la boleta sugiere un porcentaje de propina.
+
+Debes responder ÚNICAMENTE con un objeto JSON válido, con cuatro propiedades: "restaurantName" (string), "generalDiscount" (número entero), "suggestedTipPercentage" (número entero de propina, ej: 10), y "items" (arreglo de platos).
 Ejemplo del formato de salida estricto:
 {
+  "restaurantName": "La Pizza Nostra",
+  "generalDiscount": 3000,
   "suggestedTipPercentage": 10,
   "items": [
     {"id": "1", "name": "Pizza Margarita", "price": 12000},
-    {"id": "2", "name": "Bebida", "price": 2500}
+    {"id": "2", "name": "Descuento Pizza", "price": -2000},
+    {"id": "3", "name": "Bebida", "price": 2500}
   ]
 }
 NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\`\`json).`;
@@ -253,6 +280,8 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
       }
 
       setTipPercentage(parsedData.suggestedTipPercentage || 0);
+      setRestaurantName(parsedData.restaurantName || '');
+      setDiscount(Number(parsedData.generalDiscount) || 0);
 
       const finalItems: ReceiptItem[] = parsedData.items.map((item: any, index: number) => ({
         id: item.id || String(index + 1),
@@ -318,7 +347,7 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
   const allAssigned = items.every(i => i.assignedTo.length > 0);
 
   // STEP 3: Summary Logic
-  const getBaseTotals = () => {
+  const getFriendBaseTotals = () => {
     const totals: Record<string, number> = {};
     friends.forEach(f => totals[f.id] = 0);
 
@@ -335,23 +364,52 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
     return totals;
   };
 
-  const getFinalTotals = () => {
-    const base = getBaseTotals();
-    const final: Record<string, number> = {};
-    Object.keys(base).forEach(key => {
-      final[key] = base[key] * (1 + tipPercentage / 100);
+  const getAdjustedBaseTotals = () => {
+    const base = getFriendBaseTotals();
+    const grandTotalBaseRaw = Object.values(base).reduce((a, b) => a + b, 0);
+    const discountedBase = Math.max(0, grandTotalBaseRaw - discount);
+
+    const adjusted: Record<string, number> = {};
+    friends.forEach(f => {
+      const friendBase = base[f.id] || 0;
+      if (grandTotalBaseRaw > 0) {
+        adjusted[f.id] = friendBase * (discountedBase / grandTotalBaseRaw);
+      } else {
+        adjusted[f.id] = 0;
+      }
     });
-    return { base, final };
+    return { base, adjusted, grandTotalBaseRaw, discountedBase };
   };
 
-  const { base: baseTotals, final: totals } = getFinalTotals();
+  const { base: friendBaseTotals, adjusted: adjustedBaseTotals, grandTotalBaseRaw, discountedBase } = getAdjustedBaseTotals();
 
-  const grandTotalBase = Object.values(baseTotals).reduce((a, b) => a + b, 0);
-  const grandTotalTip = grandTotalBase * (tipPercentage / 100);
-  const grandTotal = grandTotalBase + grandTotalTip;
+  const grandTotalBase = grandTotalBaseRaw; // Keep it as raw for showing subtotal base in breakdown
+  const grandTotalTip = discountedBase * (tipPercentage / 100);
+  const grandTotal = discountedBase + grandTotalTip;
+
+  const getFinalTotals = () => {
+    const final: Record<string, number> = {};
+    friends.forEach(f => {
+      const adjustedBase = adjustedBaseTotals[f.id] || 0;
+      final[f.id] = adjustedBase * (1 + tipPercentage / 100);
+    });
+    return final;
+  };
+
+  const totals = getFinalTotals();
 
   const shareSummary = async () => {
-    let message = `🧾 *Resumen de la Cuenta*\nSubtotal: $${Math.round(grandTotalBase).toLocaleString('es-CL')}\nPropina (${tipPercentage}%): $${Math.round(grandTotalTip).toLocaleString('es-CL')}\n*Total Final: $${Math.round(grandTotal).toLocaleString('es-CL')}*\n\n`;
+    let message = `🧾 *Resumen de la Cuenta*\n`;
+    if (restaurantName) {
+      message += `📍 Restaurante: *${restaurantName}*\n`;
+    }
+    message += `Subtotal Base: $${Math.round(grandTotalBase).toLocaleString('es-CL')}\n`;
+    if (discount > 0) {
+      message += `Descuento General: -$${Math.round(discount).toLocaleString('es-CL')}\n`;
+      message += `Subtotal c/Desc: $${Math.round(discountedBase).toLocaleString('es-CL')}\n`;
+    }
+    message += `Propina (${tipPercentage}%): $${Math.round(grandTotalTip).toLocaleString('es-CL')}\n`;
+    message += `*Total Final: $${Math.round(grandTotal).toLocaleString('es-CL')}*\n\n`;
     message += `👤 *Detalle por persona:*\n`;
     friends.forEach(f => {
       const amount = totals[f.id];
@@ -368,11 +426,67 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
     }
   };
 
+  const handleSaveBill = async () => {
+    const user = authService.getCurrentUser();
+    if (!user) {
+      Alert.alert('Sesión requerida', 'Debes iniciar sesión para guardar la cuenta.');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const friendDetails = friends.map(f => {
+        const adjustedBase = adjustedBaseTotals[f.id] || 0;
+        const friendTipAmount = adjustedBase * (tipPercentage / 100);
+        const totalAmount = adjustedBase + friendTipAmount;
+
+        const consumedItems = items
+          .filter(item => item.assignedTo.includes(f.id))
+          .map(item => ({
+            name: item.name,
+            price: item.price,
+            splitPrice: item.price / item.assignedTo.length,
+          }));
+
+        return {
+          friendId: f.id,
+          name: f.name,
+          consumedItems,
+          baseAmount: adjustedBase,
+          tipAmount: friendTipAmount,
+          totalAmount: totalAmount,
+          paymentStatus: 'pendiente' as const,
+        };
+      }).filter(detail => detail.totalAmount > 0 || detail.consumedItems.length > 0);
+
+      await saveBill({
+        userId: user.uid,
+        restaurantName: restaurantName.trim() || 'Restaurante sin nombre',
+        generalDiscount: discount,
+        grandTotal: grandTotal,
+        tipPercentage,
+        grandTotalTip,
+        friends: friendDetails,
+      });
+
+      Alert.alert('¡Éxito! 🎉', 'La cuenta ha sido guardada correctamente.');
+      resetFlow();
+    } catch (error) {
+      console.error('Error al guardar la cuenta:', error);
+      Alert.alert('Error 🚨', 'No se pudo guardar la cuenta. Por favor intenta de nuevo.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const resetFlow = () => {
     setStep(1);
     setReceiptImage(null);
     setFriends([{ id: 'me', name: 'Yo', color: FRIEND_COLORS[0] }]);
     setItems([]);
+    setRestaurantName('');
+    setDiscount(0);
+    setTipPercentage(0);
   };
 
   return (
@@ -437,7 +551,11 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
 
         {/* STEP 2: ASSIGN */}
         {step === 2 && (
-          <View style={styles.stepContainer}>
+          <ScrollView
+            style={styles.stepScrollContainer}
+            contentContainerStyle={styles.stepScrollContent}
+            showsVerticalScrollIndicator={false}
+          >
             {/* Friends Strip */}
             <View style={styles.friendsSection}>
               <Text style={styles.sectionLabel}>Amigos en la mesa</Text>
@@ -454,6 +572,31 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
                   </View>
                 ))}
               </ScrollView>
+            </View>
+
+            {/* Metadata de Cuenta: Restaurante y Descuento General */}
+            <View style={styles.billMetaContainer}>
+              <View style={styles.billMetaLabelsRow}>
+                <Text style={[styles.sectionLabelSmall, { flex: 2 }]}>Restaurante 🍴</Text>
+                <Text style={[styles.sectionLabelSmall, { flex: 1.2 }]}>Desc. General ($) 🏷️</Text>
+              </View>
+              <View style={styles.billMetaInputsRow}>
+                <TextInput
+                  style={[styles.metaInput, { flex: 2 }]}
+                  placeholder="Ej: La Pizza Nostra"
+                  value={restaurantName}
+                  onChangeText={setRestaurantName}
+                  placeholderTextColor="rgba(255,255,255,0.4)"
+                />
+                <TextInput
+                  style={[styles.metaInput, { flex: 1.2 }]}
+                  placeholder="$0"
+                  keyboardType="numeric"
+                  value={discount > 0 ? discount.toString() : ''}
+                  onChangeText={val => setDiscount(parseInt(val.replace(/\D/g, ''), 10) || 0)}
+                  placeholderTextColor="rgba(255,255,255,0.4)"
+                />
+              </View>
             </View>
 
             {/* Formulario Ingreso Manual */}
@@ -484,52 +627,55 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
             <View style={styles.itemsSection}>
               <Text style={styles.sectionLabel}>Platos consumidos</Text>
 
-              <ScrollView showsVerticalScrollIndicator={false}>
-                {items.length === 0 ? (
-                  <Text style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', marginVertical: 20 }}>
-                    Aún no hay platos registrados.
-                  </Text>
-                ) : (
-                  items.map(item => (
-                    <TouchableOpacity
-                      key={item.id}
-                      style={[styles.itemCard]}
-                      activeOpacity={0.8}
-                      onPress={() => { setSelectedItem(item); setShowItemAssign(true); }}
-                    >
-                      <BlurView intensity={15} tint="light" style={styles.itemBlur}>
-                        <View style={styles.itemInfo}>
-                          <Text style={styles.itemName}>{item.name}</Text>
-                          <Text style={styles.itemPrice}>${item.price.toLocaleString('es-CL')}</Text>
-                        </View>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginRight: 16 }}>
-                          <TouchableOpacity onPress={() => openEditModal(item)} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                            <Text style={{ fontSize: 18 }}>✏️</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity onPress={() => deleteItem(item.id)} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                            <Text style={{ fontSize: 18 }}>🗑️</Text>
-                          </TouchableOpacity>
-                        </View>
-                        <View style={styles.itemAvatars}>
-                          {item.assignedTo.length === 0 ? (
-                            <Text style={styles.unassignedBadge}>Sin asignar</Text>
-                          ) : (
-                            item.assignedTo.map(fId => {
-                              const friend = friends.find(f => f.id === fId);
-                              if (!friend) return null;
-                              return (
-                                <View key={fId} style={[styles.miniAvatar, { backgroundColor: friend.color }]}>
-                                  <Text style={styles.miniInitials}>{friend.name.substring(0, 1).toUpperCase()}</Text>
-                                </View>
-                              );
-                            })
-                          )}
-                        </View>
-                      </BlurView>
-                    </TouchableOpacity>
-                  ))
-                )}
-              </ScrollView>
+              {items.length === 0 ? (
+                <Text style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', marginVertical: 20 }}>
+                  Aún no hay platos registrados.
+                </Text>
+              ) : (
+                items.map(item => (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={[styles.itemCard]}
+                    activeOpacity={0.8}
+                    onPress={() => { setSelectedItem(item); setShowItemAssign(true); }}
+                  >
+                    <BlurView intensity={15} tint="light" style={styles.itemBlur}>
+                      <View style={styles.itemInfo}>
+                        <Text style={styles.itemName}>{item.name}</Text>
+                        <Text style={[styles.itemPrice, item.price < 0 && { color: '#4ECDC4' }]}>
+                          {item.price < 0 
+                            ? `-$${Math.abs(item.price).toLocaleString('es-CL')}`
+                            : `$${item.price.toLocaleString('es-CL')}`
+                          }
+                        </Text>
+                      </View>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginRight: 16 }}>
+                        <TouchableOpacity onPress={() => openEditModal(item)} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                          <Text style={{ fontSize: 18 }}>✏️</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => deleteItem(item.id)} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                          <Text style={{ fontSize: 18 }}>🗑️</Text>
+                        </TouchableOpacity>
+                      </View>
+                      <View style={styles.itemAvatars}>
+                        {item.assignedTo.length === 0 ? (
+                          <Text style={styles.unassignedBadge}>Sin asignar</Text>
+                        ) : (
+                          item.assignedTo.map(fId => {
+                            const friend = friends.find(f => f.id === fId);
+                            if (!friend) return null;
+                            return (
+                              <View key={fId} style={[styles.miniAvatar, { backgroundColor: friend.color }]}>
+                                <Text style={styles.miniInitials}>{friend.name.substring(0, 1).toUpperCase()}</Text>
+                              </View>
+                            );
+                          })
+                        )}
+                      </View>
+                    </BlurView>
+                  </TouchableOpacity>
+                ))
+              )}
             </View>
 
             {/* Next Step Button */}
@@ -542,7 +688,7 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
                 <Text style={styles.primaryButtonText}>Ver Resumen</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </ScrollView>
         )}
 
         {/* STEP 3: SUMMARY */}
@@ -553,6 +699,12 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
             <BlurView intensity={20} tint="light" style={styles.summaryCard}>
               <Text style={styles.summaryTotalLabel}>Total a Pagar</Text>
               <Text style={styles.summaryTotalAmount}>${Math.round(grandTotal).toLocaleString('es-CL')}</Text>
+
+              {restaurantName ? (
+                <View style={styles.summaryRestaurantBadge}>
+                  <Text style={styles.summaryRestaurantText}>🍴 {restaurantName.trim()}</Text>
+                </View>
+              ) : null}
 
               <View style={styles.tipSection}>
                 <Text style={styles.tipLabel}>Propina:</Text>
@@ -566,6 +718,24 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
                       <Text style={[styles.tipBtnText, tipPercentage === pct && styles.tipBtnTextActive]}>{pct}%</Text>
                     </TouchableOpacity>
                   ))}
+                </View>
+              </View>
+
+              {/* Desglose de Totales */}
+              <View style={styles.breakdownContainer}>
+                <View style={styles.breakdownRow}>
+                  <Text style={styles.breakdownLabel}>Subtotal Base:</Text>
+                  <Text style={styles.breakdownValue}>${Math.round(grandTotalBaseRaw).toLocaleString('es-CL')}</Text>
+                </View>
+                {discount > 0 && (
+                  <View style={styles.breakdownRow}>
+                    <Text style={styles.breakdownLabel}>Descuento General:</Text>
+                    <Text style={[styles.breakdownValue, { color: '#4ECDC4' }]}>-${Math.round(discount).toLocaleString('es-CL')}</Text>
+                  </View>
+                )}
+                <View style={styles.breakdownRow}>
+                  <Text style={styles.breakdownLabel}>Propina ({tipPercentage}%):</Text>
+                  <Text style={styles.breakdownValue}>${Math.round(grandTotalTip).toLocaleString('es-CL')}</Text>
                 </View>
               </View>
 
@@ -591,9 +761,25 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
             </BlurView>
 
             <View style={styles.bottomNav}>
-              <TouchableOpacity style={styles.primaryButton} onPress={shareSummary}>
+              <TouchableOpacity
+                style={[styles.primaryButton, { marginBottom: 10 }]}
+                onPress={shareSummary}
+              >
                 <Text style={styles.primaryButtonText}>Compartir Cobro 💬</Text>
               </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.saveDbButton, isSaving && styles.buttonDisabled]}
+                onPress={handleSaveBill}
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <ActivityIndicator size="small" color={Colors.primary} />
+                ) : (
+                  <Text style={styles.saveDbButtonText}>Guardar Cuenta en la App 💾</Text>
+                )}
+              </TouchableOpacity>
+
               <TouchableOpacity style={styles.secondaryButton} onPress={resetFlow}>
                 <Text style={styles.secondaryButtonText}>Empezar de nuevo</Text>
               </TouchableOpacity>
@@ -752,7 +938,13 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
           <View style={styles.modalOverlay}>
             <BlurView intensity={40} tint="dark" style={styles.modalContentBottom}>
               <Text style={styles.modalTitle}>¿Quién pagará esto?</Text>
-              <Text style={styles.modalSubtitle}>{selectedItem?.name} - ${selectedItem?.price.toLocaleString('es-CL')}</Text>
+              <Text style={styles.modalSubtitle}>
+                {selectedItem?.name} -{' '}
+                {selectedItem && selectedItem.price < 0
+                  ? `-$${Math.abs(selectedItem.price).toLocaleString('es-CL')}`
+                  : `$${selectedItem?.price.toLocaleString('es-CL')}`
+                }
+              </Text>
 
               <View style={styles.assignGrid}>
                 {friends.map(f => {
@@ -909,4 +1101,97 @@ const styles = StyleSheet.create({
   customFriendInput: { flex: 1, backgroundColor: 'rgba(255,255,255,0.08)', color: Colors.white, height: 44, borderRadius: 10, paddingHorizontal: 12, fontSize: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
   customFriendAddBtn: { paddingHorizontal: 16, height: 44, borderRadius: 10, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center' },
   customFriendAddBtnText: { color: Colors.background, fontSize: 14, fontWeight: '700' },
+  stepScrollContainer: {
+    flex: 1,
+  },
+  stepScrollContent: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  billMetaContainer: {
+    marginBottom: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: 16,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  billMetaLabelsRow: {
+    flexDirection: 'row',
+    marginBottom: 6,
+    gap: 12,
+  },
+  billMetaInputsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  sectionLabelSmall: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: Colors.primaryLight,
+    opacity: 0.8,
+  },
+  metaInput: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    color: Colors.white,
+    height: 44,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    fontSize: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  summaryRestaurantBadge: {
+    alignSelf: 'center',
+    backgroundColor: 'rgba(222, 185, 141, 0.12)',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(222, 185, 141, 0.2)',
+  },
+  summaryRestaurantText: {
+    color: Colors.primaryLight,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  breakdownContainer: {
+    marginTop: 16,
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: 16,
+    padding: 14,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+  },
+  breakdownRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  breakdownLabel: {
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 13,
+  },
+  breakdownValue: {
+    color: Colors.white,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  saveDbButton: {
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    paddingVertical: 16,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    marginTop: 10,
+  },
+  saveDbButtonText: {
+    color: Colors.primary,
+    fontSize: 16,
+    fontWeight: '700',
+  },
 });
