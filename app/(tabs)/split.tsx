@@ -13,6 +13,8 @@ import { getRecentFriends } from '../../src/services/friends';
 import { Friend as DbFriend } from '../../src/types';
 import { Colors } from '../../constants/theme';
 import { saveBill } from '../../src/services/bills';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+
 
 type Friend = { id: string; name: string; color: string };
 type ReceiptItem = { id: string; name: string; price: number; assignedTo: string[] }; // array of friend IDs
@@ -60,6 +62,8 @@ export default function SplitScreen() {
   const [restaurantName, setRestaurantName] = useState<string>('');
   const [discount, setDiscount] = useState<number>(0);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [showSuccess, setShowSuccess] = useState<boolean>(false);
+
 
   // State for expanded summaries per person (Issue #22)
   const [expandedFriends, setExpandedFriends] = useState<Record<string, boolean>>({});
@@ -472,8 +476,7 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
         friends: friendDetails,
       });
 
-      Alert.alert('¡Éxito! 🎉', 'La cuenta ha sido guardada correctamente.');
-      resetFlow();
+      setShowSuccess(true);
     } catch (error) {
       console.error('Error al guardar la cuenta:', error);
       Alert.alert('Error 🚨', 'No se pudo guardar la cuenta. Por favor intenta de nuevo.');
@@ -1059,6 +1062,44 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
           </View>
         </Modal>
 
+        {/* MODAL: SUCCESS SAVE BILL */}
+        <Modal
+          visible={showSuccess}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => {
+            setShowSuccess(false);
+            resetFlow();
+          }}
+        >
+          <View style={styles.successModalOverlay}>
+            <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFillObject} />
+            
+            <Animated.View 
+              entering={FadeInDown.duration(400).springify()}
+              style={styles.successModalContent}
+            >
+              <View style={styles.successIconCircle}>
+                <Ionicons name="checkmark-circle" size={80} color={Colors.primary} />
+              </View>
+              
+              <Text style={styles.successModalTitle}>¡Éxito! 🎉</Text>
+              <Text style={styles.successModalText}>La cuenta ha sido guardada correctamente.</Text>
+              
+              <TouchableOpacity
+                style={styles.successModalButton}
+                onPress={() => {
+                  setShowSuccess(false);
+                  resetFlow();
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.successModalButtonText}>Aceptar</Text>
+              </TouchableOpacity>
+            </Animated.View>
+          </View>
+        </Modal>
+
       </SafeAreaView>
     </LinearGradient>
   );
@@ -1294,5 +1335,68 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontSize: 16,
     fontWeight: '700',
+  },
+  successModalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+    backgroundColor: 'rgba(10, 8, 20, 0.7)',
+  },
+  successModalContent: {
+    width: '100%',
+    maxWidth: 320,
+    backgroundColor: '#2D2A45',
+    borderRadius: 28,
+    padding: 32,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(222, 185, 141, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  successIconCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(222, 185, 141, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  successModalTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: Colors.white,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  successModalText: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.7)',
+    textAlign: 'center',
+    marginBottom: 28,
+    lineHeight: 22,
+  },
+  successModalButton: {
+    backgroundColor: Colors.primary,
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    borderRadius: 16,
+    width: '100%',
+    alignItems: 'center',
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  successModalButtonText: {
+    color: Colors.background,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
