@@ -7,6 +7,16 @@ export interface UserProfile {
   fechaRegistro: number;
   ultimoLogin: number;
   bancoPrincipal?: string;
+  comidaFavorita?: string;
+  preferences?: {
+    bank?: {
+      id: string;
+      name: string;
+      logo: string | null;
+      color: string;
+    };
+    foodPreferences?: string[];
+  };
 }
 
 export interface Friend {
