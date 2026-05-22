@@ -61,3 +61,19 @@ export async function getUserVisitsCountForCurrentMonth(userId: string): Promise
     return 0;
   }
 }
+
+/**
+ * Get the total count of visits for a user
+ */
+export async function getUserTotalVisitsCount(userId: string): Promise<number> {
+  try {
+    const visitsCol = collection(db, 'visits');
+    const q = query(visitsCol, where('userId', '==', userId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.size;
+  } catch (error) {
+    console.error('Error getting user total visits count:', error);
+    return 0;
+  }
+}
+
