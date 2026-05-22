@@ -17,7 +17,7 @@ const TABS: TabConfig[] = [
   { name: 'index',   label: 'Inicio',  icon: require('../assets/images/tab-inicio.png') },
   { name: 'map',     label: 'Mapa',    icon: require('../assets/images/tab-mapa.png') },
   { name: 'split',   label: 'Dividir', icon: require('../assets/images/tab-dividir.png'), isCenter: true },
-  { name: 'for-you', label: 'Para Ti', icon: require('../assets/images/tab-para-ti.png') },
+  { name: 'friends', label: 'Amigos',  icon: require('../assets/images/tab-friends.png') },
   { name: 'profile', label: 'Tu',      icon: require('../assets/images/tab-tu.png') },
 ];
 

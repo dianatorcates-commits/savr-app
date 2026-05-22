@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import {
   FlatList,
   Image,
@@ -11,14 +11,31 @@ import {
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useFocusEffect } from '@react-navigation/native';
 import { authService } from '../services/auth';
 import { useDiscounts, DiscountCard } from '../hooks/useDiscounts';
+import { getUserVisitsCountForCurrentMonth } from '../services/visits';
 import { Colors } from '../../constants/theme';
 
 export default function HomeScreen() {
   const user = authService.getCurrentUser();
   const nombre = user?.nombre || 'Usuario';
   const { discounts, loading: loadingDiscounts } = useDiscounts();
+  const [visitsCount, setVisitsCount] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (user?.uid) {
+        getUserVisitsCountForCurrentMonth(user.uid)
+          .then((count) => {
+            setVisitsCount(count);
+          })
+          .catch((err) => {
+            console.error('Error fetching visits count:', err);
+          });
+      }
+    }, [user?.uid])
+  );
 
   const getDiaActual = () => {
     const dias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
@@ -101,7 +118,7 @@ export default function HomeScreen() {
 
           <View style={styles.statsRow}>
             <View style={styles.statChip}>
-              <Text style={styles.statNumber}>5 Visitados</Text>
+              <Text style={styles.statNumber}>{visitsCount} restaurantes visitados</Text>
               <Text style={styles.statNumber}>$5.000 Ahorrados</Text>
             </View>
           </View>
