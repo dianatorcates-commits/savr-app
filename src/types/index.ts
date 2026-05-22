@@ -27,3 +27,5 @@ export interface Friend {
   status: 'solicitud enviada' | 'agregado';
   createdAt?: any;
 }
+
+export * from './bill';
