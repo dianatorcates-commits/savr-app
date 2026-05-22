@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-export default function ForYouScreen() {
+export default function FriendsScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Para Ti</Text>
+      <Text style={styles.title}>Amigos</Text>
       <Text style={styles.sub}>Próximamente</Text>
     </View>
   );

@@ -11,7 +11,7 @@ export default function TabLayout() {
       <Tabs.Screen name="index"   options={{ title: 'Inicio' }} />
       <Tabs.Screen name="map"     options={{ title: 'Mapa' }} />
       <Tabs.Screen name="split"   options={{ title: 'Dividir' }} />
-      <Tabs.Screen name="for-you" options={{ title: 'Para Ti' }} />
+      <Tabs.Screen name="friends" options={{ title: 'Amigos' }} />
       <Tabs.Screen name="profile" options={{ title: 'Tu' }} />
     </Tabs>
   );
