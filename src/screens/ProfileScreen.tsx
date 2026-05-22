@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Modal } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../../constants/theme';
@@ -9,6 +9,8 @@ import { UserProfile } from '../types';
 import { getUserTotalVisitsCount } from '../services/visits';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../services/firebase';
+import { Ionicons } from '@expo/vector-icons';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 interface Bank {
   id: string;
@@ -42,6 +44,9 @@ export default function ProfileScreen() {
   const [selectedFoods, setSelectedFoods] = useState<string[]>([]);
   
   const [visitsCount, setVisitsCount] = useState(0);
+
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({ title: '', message: '', isError: false });
 
   useEffect(() => {
     fetchProfileData();
@@ -110,9 +115,11 @@ export default function ProfileScreen() {
           foodPreferences: selectedFoods,
         }
       });
-      Alert.alert('Éxito', 'Perfil actualizado correctamente.');
+      setAlertConfig({ title: '¡Gracias!', message: 'Perfil actualizado correctamente.', isError: false });
+      setAlertVisible(true);
     } catch (error) {
-      Alert.alert('Error', 'No se pudo actualizar el perfil.');
+      setAlertConfig({ title: 'Error', message: 'No se pudo actualizar el perfil.', isError: true });
+      setAlertVisible(true);
     } finally {
       setSaving(false);
     }
@@ -259,6 +266,36 @@ export default function ProfileScreen() {
         </TouchableOpacity>
 
       </ScrollView>
+
+      {/* Custom Alert Modal */}
+      <Modal visible={alertVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFillObject} />
+          <Animated.View 
+            entering={FadeInDown.duration(400).springify()}
+            style={[styles.modalContent, alertConfig.isError && { borderColor: 'rgba(255, 107, 107, 0.3)' }]}
+          >
+            <View style={[styles.successIconCircle, alertConfig.isError && { backgroundColor: 'rgba(255, 107, 107, 0.1)' }]}>
+              <Ionicons 
+                name={alertConfig.isError ? "alert-circle" : "checkmark-circle"} 
+                size={80} 
+                color={alertConfig.isError ? '#FF6B6B' : Colors.primary} 
+              />
+            </View>
+            <Text style={[styles.modalTitle, alertConfig.isError && { color: '#FF6B6B' }]}>
+              {alertConfig.title}
+            </Text>
+            <Text style={styles.modalMessage}>{alertConfig.message}</Text>
+            <TouchableOpacity
+              style={[styles.modalButton, alertConfig.isError && { backgroundColor: '#FF6B6B', shadowColor: '#FF6B6B' }]}
+              onPress={() => setAlertVisible(false)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.modalButtonText}>Aceptar</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+      </Modal>
     </LinearGradient>
   );
 }
@@ -462,6 +499,69 @@ const styles = StyleSheet.create({
   },
   logoutBtnText: {
     color: '#FF6B6B',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+    backgroundColor: 'rgba(10, 8, 20, 0.7)',
+  },
+  modalContent: {
+    width: '100%',
+    maxWidth: 320,
+    backgroundColor: '#2D2A45',
+    borderRadius: 28,
+    padding: 32,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(222, 185, 141, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  successIconCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(222, 185, 141, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  modalTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: Colors.white,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalMessage: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.7)',
+    textAlign: 'center',
+    marginBottom: 28,
+    lineHeight: 22,
+  },
+  modalButton: {
+    backgroundColor: Colors.primary,
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    borderRadius: 16,
+    width: '100%',
+    alignItems: 'center',
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  modalButtonText: {
+    color: Colors.background,
     fontSize: 16,
     fontWeight: 'bold',
   },
