@@ -61,6 +61,9 @@ export default function SplitScreen() {
   const [discount, setDiscount] = useState<number>(0);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
+  // State for expanded summaries per person (Issue #22)
+  const [expandedFriends, setExpandedFriends] = useState<Record<string, boolean>>({});
+
   // States for DB Friends
   const [dbFriends, setDbFriends] = useState<DbFriend[]>([]);
   const [dbFriendsLoading, setDbFriendsLoading] = useState(false);
@@ -479,6 +482,14 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
     }
   };
 
+  const toggleFriendExpansion = (id: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setExpandedFriends(prev => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
   const resetFlow = () => {
     setStep(1);
     setReceiptImage(null);
@@ -487,6 +498,7 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
     setRestaurantName('');
     setDiscount(0);
     setTipPercentage(0);
+    setExpandedFriends({});
   };
 
   return (
@@ -693,10 +705,14 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
 
         {/* STEP 3: SUMMARY */}
         {step === 3 && (
-          <View style={styles.stepContainer}>
+          <ScrollView
+            style={styles.stepScrollContainer}
+            contentContainerStyle={styles.stepScrollContent}
+            showsVerticalScrollIndicator={false}
+          >
             <Text style={[styles.stepSubtitle, { marginBottom: 16 }]}>Resumen final de lo que debe cada uno.</Text>
 
-            <BlurView intensity={20} tint="light" style={styles.summaryCard}>
+            <BlurView intensity={20} tint="light" style={[styles.summaryCard, { flex: 0, marginBottom: 20 }]}>
               <Text style={styles.summaryTotalLabel}>Total a Pagar</Text>
               <Text style={styles.summaryTotalAmount}>${Math.round(grandTotal).toLocaleString('es-CL')}</Text>
 
@@ -741,23 +757,94 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
 
               <View style={styles.divider} />
 
-              <ScrollView style={styles.summaryList} showsVerticalScrollIndicator={false}>
+              <View style={styles.summaryList}>
                 {friends.map(f => {
                   const amount = totals[f.id];
                   if (amount === 0) return null;
                   return (
-                    <View key={f.id} style={styles.summaryRow}>
-                      <View style={styles.summaryUser}>
-                        <View style={[styles.miniAvatar, { backgroundColor: f.color, marginRight: 12, marginLeft: 0, width: 36, height: 36, borderRadius: 18 }]}>
-                          <Text style={[styles.miniInitials, { fontSize: 14 }]}>{f.name.substring(0, 1).toUpperCase()}</Text>
+                    <TouchableOpacity
+                      key={f.id}
+                      style={styles.summaryRowContainer}
+                      onPress={() => toggleFriendExpansion(f.id)}
+                      activeOpacity={0.7}
+                    >
+                      <View style={styles.summaryHeader}>
+                        <View style={styles.summaryUser}>
+                          <View style={[styles.miniAvatar, { backgroundColor: f.color, marginRight: 12, marginLeft: 0, width: 36, height: 36, borderRadius: 18 }]}>
+                            <Text style={[styles.miniInitials, { fontSize: 14 }]}>{f.name.substring(0, 1).toUpperCase()}</Text>
+                          </View>
+                          <Text style={styles.summaryName} numberOfLines={1}>{f.name}</Text>
+                          <Ionicons
+                            name={expandedFriends[f.id] ? "chevron-up" : "chevron-down"}
+                            size={16}
+                            color={Colors.primaryLight}
+                            style={styles.summaryChevron}
+                          />
                         </View>
-                        <Text style={styles.summaryName}>{f.name}</Text>
+                        <Text style={styles.summaryUserAmount}>${Math.round(amount).toLocaleString('es-CL')}</Text>
                       </View>
-                      <Text style={styles.summaryUserAmount}>${Math.round(amount).toLocaleString('es-CL')}</Text>
-                    </View>
+
+                      {expandedFriends[f.id] && (
+                        <View style={styles.expandedDetailContainer}>
+                          <View style={styles.detailDivider} />
+                          
+                          <View style={styles.detailItemsList}>
+                            {items
+                              .filter(item => item.assignedTo.includes(f.id))
+                              .map(item => {
+                                const isShared = item.assignedTo.length > 1;
+                                const splitPrice = item.price / item.assignedTo.length;
+                                return (
+                                  <View key={item.id} style={styles.detailItemRow}>
+                                    <View style={{ flex: 1, paddingRight: 8 }}>
+                                      <Text style={styles.detailItemName} numberOfLines={1}>{item.name}</Text>
+                                      {isShared && (
+                                        <Text style={styles.detailItemSubtitle}>
+                                          Compartido con {item.assignedTo.length}
+                                        </Text>
+                                      )}
+                                    </View>
+                                    <Text style={[styles.detailItemPrice, item.price < 0 && { color: '#4ECDC4' }]}>
+                                      {item.price < 0
+                                        ? `-$${Math.round(Math.abs(splitPrice)).toLocaleString('es-CL')}`
+                                        : `$${Math.round(splitPrice).toLocaleString('es-CL')}`
+                                      }
+                                    </Text>
+                                  </View>
+                                );
+                              })}
+                          </View>
+
+                          <View style={styles.detailBreakdownContainer}>
+                            <View style={styles.detailBreakdownRow}>
+                              <Text style={styles.detailBreakdownLabel}>Consumo base:</Text>
+                              <Text style={styles.detailBreakdownValue}>
+                                ${Math.round(friendBaseTotals[f.id] || 0).toLocaleString('es-CL')}
+                              </Text>
+                            </View>
+                            {discount > 0 && (
+                              <View style={styles.detailBreakdownRow}>
+                                <Text style={styles.detailBreakdownLabel}>Descuento:</Text>
+                                <Text style={[styles.detailBreakdownValue, { color: '#4ECDC4' }]}>
+                                  -${Math.round((friendBaseTotals[f.id] || 0) - (adjustedBaseTotals[f.id] || 0)).toLocaleString('es-CL')}
+                                </Text>
+                              </View>
+                            )}
+                            {tipPercentage > 0 && (
+                              <View style={styles.detailBreakdownRow}>
+                                <Text style={styles.detailBreakdownLabel}>Propina ({tipPercentage}%):</Text>
+                                <Text style={styles.detailBreakdownValue}>
+                                  ${Math.round((adjustedBaseTotals[f.id] || 0) * (tipPercentage / 100)).toLocaleString('es-CL')}
+                                </Text>
+                              </View>
+                            )}
+                          </View>
+                        </View>
+                      )}
+                    </TouchableOpacity>
                   );
                 })}
-              </ScrollView>
+              </View>
             </BlurView>
 
             <View style={styles.bottomNav}>
@@ -784,7 +871,7 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
                 <Text style={styles.secondaryButtonText}>Empezar de nuevo</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </ScrollView>
         )}
 
         {/* MODAL: ADD FRIEND */}
@@ -1061,9 +1148,23 @@ const styles = StyleSheet.create({
   divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.1)', marginVertical: 16 },
   summaryList: { flex: 1, paddingHorizontal: 4 },
   summaryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, backgroundColor: 'rgba(255,255,255,0.08)', padding: 16, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
-  summaryUser: { flexDirection: 'row', alignItems: 'center' },
-  summaryName: { color: Colors.white, fontSize: 16, fontWeight: '600' },
+  summaryRowContainer: { marginBottom: 12, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', overflow: 'hidden' },
+  summaryHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16 },
+  summaryUser: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  summaryName: { color: Colors.white, fontSize: 16, fontWeight: '600', flexShrink: 1 },
+  summaryChevron: { marginLeft: 8 },
   summaryUserAmount: { color: Colors.primaryLight, fontSize: 18, fontWeight: 'bold' },
+  expandedDetailContainer: { paddingHorizontal: 16, paddingBottom: 16 },
+  detailDivider: { height: 1, backgroundColor: 'rgba(255,255,255,0.1)', marginBottom: 12 },
+  detailItemsList: { gap: 8, marginBottom: 12 },
+  detailItemRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  detailItemName: { color: 'rgba(255,255,255,0.9)', fontSize: 14, fontWeight: '500' },
+  detailItemSubtitle: { color: 'rgba(255,255,255,0.5)', fontSize: 11, marginTop: 2 },
+  detailItemPrice: { color: 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: '500' },
+  detailBreakdownContainer: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: 10, gap: 6, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+  detailBreakdownRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  detailBreakdownLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 12 },
+  detailBreakdownValue: { color: 'rgba(255,255,255,0.8)', fontSize: 12, fontWeight: '600' },
 
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
   modalContent: { width: '85%', borderRadius: 24, padding: 24, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', backgroundColor: 'rgba(30, 27, 50, 0.85)' },
