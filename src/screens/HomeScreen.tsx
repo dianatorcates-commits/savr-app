@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import {
   FlatList,
   Image,
@@ -8,10 +8,13 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Modal,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../services/firebase';
 import { authService } from '../services/auth';
 import { useDiscounts, DiscountCard } from '../hooks/useDiscounts';
 import { getUserVisitsCountForCurrentMonth } from '../services/visits';
@@ -21,9 +24,66 @@ import { Colors } from '../../constants/theme';
 export default function HomeScreen() {
   const user = authService.getCurrentUser();
   const nombre = user?.nombre || 'Usuario';
-  const { discounts, loading: loadingDiscounts } = useDiscounts();
+  const [selectedCountry, setSelectedCountry] = useState<string>('');
+  const [selectedRegion, setSelectedRegion] = useState<string>('');
+  const { discounts, loading: loadingDiscounts } = useDiscounts(selectedCountry, selectedRegion);
   const [visitsCount, setVisitsCount] = useState(0);
   const [savingsCount, setSavingsCount] = useState(0);
+
+  interface Country {
+    id: string;
+    pais: string;
+  }
+
+  interface Region {
+    id: string;
+    region: string;
+    pais_id: string;
+  }
+
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [regions, setRegions] = useState<Region[]>([]);
+  
+  const [showCountryModal, setShowCountryModal] = useState(false);
+  const [showRegionModal, setShowRegionModal] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const cSnap = await getDocs(collection(db, 'countries'));
+        const rSnap = await getDocs(collection(db, 'regions'));
+        
+        const cList: Country[] = [];
+        cSnap.forEach(d => {
+          const data = d.data();
+          if (data.pais) {
+            cList.push({ id: d.id, pais: data.pais });
+          }
+        });
+        setCountries(cList);
+
+        const rList: Region[] = [];
+        rSnap.forEach(d => {
+          const data = d.data();
+          if (data.region) {
+            rList.push({ id: d.id, region: data.region, pais_id: data.pais_id || '' });
+          }
+        });
+        setRegions(rList);
+      } catch (err) {
+        console.error('Error fetching countries/regions:', err);
+      }
+    })();
+  }, []);
+
+  const filteredRegions = useMemo(() => {
+    if (!selectedCountry) {
+      return regions;
+    }
+    const countryObj = countries.find(c => c.pais === selectedCountry);
+    if (!countryObj) return [];
+    return regions.filter(r => r.pais_id === countryObj.id);
+  }, [selectedCountry, countries, regions]);
 
   useFocusEffect(
     useCallback(() => {
@@ -123,12 +183,31 @@ export default function HomeScreen() {
           </View>
         </BlurView>
 
-        {/* Location Banner */}
-        <View style={styles.locationBanner}>
-          <Text style={styles.locationIcon}>📍</Text>
-          <View style={styles.locationInfo}>
-            <Text style={styles.locationText}>Tu ubicación</Text>
-            <Text style={styles.locationAddress}>Santiago, Región Metropolitana</Text>
+        {/* Filters */}
+        <View style={styles.filtersContainer}>
+          <Text style={styles.filtersLabel}>Filtrar por:</Text>
+          <View style={styles.filtersRow}>
+            <TouchableOpacity 
+              style={styles.filterPill} 
+              onPress={() => setShowCountryModal(true)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.filterPillText} numberOfLines={1}>
+                {selectedCountry ? selectedCountry : 'Todos los Países'}
+              </Text>
+              <Text style={styles.filterIcon}>▼</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.filterPill} 
+              onPress={() => setShowRegionModal(true)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.filterPillText} numberOfLines={1}>
+                {selectedRegion ? selectedRegion : 'Todas las Regiones'}
+              </Text>
+              <Text style={styles.filterIcon}>▼</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -183,6 +262,65 @@ export default function HomeScreen() {
         )}
 
       </ScrollView>
+
+      {/* Country Modal */}
+      <Modal visible={showCountryModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Selecciona un País</Text>
+            <ScrollView style={{maxHeight: 300}}>
+              <TouchableOpacity 
+                style={styles.modalOption} 
+                onPress={() => { setSelectedCountry(''); setShowCountryModal(false); }}
+              >
+                <Text style={styles.modalOptionText}>Todos los Países</Text>
+              </TouchableOpacity>
+              {countries.map(c => (
+                <TouchableOpacity 
+                  key={c.id}
+                  style={styles.modalOption} 
+                  onPress={() => { setSelectedCountry(c.pais); setSelectedRegion(''); setShowCountryModal(false); }}
+                >
+                  <Text style={styles.modalOptionText}>{c.pais}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity style={styles.modalCloseButton} onPress={() => setShowCountryModal(false)}>
+              <Text style={styles.modalCloseButtonText}>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Region Modal */}
+      <Modal visible={showRegionModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Selecciona una Región</Text>
+            <ScrollView style={{maxHeight: 300}}>
+              <TouchableOpacity 
+                style={styles.modalOption} 
+                onPress={() => { setSelectedRegion(''); setShowRegionModal(false); }}
+              >
+                <Text style={styles.modalOptionText}>Todas las Regiones</Text>
+              </TouchableOpacity>
+              {filteredRegions.map(r => (
+                <TouchableOpacity 
+                  key={r.id}
+                  style={styles.modalOption} 
+                  onPress={() => { setSelectedRegion(r.region); setShowRegionModal(false); }}
+                >
+                  <Text style={styles.modalOptionText}>{r.region}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity style={styles.modalCloseButton} onPress={() => setShowRegionModal(false)}>
+              <Text style={styles.modalCloseButtonText}>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
     </LinearGradient>
   );
 }
@@ -245,35 +383,87 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     marginBottom: 4,
   },
-  locationBanner: {
+  filtersContainer: {
     marginHorizontal: 20,
     marginTop: 20,
     marginBottom: 24,
-    backgroundColor: 'rgba(222, 185, 141, 0.1)',
-    borderRadius: 16,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(222, 185, 141, 0.25)',
   },
-  locationIcon: {
-    fontSize: 28,
-    marginRight: 12,
-  },
-  locationInfo: {
-    flex: 1,
-  },
-  locationText: {
+  filtersLabel: {
     fontSize: 14,
     color: Colors.primary,
     fontWeight: '600',
+    marginBottom: 8,
   },
-  locationAddress: {
-    fontSize: 15,
+  filtersRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  filterPill: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+  },
+  filterPillText: {
     color: Colors.white,
+    fontSize: 13,
     fontWeight: '500',
-    marginTop: 4,
+    flex: 1,
+  },
+  filterIcon: {
+    color: 'rgba(255,255,255,0.4)',
+    fontSize: 10,
+    marginLeft: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: Colors.background,
+    width: '100%',
+    borderRadius: 24,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  modalTitle: {
+    fontSize: 20,
+    color: Colors.white,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  modalOption: {
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+  },
+  modalOptionText: {
+    fontSize: 16,
+    color: Colors.white,
+    textAlign: 'center',
+  },
+  modalCloseButton: {
+    marginTop: 16,
+    backgroundColor: Colors.primary,
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  modalCloseButtonText: {
+    color: Colors.background,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   sectionHeader: {
     flexDirection: 'row',

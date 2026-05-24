@@ -12,7 +12,7 @@ export interface DiscountCard {
   dias_validos: string[];
 }
 
-export function useDiscounts() {
+export function useDiscounts(pais?: string, region?: string) {
   const [discounts, setDiscounts] = useState<DiscountCard[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -22,11 +22,24 @@ export function useDiscounts() {
         const q = query(collection(db, 'discounts'), where('activo', '==', true));
         const snap = await getDocs(q);
 
+        let validRestaurantIds = new Set<string>();
+        if (pais || region) {
+          let branchQ = query(collection(db, 'branches'));
+          if (pais) branchQ = query(branchQ, where('pais', '==', pais));
+          if (region) branchQ = query(branchQ, where('region', '==', region));
+          const branchSnap = await getDocs(branchQ);
+          branchSnap.forEach(b => {
+             const data = b.data();
+             if (data.restaurant_id) validRestaurantIds.add(data.restaurant_id);
+          });
+        }
+
         // Deduplicate by restaurant_id to show one card per restaurant
         const seen = new Set<string>();
         const unique = snap.docs.filter((d) => {
           const rid = d.data().restaurant_id;
           if (!rid || seen.has(rid)) return false;
+          if ((pais || region) && !validRestaurantIds.has(rid)) return false;
           seen.add(rid);
           return true;
         });
@@ -57,7 +70,7 @@ export function useDiscounts() {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [pais, region]);
 
   return { discounts, loading };
 }
