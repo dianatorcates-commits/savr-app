@@ -33,6 +33,7 @@ interface BankDiscount {
   banco: string;
   beneficio: string;
   detalleTexto: string;
+  branch_ids?: string[];
 }
 
 export default function DetailsScreen() {
@@ -49,6 +50,7 @@ export default function DetailsScreen() {
   const [loading, setLoading] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
   
+  const [allBranches, setAllBranches] = useState<Branch[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
   const [closestBranch, setClosestBranch] = useState<Branch | null>(null);
@@ -82,8 +84,13 @@ export default function DetailsScreen() {
             banco: d.data().bank_nombre || '',
             beneficio: d.data().beneficio_porcentaje ? `${d.data().beneficio_porcentaje}%` : '',
             detalleTexto: d.data().descripcion_descuento || '',
+            branch_ids: d.data().branch_ids || [],
           }));
         setBankDiscounts(results);
+        if (!selectedBanco && results.length > 0) {
+          setSelectedBanco(results[0].banco);
+        }
+
         const { status } = await Location.requestForegroundPermissionsAsync();
         let loc = null;
         if (status === 'granted') {
@@ -92,20 +99,8 @@ export default function DetailsScreen() {
         }
 
         const restaurantBranches = await getBranchesByRestaurant(restaurantId as string);
-        
-        if (loc && restaurantBranches.length > 0) {
-          const sortedBranches = [...restaurantBranches].sort((a, b) => {
-            if (!a.ubicacion || !b.ubicacion) return 0;
-            const distA = getDistanceFromLatLonInKm(loc!.coords.latitude, loc!.coords.longitude, a.ubicacion.latitude, a.ubicacion.longitude);
-            const distB = getDistanceFromLatLonInKm(loc!.coords.latitude, loc!.coords.longitude, b.ubicacion.latitude, b.ubicacion.longitude);
-            return distA - distB;
-          });
-          setClosestBranch(sortedBranches[0]);
-          setBranches(sortedBranches);
-        } else {
-          setBranches(restaurantBranches);
-          if (restaurantBranches.length > 0) setClosestBranch(restaurantBranches[0]);
-        }
+        setAllBranches(restaurantBranches);
+
       } catch (error) {
         console.error('DetailsScreen fetch error:', error);
       } finally {
@@ -113,6 +108,45 @@ export default function DetailsScreen() {
       }
     })();
   }, [restaurantId]);
+
+  useEffect(() => {
+    if (allBranches.length === 0) {
+      setBranches([]);
+      setClosestBranch(null);
+      return;
+    }
+
+    const currentDiscount = bankDiscounts.find((d) => d.banco === selectedBanco) ?? bankDiscounts[0];
+    
+    let applicableBranches = allBranches;
+    if (currentDiscount?.branch_ids && currentDiscount.branch_ids.length > 0) {
+      applicableBranches = allBranches.filter(b => currentDiscount.branch_ids!.includes(b.id));
+    }
+
+    if (userLocation && applicableBranches.length > 0) {
+      const sortedBranches = [...applicableBranches].sort((a, b) => {
+        if (!a.ubicacion || !b.ubicacion) return 0;
+        const distA = getDistanceFromLatLonInKm(
+          userLocation.coords.latitude, 
+          userLocation.coords.longitude, 
+          a.ubicacion.latitude, 
+          a.ubicacion.longitude
+        );
+        const distB = getDistanceFromLatLonInKm(
+          userLocation.coords.latitude, 
+          userLocation.coords.longitude, 
+          b.ubicacion.latitude, 
+          b.ubicacion.longitude
+        );
+        return distA - distB;
+      });
+      setClosestBranch(sortedBranches[0]);
+      setBranches(sortedBranches);
+    } else {
+      setBranches(applicableBranches);
+      setClosestBranch(applicableBranches.length > 0 ? applicableBranches[0] : null);
+    }
+  }, [allBranches, userLocation, selectedBanco, bankDiscounts]);
 
   const current = bankDiscounts.find((d) => d.banco === selectedBanco) ?? bankDiscounts[0];
   const displayText = current?.detalleTexto ?? '';
