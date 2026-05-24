@@ -421,7 +421,28 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
     friends.forEach(f => {
       const amount = totals[f.id];
       if (amount > 0) {
-        message += `- ${f.name}: $${Math.round(amount).toLocaleString('es-CL')}\n`;
+        message += `\n*${f.name}: $${Math.round(amount).toLocaleString('es-CL')}*\n`;
+        
+        const friendItems = items.filter(item => item.assignedTo.includes(f.id));
+        friendItems.forEach(item => {
+          const isShared = item.assignedTo.length > 1;
+          const itemSharePrice = item.price / item.assignedTo.length;
+          const shareText = isShared ? ` (compartido c/${item.assignedTo.length})` : '';
+          message += `   • ${item.name}${shareText}: $${Math.round(itemSharePrice).toLocaleString('es-CL')}\n`;
+        });
+        
+        const fBase = friendBaseTotals[f.id] || 0;
+        const fAdjusted = adjustedBaseTotals[f.id] || 0;
+        const fTip = fAdjusted * (tipPercentage / 100);
+        
+        message += `   ----------------\n`;
+        message += `   Consumo base: $${Math.round(fBase).toLocaleString('es-CL')}\n`;
+        if (discount > 0) {
+          message += `   Descuento: -$${Math.round(fBase - fAdjusted).toLocaleString('es-CL')}\n`;
+        }
+        if (tipPercentage > 0) {
+          message += `   Propina: $${Math.round(fTip).toLocaleString('es-CL')}\n`;
+        }
       }
     });
     message += `\n💰 Por favor transferir a mi cuenta. ¡Gracias!`;
