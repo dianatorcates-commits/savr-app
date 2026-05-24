@@ -26,7 +26,7 @@ export default function HomeScreen() {
   const nombre = user?.nombre || 'Usuario';
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [selectedRegion, setSelectedRegion] = useState<string>('');
-  const { discounts, loading: loadingDiscounts } = useDiscounts(selectedCountry, selectedRegion);
+  const { discounts, loading: loadingDiscounts } = useDiscounts(selectedCountry, selectedRegion, 100);
   const [visitsCount, setVisitsCount] = useState(0);
   const [savingsCount, setSavingsCount] = useState(0);
 
