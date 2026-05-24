@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "savr-app",
+    "name": "Savr",
     "slug": "savr-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -40,6 +40,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "53361763-d065-4e84-bd8e-f8e2fb5f23eb"
+      }
     }
   }
 }
