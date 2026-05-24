@@ -11,6 +11,7 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
+  Modal,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -41,6 +42,10 @@ export default function FriendsScreen() {
   // List states
   const [friends, setFriends] = useState<Friend[]>([]);
   const [isLoadingList, setIsLoadingList] = useState(true);
+
+  // Success Modal states
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Fetch recent friends
   const fetchFriends = useCallback(async () => {
@@ -110,7 +115,8 @@ export default function FriendsScreen() {
       });
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      Alert.alert('Éxito', addMode === 'invite' ? 'Invitación enviada y amigo registrado.' : 'Amigo agregado exitosamente.');
+      setSuccessMessage(addMode === 'invite' ? 'Invitación enviada y amigo registrado.' : 'Amigo agregado exitosamente.');
+      setShowSuccess(true);
       
       // Reset form
       setName('');
@@ -297,6 +303,36 @@ export default function FriendsScreen() {
           showsVerticalScrollIndicator={false}
         />
       </KeyboardAvoidingView>
+
+      <Modal
+        visible={showSuccess}
+        transparent
+        animationType="fade"
+      >
+        <View style={styles.successModalOverlay}>
+          <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFillObject} />
+          
+          <Animated.View 
+            entering={FadeInDown.duration(400).springify()}
+            style={styles.successModalContent}
+          >
+            <View style={styles.successIconCircle}>
+              <Ionicons name="checkmark-circle" size={80} color={Colors.primary} />
+            </View>
+            
+            <Text style={styles.successModalTitle}>¡Éxito! 🎉</Text>
+            <Text style={styles.successModalText}>{successMessage}</Text>
+            
+            <TouchableOpacity
+              style={styles.successModalButton}
+              onPress={() => setShowSuccess(false)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.successModalButtonText}>Aceptar</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+      </Modal>
     </LinearGradient>
   );
 }
@@ -523,5 +559,70 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.5)',
     textAlign: 'center',
+  },
+  successModalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  },
+  successModalContent: {
+    backgroundColor: '#1E1A34',
+    borderRadius: 28,
+    padding: 32,
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: 400,
+    borderWidth: 1,
+    borderColor: 'rgba(222, 185, 141, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  successIconCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(222, 185, 141, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: 'rgba(222, 185, 141, 0.3)',
+  },
+  successModalTitle: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  successModalText: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.7)',
+    textAlign: 'center',
+    marginBottom: 32,
+    lineHeight: 24,
+  },
+  successModalButton: {
+    backgroundColor: Colors.primary,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 16,
+    width: '100%',
+    alignItems: 'center',
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  successModalButtonText: {
+    color: '#1E1A34',
+    fontSize: 18,
+    fontWeight: '700',
   },
 });
