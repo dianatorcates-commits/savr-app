@@ -15,21 +15,28 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 async function run() {
-  console.log("Testing range query on latitude...");
-  try {
-    const q = query(
-      collection(db, 'branches'),
-      where('ubicacion.latitude', '>=', -33.5),
-      where('ubicacion.latitude', '<=', -33.4)
-    );
-    const snap = await getDocs(q);
-    console.log("Query success! Documents found:", snap.size);
-    if (snap.size > 0) {
-      console.log("Sample document location:", snap.docs[0].data().ubicacion);
+  console.log("Analyzing active discounts for missing restaurant_id...");
+  const dSnap = await getDocs(query(collection(db, 'discounts'), where('activo', '==', true)));
+  let missingCount = 0;
+  let emptyStringCount = 0;
+  let validCount = 0;
+
+  dSnap.forEach((doc) => {
+    const data = doc.data();
+    if (data.restaurant_id === undefined || data.restaurant_id === null) {
+      missingCount++;
+    } else if (data.restaurant_id === "") {
+      emptyStringCount++;
+    } else {
+      validCount++;
     }
-  } catch (err) {
-    console.error("Query failed:", err);
-  }
+  });
+
+  console.log("Active discounts count:", dSnap.size);
+  console.log("Valid restaurant_id:", validCount);
+  console.log("Missing restaurant_id (null/undefined):", missingCount);
+  console.log("Empty string restaurant_id:", emptyStringCount);
+
   process.exit(0);
 }
 

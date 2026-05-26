@@ -2,6 +2,21 @@ import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firesto
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Location from 'expo-location';
 import { getBranchesByRestaurant, Branch } from '../services/branches';
+import React, { useEffect, useState, useMemo } from 'react';
+import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Modal,
+} from 'react-native';
+import { db } from '../services/firebase';
+import { Colors } from '../../constants/theme';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 
 // Helper function to calculate distance in km using Haversine formula
 function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -14,20 +29,6 @@ function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c; // Distance in km
 }
-import React, { useEffect, useState, useMemo } from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { db } from '../services/firebase';
-import { Colors } from '../../constants/theme';
-import { BlurView } from 'expo-blur';
-import { LinearGradient } from 'expo-linear-gradient';
 
 interface BankDiscount {
   banco: string;
@@ -51,11 +52,11 @@ export default function DetailsScreen() {
   const [loading, setLoading] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
   
+  // Estados para precarga en segundo plano de sucursales e interfaz del Modal
   const [allBranches, setAllBranches] = useState<Branch[]>([]);
-  const [branches, setBranches] = useState<Branch[]>([]);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
-  const [closestBranch, setClosestBranch] = useState<Branch | null>(null);
-  const [showAllBranches, setShowAllBranches] = useState(false);
+  const [loadingBackground, setLoadingBackground] = useState(true);
+  const [showBranchesModal, setShowBranchesModal] = useState(false);
 
   useEffect(() => {
     setIsExpanded(false);
@@ -64,22 +65,64 @@ export default function DetailsScreen() {
   useEffect(() => {
     if (!restaurantId) return;
     (async () => {
+      setLoading(true);
+      setLoadingBackground(true);
+      
+      // 1. Obtener geolocalización en segundo plano (no bloquea el spinner de carga inicial)
+      Location.requestForegroundPermissionsAsync().then(async ({ status }) => {
+        console.log(`[DetailsScreen] Background geolocation permission: ${status}`);
+        if (status === 'granted') {
+          try {
+            // Ubicación rápida cached
+            const lastKnown = await Location.getLastKnownPositionAsync({});
+            if (lastKnown) {
+              console.log(`[DetailsScreen] Background fast location fetched.`);
+              setUserLocation(lastKnown);
+            }
+
+            // Ubicación actual equilibrada
+            const current = await Location.getCurrentPositionAsync({
+              accuracy: Location.Accuracy.Balanced,
+            });
+            console.log(`[DetailsScreen] Background precise location fetched.`);
+            setUserLocation(current);
+          } catch (locErr) {
+            console.warn('[DetailsScreen] Background location retrieval error:', locErr);
+          }
+        }
+      }).catch(err => {
+        console.error('[DetailsScreen] Geolocation permission query error:', err);
+      });
+
+      // 2. Cargar sucursales en segundo plano (en paralelo)
+      getBranchesByRestaurant(restaurantId as string).then((resBranches) => {
+        console.log(`[DetailsScreen] Background branches loaded. Count: ${resBranches.length}`);
+        setAllBranches(resBranches);
+        setLoadingBackground(false);
+      }).catch((err) => {
+        console.error('[DetailsScreen] Background branches fetch error:', err);
+        setLoadingBackground(false);
+      });
+
+      // 3. Consulta concurrente en Firestore de restaurante y descuentos activos (Carga rápida principal)
       try {
-        // Datos del restaurante: nombre, imagen y descripción general
-        const rDoc = await getDoc(doc(db, 'restaurants', restaurantId));
+        const restaurantPromise = getDoc(doc(db, 'restaurants', restaurantId));
+        const discountsPromise = getDocs(
+          query(collection(db, 'discounts'), where('restaurant_id', '==', restaurantId))
+        );
+
+        const [rDoc, discountsSnap] = await Promise.all([
+          restaurantPromise,
+          discountsPromise
+        ]);
+
         if (rDoc.exists()) {
           const r = rDoc.data();
           setRestaurantName(r.nombre || '');
           setUrlImagen(r.url_imagen || '');
         }
 
-        // Todos los descuentos para este restaurante (filtro activo en cliente)
-        const q = query(
-          collection(db, 'discounts'),
-          where('restaurant_id', '==', restaurantId)
-        );
-        const snap = await getDocs(q);
-        const results: BankDiscount[] = snap.docs
+        const results: BankDiscount[] = discountsSnap.docs
           .filter((d) => d.data().activo !== false)
           .map((d) => ({
             banco: d.data().bank_nombre || '',
@@ -89,65 +132,51 @@ export default function DetailsScreen() {
             dias_validos: d.data().dias_validos || [],
           }));
         setBankDiscounts(results);
-        if (!selectedBanco && results.length > 0) {
-          setSelectedBanco(results[0].banco);
-        }
-
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        let loc = null;
-        if (status === 'granted') {
-          loc = await Location.getCurrentPositionAsync({});
-          setUserLocation(loc);
-        }
-
-        const restaurantBranches = await getBranchesByRestaurant(restaurantId as string);
-        setAllBranches(restaurantBranches);
+        setSelectedBanco((prev) => {
+          if (!prev && results.length > 0) {
+            return results[0].banco;
+          }
+          return prev;
+        });
 
       } catch (error) {
         console.error('DetailsScreen fetch error:', error);
       } finally {
-        setLoading(false);
+        setLoading(false); // Quitar spinner inicial de carga (~200ms)
       }
     })();
   }, [restaurantId]);
 
-  useEffect(() => {
-    if (allBranches.length === 0) {
-      setBranches([]);
-      setClosestBranch(null);
-      return;
-    }
+  // Filtrar, ordenar por distancia y limitar al Top 10 de sucursales aplicables
+  const nearbyBranches = useMemo(() => {
+    if (allBranches.length === 0) return [];
 
     const currentDiscount = bankDiscounts.find((d) => d.banco === selectedBanco) ?? bankDiscounts[0];
     
     let applicableBranches = allBranches;
+    // Si la promoción está restringida a sucursales específicas, filtrar de acuerdo a branch_ids
     if (currentDiscount?.branch_ids && currentDiscount.branch_ids.length > 0) {
       applicableBranches = allBranches.filter(b => currentDiscount.branch_ids!.includes(b.id));
     }
 
-    if (userLocation && applicableBranches.length > 0) {
-      const sortedBranches = [...applicableBranches].sort((a, b) => {
-        if (!a.ubicacion || !b.ubicacion) return 0;
-        const distA = getDistanceFromLatLonInKm(
-          userLocation.coords.latitude, 
-          userLocation.coords.longitude, 
-          a.ubicacion.latitude, 
-          a.ubicacion.longitude
-        );
-        const distB = getDistanceFromLatLonInKm(
-          userLocation.coords.latitude, 
-          userLocation.coords.longitude, 
-          b.ubicacion.latitude, 
-          b.ubicacion.longitude
-        );
-        return distA - distB;
-      });
-      setClosestBranch(sortedBranches[0]);
-      setBranches(sortedBranches);
-    } else {
-      setBranches(applicableBranches);
-      setClosestBranch(applicableBranches.length > 0 ? applicableBranches[0] : null);
-    }
+    // Calcular distancias y mapear
+    const withDistance = applicableBranches.map((branch) => {
+      if (!branch.ubicacion) return { ...branch, distance: Infinity };
+      
+      const distance = getDistanceFromLatLonInKm(
+        userLocation?.coords.latitude ?? -33.4489, // Fallback a Santiago Centro
+        userLocation?.coords.longitude ?? -70.6693,
+        branch.ubicacion.latitude,
+        branch.ubicacion.longitude
+      );
+      return { ...branch, distance };
+    });
+
+    // Ordenar de más cercanas a más lejanas
+    withDistance.sort((a, b) => a.distance - b.distance);
+
+    // Obtener las Top 10 más cercanas
+    return withDistance.slice(0, 10);
   }, [allBranches, userLocation, selectedBanco, bankDiscounts]);
 
   const current = bankDiscounts.find((d) => d.banco === selectedBanco) ?? bankDiscounts[0];
@@ -165,7 +194,6 @@ export default function DetailsScreen() {
 
   const activeDays = useMemo(() => {
     if (!current?.dias_validos || current.dias_validos.length === 0) {
-      // Si el campo no tiene valores es porque aplica para todos los dias
       return ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
     }
     const normalize = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -296,69 +324,114 @@ export default function DetailsScreen() {
 
             <View style={[styles.separator, { marginTop: 24 }]} />
 
-            <Text style={styles.sectionLabel}>Sucursal más cercana</Text>
-            <View style={styles.descriptionBox}>
-              {closestBranch ? (
-                <>
-                  <Text style={styles.branchName}>{closestBranch.restaurant_nombre || restaurantName}</Text>
-                  <Text style={styles.branchAddress}>📍 {closestBranch.direccion || 'Dirección no disponible'}</Text>
-                  <View style={styles.ratingRow}>
-                    <Text style={styles.ratingText}>
-                      {closestBranch.rating ? '★'.repeat(Math.round(closestBranch.rating)) + '☆'.repeat(5 - Math.round(closestBranch.rating)) : '★★★★★'}
-                    </Text>
-                    <Text style={styles.reviewsText}>({closestBranch.total_reviews || 0} reviews)</Text>
-                  </View>
-
-                  {branches.length > 1 && (
-                    <>
-                      {showAllBranches && (
-                        <View style={styles.allBranchesContainer}>
-                          <Text style={styles.otherBranchesLabel}>Otras sucursales:</Text>
-                          {branches.slice(1).map(b => (
-                            <View key={b.id} style={styles.otherBranchItem}>
-                              <Text style={styles.branchNameSmall}>{b.restaurant_nombre || restaurantName}</Text>
-                              <Text style={styles.branchAddressSmall}>📍 {b.direccion || 'Dirección no disponible'}</Text>
-                            </View>
-                          ))}
-                        </View>
-                      )}
-                      <TouchableOpacity
-                        style={styles.toggleButton}
-                        onPress={() => setShowAllBranches(!showAllBranches)}
-                        activeOpacity={0.7}
-                      >
-                        <Text style={styles.toggleText}>
-                          {showAllBranches ? 'Ocultar sucursales' : 'Ver más sucursales'}
-                        </Text>
-                      </TouchableOpacity>
-                    </>
-                  )}
-
-                  <TouchableOpacity
-                    style={styles.registerVisitBtn}
-                    onPress={() => {
-                      router.push({
-                        pathname: '/register-visit',
-                        params: {
-                          restaurantId: restaurantId as string,
-                          branchId: closestBranch.id,
-                          restaurantName: closestBranch.restaurant_nombre || restaurantName
-                        }
-                      });
-                    }}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={styles.registerVisitBtnText}>Registrar Visita</Text>
-                  </TouchableOpacity>
-                </>
-              ) : (
-                <Text style={styles.description}>No hay sucursales registradas.</Text>
-              )}
-            </View>
+            {/* Botón premium para abrir Modal de sucursales cercanas */}
+            <TouchableOpacity
+              style={styles.viewBranchesBtn}
+              onPress={() => setShowBranchesModal(true)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.viewBranchesBtnText}>Ver Sucursales Cercanas 📍</Text>
+            </TouchableOpacity>
 
           </ScrollView>
         </BlurView>
       </View>
+
+      {/* Modal Deslizable (Bottom Sheet) para Sucursales Cercanas */}
+      <Modal
+        visible={showBranchesModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowBranchesModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <BlurView intensity={95} tint="dark" style={styles.modalContent}>
+            {/* Header del Modal */}
+            <View style={styles.modalHeader}>
+              <View style={{ flex: 1, paddingRight: 16 }}>
+                <Text style={styles.modalTitle} numberOfLines={1}>Sucursales Cercanas</Text>
+                <Text style={styles.modalSubTitle} numberOfLines={1}>{restaurantName}</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.modalCloseBtn}
+                onPress={() => setShowBranchesModal(false)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.modalCloseText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.modalSeparator} />
+
+            {/* Listado de Sucursales */}
+            {loadingBackground ? (
+              <View style={styles.modalLoadingContainer}>
+                <ActivityIndicator size="large" color={Colors.primary} />
+                <Text style={styles.modalLoadingText}>Buscando locales cercanos...</Text>
+              </View>
+            ) : nearbyBranches.length > 0 ? (
+              <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.modalScrollContent}>
+                {nearbyBranches.map((item, index) => {
+                  const hasUbicacion = !!item.ubicacion;
+                  const distanceText = userLocation && hasUbicacion && item.distance !== Infinity
+                    ? `${item.distance.toFixed(1)} km de ti`
+                    : null;
+
+                  return (
+                    <View key={item.id} style={styles.modalBranchCard}>
+                      <View style={styles.modalBranchInfo}>
+                        <Text style={styles.modalBranchName} numberOfLines={1}>
+                          {index + 1}. {item.nombre_sucursal || item.restaurant_nombre || restaurantName}
+                        </Text>
+                        <Text style={styles.modalBranchAddress} numberOfLines={1}>
+                          📍 {item.direccion || 'Dirección no disponible'}
+                        </Text>
+                        
+                        <View style={styles.modalRatingRow}>
+                          <Text style={styles.modalRatingStars}>
+                            {item.rating ? '★'.repeat(Math.round(item.rating)) + '☆'.repeat(5 - Math.round(item.rating)) : '★★★★★'}
+                          </Text>
+                          <Text style={styles.modalReviewsText}>
+                            ({item.total_reviews || 0} reviews)
+                          </Text>
+                          {distanceText && (
+                            <Text style={styles.modalDistanceText}>
+                              • {distanceText}
+                            </Text>
+                          )}
+                        </View>
+                      </View>
+
+                      <TouchableOpacity
+                        style={styles.modalRegisterVisitBtn}
+                        onPress={() => {
+                          setShowBranchesModal(false);
+                          router.push({
+                            pathname: '/register-visit',
+                            params: {
+                              restaurantId: restaurantId as string,
+                              branchId: item.id,
+                              restaurantName: item.nombre_sucursal || item.restaurant_nombre || restaurantName
+                            }
+                          });
+                        }}
+                        activeOpacity={0.8}
+                      >
+                        <Text style={styles.modalRegisterVisitBtnText}>Registrar Visita</Text>
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })}
+              </ScrollView>
+            ) : (
+              <View style={styles.modalEmptyContainer}>
+                <Text style={styles.modalEmptyText}>No hay sucursales disponibles para esta promoción.</Text>
+              </View>
+            )}
+          </BlurView>
+        </View>
+      </Modal>
+
     </View>
   );
 }
@@ -529,71 +602,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
   },
-  branchName: {
-    fontSize: 18,
-    color: Colors.white,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  branchAddress: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginBottom: 8,
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  ratingText: {
-    color: '#FFD700',
-    fontSize: 16,
-    letterSpacing: 2,
-  },
-  reviewsText: {
-    color: 'rgba(255, 255, 255, 0.5)',
-    fontSize: 14,
-  },
-  allBranchesContainer: {
-    marginTop: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    gap: 12,
-  },
-  otherBranchesLabel: {
-    fontSize: 14,
-    color: Colors.primary,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  otherBranchItem: {
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    padding: 12,
-    borderRadius: 8,
-  },
-  branchNameSmall: {
-    fontSize: 15,
-    color: Colors.white,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  branchAddressSmall: {
-    fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.6)',
-  },
-  registerVisitBtn: {
-    backgroundColor: Colors.primary,
-    marginTop: 20,
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  registerVisitBtnText: {
-    color: Colors.background,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
   daysContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -627,5 +635,157 @@ const styles = StyleSheet.create({
   },
   dayBadgeTextInactive: {
     color: 'rgba(255, 255, 255, 0.4)',
+  },
+  viewBranchesBtn: {
+    backgroundColor: Colors.primary,
+    borderRadius: 14,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 4,
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+  },
+  viewBranchesBtnText: {
+    color: Colors.background,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  modalContent: {
+    backgroundColor: Colors.background,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    height: '75%',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    overflow: 'hidden',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 24,
+    paddingBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: Colors.white,
+    marginBottom: 4,
+  },
+  modalSubTitle: {
+    fontSize: 14,
+    color: Colors.primary,
+    fontWeight: '600',
+  },
+  modalCloseBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalCloseText: {
+    color: Colors.primary,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  modalSeparator: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginHorizontal: 24,
+  },
+  modalLoadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  modalLoadingText: {
+    marginTop: 16,
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 15,
+  },
+  modalScrollContent: {
+    padding: 24,
+    gap: 16,
+  },
+  modalBranchCard: {
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    padding: 16,
+    gap: 12,
+  },
+  modalBranchInfo: {
+    flex: 1,
+    gap: 4,
+  },
+  modalBranchName: {
+    fontSize: 16,
+    color: Colors.white,
+    fontWeight: 'bold',
+  },
+  modalBranchAddress: {
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.6)',
+  },
+  modalRatingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    gap: 6,
+  },
+  modalRatingStars: {
+    color: '#FFD700',
+    fontSize: 13,
+    letterSpacing: 1,
+  },
+  modalReviewsText: {
+    color: 'rgba(255, 255, 255, 0.4)',
+    fontSize: 12,
+  },
+  modalDistanceText: {
+    color: Colors.primary,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  modalRegisterVisitBtn: {
+    backgroundColor: 'rgba(222, 185, 141, 0.12)',
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalRegisterVisitBtnText: {
+    color: Colors.primary,
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  modalEmptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  modalEmptyText: {
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontSize: 15,
+    textAlign: 'center',
+    lineHeight: 22,
   },
 });
