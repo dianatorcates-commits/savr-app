@@ -14,7 +14,7 @@ function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c; // Distance in km
 }
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -34,6 +34,7 @@ interface BankDiscount {
   beneficio: string;
   detalleTexto: string;
   branch_ids?: string[];
+  dias_validos?: string[];
 }
 
 export default function DetailsScreen() {
@@ -85,6 +86,7 @@ export default function DetailsScreen() {
             beneficio: d.data().beneficio_porcentaje ? `${d.data().beneficio_porcentaje}%` : '',
             detalleTexto: d.data().descripcion_descuento || '',
             branch_ids: d.data().branch_ids || [],
+            dias_validos: d.data().dias_validos || [],
           }));
         setBankDiscounts(results);
         if (!selectedBanco && results.length > 0) {
@@ -150,6 +152,25 @@ export default function DetailsScreen() {
 
   const current = bankDiscounts.find((d) => d.banco === selectedBanco) ?? bankDiscounts[0];
   const displayText = current?.detalleTexto ?? '';
+
+  const diasSemana = useMemo(() => [
+    { key: 'lunes', label: 'Lun' },
+    { key: 'martes', label: 'Mar' },
+    { key: 'miercoles', label: 'Mié' },
+    { key: 'jueves', label: 'Jue' },
+    { key: 'viernes', label: 'Vie' },
+    { key: 'sabado', label: 'Sáb' },
+    { key: 'domingo', label: 'Dom' },
+  ], []);
+
+  const activeDays = useMemo(() => {
+    if (!current?.dias_validos || current.dias_validos.length === 0) {
+      // Si el campo no tiene valores es porque aplica para todos los dias
+      return ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+    }
+    const normalize = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return current.dias_validos.map(d => normalize(d));
+  }, [current]);
 
   if (loading) {
     return (
@@ -223,6 +244,31 @@ export default function DetailsScreen() {
                 );
               })}
             </ScrollView>
+
+            <Text style={styles.sectionLabel}>Días del Beneficio</Text>
+            <View style={styles.daysContainer}>
+              {diasSemana.map((day) => {
+                const isActive = activeDays.includes(day.key);
+                return (
+                  <View
+                    key={day.key}
+                    style={[
+                      styles.dayBadge,
+                      isActive ? styles.dayBadgeActive : styles.dayBadgeInactive,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.dayBadgeText,
+                        isActive ? styles.dayBadgeTextActive : styles.dayBadgeTextInactive,
+                      ]}
+                    >
+                      {day.label}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
 
             <Text style={styles.sectionLabel}>Detalles del Descuento</Text>
             <View style={styles.descriptionBox}>
@@ -547,5 +593,39 @@ const styles = StyleSheet.create({
     color: Colors.background,
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  daysContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 32,
+    gap: 6,
+  },
+  dayBadge: {
+    flex: 1,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  dayBadgeActive: {
+    backgroundColor: 'rgba(222, 185, 141, 0.15)',
+    borderColor: Colors.primary,
+  },
+  dayBadgeInactive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+    opacity: 0.4,
+  },
+  dayBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  dayBadgeTextActive: {
+    color: Colors.primary,
+    fontWeight: 'bold',
+  },
+  dayBadgeTextInactive: {
+    color: 'rgba(255, 255, 255, 0.4)',
   },
 });
