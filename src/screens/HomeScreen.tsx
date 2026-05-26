@@ -24,7 +24,7 @@ import { Colors } from '../../constants/theme';
 export default function HomeScreen() {
   const user = authService.getCurrentUser();
   const nombre = user?.nombre || 'Usuario';
-  const [selectedCountry, setSelectedCountry] = useState<string>('Chile');
+  const [selectedCountry] = useState<string>('Chile');
   const [selectedRegion, setSelectedRegion] = useState<string>('');
   const { discounts, loading: loadingDiscounts } = useDiscounts(selectedCountry, selectedRegion, 100);
   const [visitsCount, setVisitsCount] = useState(0);
@@ -44,7 +44,6 @@ export default function HomeScreen() {
   const [countries, setCountries] = useState<Country[]>([]);
   const [regions, setRegions] = useState<Region[]>([]);
   
-  const [showCountryModal, setShowCountryModal] = useState(false);
   const [showRegionModal, setShowRegionModal] = useState(false);
 
   useEffect(() => {
@@ -189,17 +188,6 @@ export default function HomeScreen() {
           <View style={styles.filtersRow}>
             <TouchableOpacity 
               style={styles.filterPill} 
-              onPress={() => setShowCountryModal(true)}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.filterPillText} numberOfLines={1}>
-                {selectedCountry ? selectedCountry : 'Todos los Países'}
-              </Text>
-              <Text style={styles.filterIcon}>▼</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.filterPill} 
               onPress={() => setShowRegionModal(true)}
               activeOpacity={0.7}
             >
@@ -262,35 +250,6 @@ export default function HomeScreen() {
         )}
 
       </ScrollView>
-
-      {/* Country Modal */}
-      <Modal visible={showCountryModal} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Selecciona un País</Text>
-            <ScrollView style={{maxHeight: 300}}>
-              <TouchableOpacity 
-                style={styles.modalOption} 
-                onPress={() => { setSelectedCountry(''); setShowCountryModal(false); }}
-              >
-                <Text style={styles.modalOptionText}>Todos los Países</Text>
-              </TouchableOpacity>
-              {countries.map(c => (
-                <TouchableOpacity 
-                  key={c.id}
-                  style={styles.modalOption} 
-                  onPress={() => { setSelectedCountry(c.pais); setSelectedRegion(''); setShowCountryModal(false); }}
-                >
-                  <Text style={styles.modalOptionText}>{c.pais}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            <TouchableOpacity style={styles.modalCloseButton} onPress={() => setShowCountryModal(false)}>
-              <Text style={styles.modalCloseButtonText}>Cerrar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
 
       {/* Region Modal */}
       <Modal visible={showRegionModal} transparent animationType="fade">

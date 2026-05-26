@@ -32,7 +32,6 @@ export default function AllDiscountsScreen() {
   const [countries, setCountries] = useState<Country[]>([]);
   const [regions, setRegions] = useState<Region[]>([]);
   
-  const [showCountryModal, setShowCountryModal] = useState(false);
   const [showRegionModal, setShowRegionModal] = useState(false);
 
   useEffect(() => {
@@ -195,17 +194,6 @@ export default function AllDiscountsScreen() {
           <View style={styles.filtersRow}>
             <TouchableOpacity 
               style={styles.filterPill} 
-              onPress={() => setShowCountryModal(true)}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.filterPillText} numberOfLines={1}>
-                {selectedCountry ? selectedCountry : 'Todos los Países'}
-              </Text>
-              <Text style={styles.filterIcon}>▼</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.filterPill} 
               onPress={() => setShowRegionModal(true)}
               activeOpacity={0.7}
             >
@@ -246,35 +234,6 @@ export default function AllDiscountsScreen() {
           />
         )}
       </SafeAreaView>
-
-      {/* Country Modal */}
-      <Modal visible={showCountryModal} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Selecciona un País</Text>
-            <ScrollView style={{maxHeight: 300}}>
-              <TouchableOpacity 
-                style={styles.modalOption} 
-                onPress={() => { setSelectedCountry(''); setSelectedRegion(''); setShowCountryModal(false); }}
-              >
-                <Text style={styles.modalOptionText}>Todos los Países</Text>
-              </TouchableOpacity>
-              {countries.map(c => (
-                <TouchableOpacity 
-                  key={c.id}
-                  style={styles.modalOption} 
-                  onPress={() => { setSelectedCountry(c.pais); setSelectedRegion(''); setShowCountryModal(false); }}
-                >
-                  <Text style={styles.modalOptionText}>{c.pais}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            <TouchableOpacity style={styles.modalCloseButton} onPress={() => setShowCountryModal(false)}>
-              <Text style={styles.modalCloseButtonText}>Cerrar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
 
       {/* Region Modal */}
       <Modal visible={showRegionModal} transparent animationType="fade">
