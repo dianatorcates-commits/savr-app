@@ -214,7 +214,7 @@ export default function HomeScreen() {
         {/* Descuentos del Día Section */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Descuentos del día</Text>
-          <TouchableOpacity onPress={() => router.push({ pathname: '/all-discounts', params: { day: diaActual } })}>
+          <TouchableOpacity onPress={() => router.push({ pathname: '/all-discounts', params: { day: diaActual, pais: selectedCountry, region: selectedRegion } })}>
             <Text style={styles.viewAll}>Ver todos →</Text>
           </TouchableOpacity>
         </View>
@@ -241,7 +241,7 @@ export default function HomeScreen() {
         {/* Section Title */}
         <View style={[styles.sectionHeader, { marginTop: 8 }]}>
           <Text style={styles.sectionTitle}>Todos los disponibles</Text>
-          <TouchableOpacity onPress={() => router.push('/all-discounts')}>
+          <TouchableOpacity onPress={() => router.push({ pathname: '/all-discounts', params: { pais: selectedCountry, region: selectedRegion } })}>
             <Text style={styles.viewAll}>Explorar →</Text>
           </TouchableOpacity>
         </View>
