@@ -24,7 +24,7 @@ import { Colors } from '../../constants/theme';
 export default function HomeScreen() {
   const user = authService.getCurrentUser();
   const nombre = user?.nombre || 'Usuario';
-  const [selectedCountry, setSelectedCountry] = useState<string>('');
+  const [selectedCountry, setSelectedCountry] = useState<string>('Chile');
   const [selectedRegion, setSelectedRegion] = useState<string>('');
   const { discounts, loading: loadingDiscounts } = useDiscounts(selectedCountry, selectedRegion, 100);
   const [visitsCount, setVisitsCount] = useState(0);

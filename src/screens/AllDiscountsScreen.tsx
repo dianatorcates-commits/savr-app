@@ -12,7 +12,7 @@ import { db } from '../services/firebase';
 export default function AllDiscountsScreen() {
   const { day, pais, region } = useLocalSearchParams<{ day?: string; pais?: string; region?: string }>();
 
-  const [selectedCountry, setSelectedCountry] = useState<string>(pais || '');
+  const [selectedCountry, setSelectedCountry] = useState<string>(pais !== undefined ? pais : 'Chile');
   const [selectedRegion, setSelectedRegion] = useState<string>(region || '');
   const { discounts, loading } = useDiscounts(selectedCountry, selectedRegion);
   const [searchQuery, setSearchQuery] = useState('');
