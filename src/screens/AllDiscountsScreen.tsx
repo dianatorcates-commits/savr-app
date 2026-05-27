@@ -27,6 +27,7 @@ export default function AllDiscountsScreen() {
     id: string;
     region: string;
     pais_id: string;
+    region_id?: number;
   }
 
   const [countries, setCountries] = useState<Country[]>([]);
@@ -65,8 +66,21 @@ export default function AllDiscountsScreen() {
         rSnap.forEach(d => {
           const data = d.data();
           if (data.region) {
-            rList.push({ id: d.id, region: data.region, pais_id: data.pais_id || '' });
+            rList.push({
+              id: d.id,
+              region: data.region,
+              pais_id: data.pais_id || '',
+              region_id: typeof data.region_id === 'number' ? data.region_id : undefined
+            });
           }
+        });
+        rList.sort((a, b) => {
+          const idA = a.region_id !== undefined ? a.region_id : Number.MAX_SAFE_INTEGER;
+          const idB = b.region_id !== undefined ? b.region_id : Number.MAX_SAFE_INTEGER;
+          if (idA !== idB) {
+            return idA - idB;
+          }
+          return a.region.localeCompare(b.region);
         });
         setRegions(rList);
       } catch (err) {
