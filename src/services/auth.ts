@@ -7,6 +7,7 @@ import { GoogleAuthProvider, signInWithCredential, signOut } from 'firebase/auth
 // Inicializar Google Sign-In (PENDIENTE CLIENT ID)
 GoogleSignin.configure({
   webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || 'TU_WEB_CLIENT_ID_AQUI',
+  iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || '301787533350-ou9vr0qqgmfn9mr1a46661cte2tvvo1j.apps.googleusercontent.com',
 });
 
 class AuthService {

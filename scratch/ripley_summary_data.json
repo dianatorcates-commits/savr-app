@@ -1,0 +1,2567 @@
+{
+  "lunes": [
+    {
+      "restaurant": "Restofans",
+      "beneficio": "20%",
+      "descripcion": "Más información en la sección de Restaurantes",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Capogrossi",
+          "direccion": "Alonso de Córdova 4225, 7630524 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "CHAINI'S",
+          "direccion": "Santiaguillo 1220, 8320000 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Cabrera Chile Isidora",
+          "direccion": "Isidora Goyenechea 3275, 7550129 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Restaurant Flor de Fa (Pesa y Paga)",
+          "direccion": "Huérfanos 1052, 8320214 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Foodlays",
+          "direccion": "Artesanos 681, 8431692 Recoleta, Región Metropolitana, Chile",
+          "comuna": "Recoleta"
+        },
+        {
+          "nombre": "Pasta E Basta",
+          "direccion": "Isidora Goyenechea 2850, 7550023 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Las Vacas Gordas",
+          "direccion": "Cienfuegos 280, 8340461 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Pescados Capitales",
+          "direccion": "Av. Nueva Costanera 3723, 7630000 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Casaluz Restaurant",
+          "direccion": "Av. Italia 805, 7501184 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "La Bifería",
+          "direccion": "065 - Av. Pedro de Valdivia, 7501012 Providencia, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Fuente Italiana",
+          "direccion": "P.º Bulnes 251, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "El Rincón de Fanor",
+          "direccion": "Fanor Velasco 15, 8340556 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Santa Brasa Alonso de Córdova",
+          "direccion": "Alonso de Córdova 4260, 7630504 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Restaurant Viva La Vida",
+          "direccion": "Constitución 166, 7520367 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Castillo Forestal",
+          "direccion": "Av. Cardenal José María Caro 390, 8320054 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Piegari Chile",
+          "direccion": "Av. Nueva Costanera 4092, 7630191 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Los Vikingos Restaurant",
+          "direccion": "Av. Ricardo Cumming 166, 8350538 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Fuente Oficial",
+          "direccion": "P.º Bulnes 72, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Diana Restaurante",
+          "direccion": "Arturo Prat 435, 8330484 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Las Vacas Gordas",
+          "direccion": "Linneo 6393, Local 6, 7560903 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        }
+      ]
+    },
+    {
+      "restaurant": "Unimarc",
+      "beneficio": "6%",
+      "descripcion": "Obtén un 6% de descuento en compras realizadas en supermercados Unimarc, pagando con tus Tarjetas Banco Ripley Mastercard. Válida exclusivamente los días lunes, con un límite de una compra mensual por cliente.",
+      "dias_validos": "lunes",
+      "sucursales": [
+        {
+          "nombre": "Unimarc",
+          "direccion": "Compañía de Jesus 1214, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Unimarc Dorsal",
+          "direccion": "Av. El Guanaco 3100, Conchalí, Región Metropolitana, Chile",
+          "comuna": "Conchalí"
+        },
+        {
+          "nombre": "Unimarc",
+          "direccion": "Av. Manquehue Nte. 457, 7560745 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Unimarc Vitacura Vespucio",
+          "direccion": "Av Vitacura 4607, Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Unimarc - Gladys Marin / Estación Central",
+          "direccion": "Av. Gladys Marín Millie 6950, 9190501 Estación Central, Región Metropolitana, Chile",
+          "comuna": "Estación Central"
+        },
+        {
+          "nombre": "Unimarc",
+          "direccion": "Portugal 56, 8320165 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Unimarc",
+          "direccion": "Gran Av. José Miguel Carrera 5485, San Miguel, Región Metropolitana, Chile",
+          "comuna": "San Miguel"
+        },
+        {
+          "nombre": "Unimarc",
+          "direccion": "Av. Grecia 320, 7750201 Ñuñoa, Región Metropolitana, Chile",
+          "comuna": "Ñuñoa"
+        },
+        {
+          "nombre": "Unimarc",
+          "direccion": "Nueva Extremadura 4436, 8510457 Quinta Normal, Región Metropolitana, Chile",
+          "comuna": "Quinta Normal"
+        },
+        {
+          "nombre": "Unimarc Parque de Los Reyes",
+          "direccion": "Av. Pdte. Balmaceda 2528, 8350061 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Unimarc",
+          "direccion": "Gral. José Artigas 3250, 7770148 Ñuñoa, Región Metropolitana, Chile",
+          "comuna": "Ñuñoa"
+        },
+        {
+          "nombre": "Supermercado Unimarc.",
+          "direccion": "Av. Independencia 2181, 8380137 Independencia, Región Metropolitana, Chile",
+          "comuna": "Independencia"
+        },
+        {
+          "nombre": "Unimarc",
+          "direccion": "Manuel Montt 1097, Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Unimarc",
+          "direccion": "Obispo Orrego 1250, 7780483 Ñuñoa, Región Metropolitana, Chile",
+          "comuna": "Ñuñoa"
+        },
+        {
+          "nombre": "Unimarc",
+          "direccion": "Av. Sta. Rosa 5320, 8960027 San Joaquín, Región Metropolitana, Chile",
+          "comuna": "San Joaquín"
+        },
+        {
+          "nombre": "Unimarc Francisco Bilbao",
+          "direccion": "Av. Francisco Bilbao 2050, 7510973 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Unimarc",
+          "direccion": "Av. Perú 735, Local 12, 8420294 Recoleta, Región Metropolitana, Chile",
+          "comuna": "Recoleta"
+        },
+        {
+          "nombre": "Unimarc",
+          "direccion": "Gonzalo Bulnes 2407, 8520582 Quinta Normal, Región Metropolitana, Chile",
+          "comuna": "Quinta Normal"
+        },
+        {
+          "nombre": "Unimarc Juan Antonio Ríos",
+          "direccion": "Av. Salomón Sack 351, 8390583 Independencia, Región Metropolitana, Chile",
+          "comuna": "Independencia"
+        },
+        {
+          "nombre": "Unimarc",
+          "direccion": "Av. Apoquindo 4335, 7550149 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        }
+      ]
+    },
+    {
+      "restaurant": "PedidosYa",
+      "beneficio": "30%",
+      "descripcion": "En categoria restaurantes ingresando código de descuento RIPLEYABR26 antes de pagar. Tope dcto. $4.000, máximo 1 compra mensual por usuario. Pagando con tus Tarjetas Banco Ripley.",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "PedidosYa Market San Miguel",
+          "direccion": "PG279-Parada - Gran Av. José Miguel Carrera 3, Paradero 17, 7970063 La Cisterna, Región Metropolitana, Chile",
+          "comuna": "La Cisterna"
+        },
+        {
+          "nombre": "InstaDelivery",
+          "direccion": "Málaga 115, 7550144 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Pedidosya Market Las CONDES",
+          "direccion": "Av. Las Condes 11411, 7590992 Santiago, Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "PedidosYa Market",
+          "direccion": "7650692 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Región Metropolitana"
+        },
+        {
+          "nombre": "Lin Wey",
+          "direccion": "Huérfanos 1467, 8340431 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "PedidosYa",
+          "direccion": "Las Condes, Región Metropolitana, Chile",
+          "comuna": "Región Metropolitana"
+        }
+      ]
+    },
+    {
+      "restaurant": "BlackDrop Coffee",
+      "beneficio": "15%",
+      "descripcion": "Un 15% de descuento de lunes a jueves del mes pagando con tus Tarjetas Banco Ripley. No acumulable con otras promociones.&nbsp;",
+      "dias_validos": "lunes, martes, miercoles, jueves",
+      "sucursales": [
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Sector Ripley - Av. Vicuña Mackenna Ote. 7110, Local 113 PISO 1, 8240000 La Florida, Región Metropolitana, Chile",
+          "comuna": "La Florida"
+        },
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Av. La Dehesa 1445, Local 1050, 7690130 Lo Barnechea, Región Metropolitana, Chile",
+          "comuna": "Lo Barnechea"
+        },
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Av. Andrés Bello 2425, Gran Torre Santiago, Local 1174, 7690130 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Av. Pdte. Kennedy Lateral 9001, Local 2008, Piso 2, 7591567 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Av. Pdte. Kennedy 5413, Local 176, piso 1, 7560994 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        }
+      ]
+    },
+    {
+      "restaurant": "Sacacorchos",
+      "beneficio": "40%",
+      "descripcion": "Un 40% de descuento todos los días, en cajas de 6 y 12 vinos seleccionados. Pagando con tus Tarjetas Banco Ripley.&nbsp;",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Wine store Concha y Toro",
+          "direccion": "Alonso de Córdova 2391, 7550099 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Cherry Chile Importadora Spa - Manuel Montt 088",
+          "direccion": "Manuel Montt 088, Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Joe's",
+          "direccion": "Jorge VI 409, 7580183 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Bocanáriz",
+          "direccion": "José Victorino Lastarria 276, 8320126 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "CorchosChile",
+          "direccion": "San Francisco 2555, 8900012 San Miguel, Región Metropolitana, Chile",
+          "comuna": "San Miguel"
+        }
+      ]
+    },
+    {
+      "restaurant": "Castaño",
+      "beneficio": "30%",
+      "descripcion": "En productos Castaño en todos los locales. Tope dcto. $10.000. Pide tu descuento al pagar en caja.&nbsp;",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "El Castaño",
+          "direccion": "El Castaño, Quilicura, Región Metropolitana, Chile",
+          "comuna": "Quilicura"
+        }
+      ]
+    },
+    {
+      "restaurant": "HelloWine",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento en regalo de suscripciones 3, 6, 9 o 12 meses",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "HelloWine",
+          "direccion": "Sin dirección",
+          "comuna": ""
+        }
+      ]
+    },
+    {
+      "restaurant": "HelloBeer",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento en regalo de suscripciones 3, 6, 9 o 12 meses",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "HelloBeer",
+          "direccion": "Sin dirección",
+          "comuna": ""
+        }
+      ]
+    },
+    {
+      "restaurant": "Café FIKA",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento todos los días en locales. No acumulable con promociones y descuentos.",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Fika Coffeeshop Suecia",
+          "direccion": "Suecia 0104, 7500000 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        }
+      ]
+    }
+  ],
+  "martes": [
+    {
+      "restaurant": "Restofans",
+      "beneficio": "20%",
+      "descripcion": "Más información en la sección de Restaurantes",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Capogrossi",
+          "direccion": "Alonso de Córdova 4225, 7630524 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "CHAINI'S",
+          "direccion": "Santiaguillo 1220, 8320000 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Cabrera Chile Isidora",
+          "direccion": "Isidora Goyenechea 3275, 7550129 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Restaurant Flor de Fa (Pesa y Paga)",
+          "direccion": "Huérfanos 1052, 8320214 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Foodlays",
+          "direccion": "Artesanos 681, 8431692 Recoleta, Región Metropolitana, Chile",
+          "comuna": "Recoleta"
+        },
+        {
+          "nombre": "Pasta E Basta",
+          "direccion": "Isidora Goyenechea 2850, 7550023 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Las Vacas Gordas",
+          "direccion": "Cienfuegos 280, 8340461 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Pescados Capitales",
+          "direccion": "Av. Nueva Costanera 3723, 7630000 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Casaluz Restaurant",
+          "direccion": "Av. Italia 805, 7501184 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "La Bifería",
+          "direccion": "065 - Av. Pedro de Valdivia, 7501012 Providencia, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Fuente Italiana",
+          "direccion": "P.º Bulnes 251, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "El Rincón de Fanor",
+          "direccion": "Fanor Velasco 15, 8340556 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Santa Brasa Alonso de Córdova",
+          "direccion": "Alonso de Córdova 4260, 7630504 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Restaurant Viva La Vida",
+          "direccion": "Constitución 166, 7520367 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Castillo Forestal",
+          "direccion": "Av. Cardenal José María Caro 390, 8320054 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Piegari Chile",
+          "direccion": "Av. Nueva Costanera 4092, 7630191 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Los Vikingos Restaurant",
+          "direccion": "Av. Ricardo Cumming 166, 8350538 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Fuente Oficial",
+          "direccion": "P.º Bulnes 72, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Diana Restaurante",
+          "direccion": "Arturo Prat 435, 8330484 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Las Vacas Gordas",
+          "direccion": "Linneo 6393, Local 6, 7560903 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        }
+      ]
+    },
+    {
+      "restaurant": "Burger King Wallet",
+      "beneficio": "50%",
+      "descripcion": "50% de descuento los días martes. Pagando con tu wallet, Google Pay o Apple Pay con tus tarjetas Banco Ripley, en todos los productos sobre $3.500, obtén un 40% de descuento en el local y un 10% extra en cashback que se abonará a tu tarjeta dentro de los 15 días hábiles siguientes a la compra. Pide tu descuento al pagar en caja. Dcto. no acumulable con otras ofertas y/o promociones. Tope de dcto. $15.000 por transacción.",
+      "dias_validos": "martes",
+      "sucursales": [
+        {
+          "nombre": "Burger King Independencia",
+          "direccion": "Av. Independencia 684, 8380515 Independencia, Región Metropolitana, Chile",
+          "comuna": "Independencia"
+        },
+        {
+          "nombre": "Burger King Suecia",
+          "direccion": "Av. Providencia 2286, 7510036 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Burger King Alameda",
+          "direccion": "Av. Alameda Libertador Bernardo O'Higgins 2831, 9190045 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Burger King El Llano",
+          "direccion": "Llano Subercaseaux 3519, 8910339 San Miguel, Región Metropolitana, Chile",
+          "comuna": "San Miguel"
+        },
+        {
+          "nombre": "Burger King Vitacura",
+          "direccion": "Av Vitacura 6857, 7650365 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Burger King Mall Independencia",
+          "direccion": "Av. Independencia 565, 8380538 Independencia, Región Metropolitana, Chile",
+          "comuna": "Independencia"
+        },
+        {
+          "nombre": "Burger King Hernando de Aguirre",
+          "direccion": "Av. Hernando de Aguirre 74, Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Burger King Drive Vespucio",
+          "direccion": "Av. Américo Vespucio 571, 7760154 Ñuñoa, Región Metropolitana, Chile",
+          "comuna": "Ñuñoa"
+        },
+        {
+          "nombre": "Burger King Irarrazaval Poniente Auto King",
+          "direccion": "Av. Irarrázaval 414, 7770330 Ñuñoa, Región Metropolitana, Chile",
+          "comuna": "Ñuñoa"
+        },
+        {
+          "nombre": "Burger King Arauco Quilicura",
+          "direccion": "Av. Bernardo O'Higgins 581, 8700000 Quilicura, Región Metropolitana, Chile",
+          "comuna": "Quilicura"
+        },
+        {
+          "nombre": "Burger King Estado",
+          "direccion": "P.º Estado 11, 8320319 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Burger King Plaza Estacion",
+          "direccion": "San Francisco de Borja 66, 9160003 Santiago, Estación Central, Región Metropolitana, Chile",
+          "comuna": "Estación Central"
+        },
+        {
+          "nombre": "Burger King Costanera Center",
+          "direccion": "Av Vitacura 116, 144, Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Burger King Mall Del Centro",
+          "direccion": "P.º Puente 689, 8320011 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Burger King Plaza Alameda",
+          "direccion": "Av. Alameda Libertador Bernardo O'Higgins 3470, 9160018 Santiago, Estación Central, Región Metropolitana, Chile",
+          "comuna": "Estación Central"
+        },
+        {
+          "nombre": "Burger King Mac Iver",
+          "direccion": "Enrique Mac Iver 273, 8320197 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Burger King Espacio M",
+          "direccion": "Compañía de Jesus 1249, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Burger King Manuel Montt",
+          "direccion": "Manuel Montt 122, 7500591 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Burger King Irarrazaval",
+          "direccion": "Av. Irarrázaval 2912, 7770511 Ñuñoa, Región Metropolitana, Chile",
+          "comuna": "Ñuñoa"
+        },
+        {
+          "nombre": "Burger King Los Héroes",
+          "direccion": "Av. Alameda Libertador Bernardo O'Higgins 1750, 8370969 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        }
+      ]
+    },
+    {
+      "restaurant": "Burger King",
+      "beneficio": "40%",
+      "descripcion": "40% de descuento los días martes. En todos los productos sobre $3.500. Pide tu descuento al pagar en caja. Dcto. no acumulable con otras ofertas y/o promociones. Tope de dcto. $15.000 por transacción.&nbsp;",
+      "dias_validos": "martes",
+      "sucursales": [
+        {
+          "nombre": "Burger King ® Auto King Gran Avenida",
+          "direccion": "Gran Av. José Miguel Carrera 5769, 8920335 Santiago, San Miguel, Región Metropolitana, Chile",
+          "comuna": "San Miguel"
+        },
+        {
+          "nombre": "Burger King Alameda",
+          "direccion": "Av. Alameda Libertador Bernardo O'Higgins 2831, 9190045 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Burger King Plaza Alameda",
+          "direccion": "Av. Alameda Libertador Bernardo O'Higgins 3470, 9160018 Santiago, Estación Central, Región Metropolitana, Chile",
+          "comuna": "Estación Central"
+        },
+        {
+          "nombre": "Burger King Los Héroes",
+          "direccion": "Av. Alameda Libertador Bernardo O'Higgins 1750, 8370969 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Burger King Independencia",
+          "direccion": "Av. Independencia 684, 8380515 Independencia, Región Metropolitana, Chile",
+          "comuna": "Independencia"
+        },
+        {
+          "nombre": "Burger King Mall Del Centro",
+          "direccion": "P.º Puente 689, 8320011 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Burger Inn",
+          "direccion": "Huérfanos 830, 8320202 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Burger King Mall Independencia",
+          "direccion": "Av. Independencia 565, 8380538 Independencia, Región Metropolitana, Chile",
+          "comuna": "Independencia"
+        },
+        {
+          "nombre": "Burger King",
+          "direccion": "Av. Alameda Libertador Bernardo O'Higgins 1333, 9190045 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Burger King Drive Vespucio",
+          "direccion": "Av. Américo Vespucio 571, 7760154 Ñuñoa, Región Metropolitana, Chile",
+          "comuna": "Ñuñoa"
+        },
+        {
+          "nombre": "Burger King Galeria Imperio",
+          "direccion": "P.º Estado 235, 6513491 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Burger King Irarrazaval",
+          "direccion": "Av. Irarrázaval 2912, 7770511 Ñuñoa, Región Metropolitana, Chile",
+          "comuna": "Ñuñoa"
+        },
+        {
+          "nombre": "Burger King Manuel Montt",
+          "direccion": "Manuel Montt 122, 7500591 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Burger King Espacio M",
+          "direccion": "Compañía de Jesus 1249, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Burger King Mac Iver",
+          "direccion": "Enrique Mac Iver 273, 8320197 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Burger King Plaza Estacion",
+          "direccion": "San Francisco de Borja 66, 9160003 Santiago, Estación Central, Región Metropolitana, Chile",
+          "comuna": "Estación Central"
+        },
+        {
+          "nombre": "Burger King El Llano",
+          "direccion": "Llano Subercaseaux 3519, 8910339 San Miguel, Región Metropolitana, Chile",
+          "comuna": "San Miguel"
+        },
+        {
+          "nombre": "Burger King Estado",
+          "direccion": "P.º Estado 11, 8320319 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Burger King Irarrazaval Poniente Auto King",
+          "direccion": "Av. Irarrázaval 414, 7770330 Ñuñoa, Región Metropolitana, Chile",
+          "comuna": "Ñuñoa"
+        },
+        {
+          "nombre": "Burger King Estacion Central",
+          "direccion": "José Luis Coo 42-94, Estación Central, Región Metropolitana, Chile",
+          "comuna": "Estación Central"
+        }
+      ]
+    },
+    {
+      "restaurant": "Just Burger",
+      "beneficio": "40%",
+      "descripcion": "En tiendas o en justburger.cl. Pide tu dcto. al pagar en caja. Para compras web, ingresa como código de descuento los primeros 6 dígitos de tu Tarjeta Banco Ripley antes del pago. Tope $20.000",
+      "dias_validos": "martes",
+      "sucursales": [
+        {
+          "nombre": "Just Burger Isidora",
+          "direccion": "Isidora Goyenechea 2874, 7550025 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Just Burger Toesca",
+          "direccion": "Toesca 1844, 8370242 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "J.E Burger",
+          "direccion": "Nataniel Cox 146, 8320000 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Just Burger La Florida",
+          "direccion": "Serafín Zamora 141, 8241647 La Florida, Región Metropolitana, Chile",
+          "comuna": "La Florida"
+        },
+        {
+          "nombre": "Just Burger Tranqueras",
+          "direccion": "Av Vitacura 8585, 7650223 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Just Burger Rotonda Atenas",
+          "direccion": "IV Centenario 999, Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Just Burger Manuel Montt",
+          "direccion": "Manuel Montt 2559, 7770418 Ñuñoa, Región Metropolitana, Chile",
+          "comuna": "Ñuñoa"
+        },
+        {
+          "nombre": "Just Burger Providencia",
+          "direccion": "Guardia Vieja 62, Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Just Burger La Reina",
+          "direccion": "Av. Príncipe de Gales 6853, 7850310 La Reina, Región Metropolitana, Chile",
+          "comuna": "La Reina"
+        },
+        {
+          "nombre": "Just Burger Huechuraba",
+          "direccion": "Av. Pedro Fontova 6651, 8600578 Huechuraba, Región Metropolitana, Chile",
+          "comuna": "Huechuraba"
+        },
+        {
+          "nombre": "Just Burger Quilín",
+          "direccion": "Mall Paseo Quilín - Mar Tirreno 3349, Local 1108 B, 7921383 Peñalolén, Región Metropolitana, Chile",
+          "comuna": "Peñalolén"
+        }
+      ]
+    },
+    {
+      "restaurant": "PedidosYa",
+      "beneficio": "30%",
+      "descripcion": "En categoria restaurantes ingresando código de descuento RIPLEYABR26 antes de pagar. Tope dcto. $4.000, máximo 1 compra mensual por usuario. Pagando con tus Tarjetas Banco Ripley.",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "PedidosYa Market San Miguel",
+          "direccion": "PG279-Parada - Gran Av. José Miguel Carrera 3, Paradero 17, 7970063 La Cisterna, Región Metropolitana, Chile",
+          "comuna": "La Cisterna"
+        },
+        {
+          "nombre": "InstaDelivery",
+          "direccion": "Málaga 115, 7550144 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Pedidosya Market Las CONDES",
+          "direccion": "Av. Las Condes 11411, 7590992 Santiago, Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "PedidosYa Market",
+          "direccion": "7650692 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Región Metropolitana"
+        },
+        {
+          "nombre": "Lin Wey",
+          "direccion": "Huérfanos 1467, 8340431 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "PedidosYa",
+          "direccion": "Las Condes, Región Metropolitana, Chile",
+          "comuna": "Región Metropolitana"
+        }
+      ]
+    },
+    {
+      "restaurant": "BlackDrop Coffee",
+      "beneficio": "15%",
+      "descripcion": "Un 15% de descuento de lunes a jueves del mes pagando con tus Tarjetas Banco Ripley. No acumulable con otras promociones.&nbsp;",
+      "dias_validos": "lunes, martes, miercoles, jueves",
+      "sucursales": [
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Sector Ripley - Av. Vicuña Mackenna Ote. 7110, Local 113 PISO 1, 8240000 La Florida, Región Metropolitana, Chile",
+          "comuna": "La Florida"
+        },
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Av. La Dehesa 1445, Local 1050, 7690130 Lo Barnechea, Región Metropolitana, Chile",
+          "comuna": "Lo Barnechea"
+        },
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Av. Andrés Bello 2425, Gran Torre Santiago, Local 1174, 7690130 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Av. Pdte. Kennedy Lateral 9001, Local 2008, Piso 2, 7591567 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Av. Pdte. Kennedy 5413, Local 176, piso 1, 7560994 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        }
+      ]
+    },
+    {
+      "restaurant": "Sacacorchos",
+      "beneficio": "40%",
+      "descripcion": "Un 40% de descuento todos los días, en cajas de 6 y 12 vinos seleccionados. Pagando con tus Tarjetas Banco Ripley.&nbsp;",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Wine store Concha y Toro",
+          "direccion": "Alonso de Córdova 2391, 7550099 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Cherry Chile Importadora Spa - Manuel Montt 088",
+          "direccion": "Manuel Montt 088, Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Joe's",
+          "direccion": "Jorge VI 409, 7580183 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Bocanáriz",
+          "direccion": "José Victorino Lastarria 276, 8320126 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "CorchosChile",
+          "direccion": "San Francisco 2555, 8900012 San Miguel, Región Metropolitana, Chile",
+          "comuna": "San Miguel"
+        }
+      ]
+    },
+    {
+      "restaurant": "Castaño",
+      "beneficio": "30%",
+      "descripcion": "En productos Castaño en todos los locales. Tope dcto. $10.000. Pide tu descuento al pagar en caja.&nbsp;",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "El Castaño",
+          "direccion": "El Castaño, Quilicura, Región Metropolitana, Chile",
+          "comuna": "Quilicura"
+        }
+      ]
+    },
+    {
+      "restaurant": "HelloWine",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento en regalo de suscripciones 3, 6, 9 o 12 meses",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "HelloWine",
+          "direccion": "Sin dirección",
+          "comuna": ""
+        }
+      ]
+    },
+    {
+      "restaurant": "HelloBeer",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento en regalo de suscripciones 3, 6, 9 o 12 meses",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "HelloBeer",
+          "direccion": "Sin dirección",
+          "comuna": ""
+        }
+      ]
+    },
+    {
+      "restaurant": "Café FIKA",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento todos los días en locales. No acumulable con promociones y descuentos.",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Fika Coffeeshop Suecia",
+          "direccion": "Suecia 0104, 7500000 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        }
+      ]
+    }
+  ],
+  "miércoles": [
+    {
+      "restaurant": "Restofans",
+      "beneficio": "20%",
+      "descripcion": "Más información en la sección de Restaurantes",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Capogrossi",
+          "direccion": "Alonso de Córdova 4225, 7630524 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "CHAINI'S",
+          "direccion": "Santiaguillo 1220, 8320000 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Cabrera Chile Isidora",
+          "direccion": "Isidora Goyenechea 3275, 7550129 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Restaurant Flor de Fa (Pesa y Paga)",
+          "direccion": "Huérfanos 1052, 8320214 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Foodlays",
+          "direccion": "Artesanos 681, 8431692 Recoleta, Región Metropolitana, Chile",
+          "comuna": "Recoleta"
+        },
+        {
+          "nombre": "Pasta E Basta",
+          "direccion": "Isidora Goyenechea 2850, 7550023 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Las Vacas Gordas",
+          "direccion": "Cienfuegos 280, 8340461 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Pescados Capitales",
+          "direccion": "Av. Nueva Costanera 3723, 7630000 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Casaluz Restaurant",
+          "direccion": "Av. Italia 805, 7501184 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "La Bifería",
+          "direccion": "065 - Av. Pedro de Valdivia, 7501012 Providencia, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Fuente Italiana",
+          "direccion": "P.º Bulnes 251, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "El Rincón de Fanor",
+          "direccion": "Fanor Velasco 15, 8340556 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Santa Brasa Alonso de Córdova",
+          "direccion": "Alonso de Córdova 4260, 7630504 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Restaurant Viva La Vida",
+          "direccion": "Constitución 166, 7520367 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Castillo Forestal",
+          "direccion": "Av. Cardenal José María Caro 390, 8320054 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Piegari Chile",
+          "direccion": "Av. Nueva Costanera 4092, 7630191 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Los Vikingos Restaurant",
+          "direccion": "Av. Ricardo Cumming 166, 8350538 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Fuente Oficial",
+          "direccion": "P.º Bulnes 72, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Diana Restaurante",
+          "direccion": "Arturo Prat 435, 8330484 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Las Vacas Gordas",
+          "direccion": "Linneo 6393, Local 6, 7560903 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        }
+      ]
+    },
+    {
+      "restaurant": "PedidosYa",
+      "beneficio": "30%",
+      "descripcion": "En categoria restaurantes ingresando código de descuento RIPLEYABR26 antes de pagar. Tope dcto. $4.000, máximo 1 compra mensual por usuario. Pagando con tus Tarjetas Banco Ripley.",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "PedidosYa Market San Miguel",
+          "direccion": "PG279-Parada - Gran Av. José Miguel Carrera 3, Paradero 17, 7970063 La Cisterna, Región Metropolitana, Chile",
+          "comuna": "La Cisterna"
+        },
+        {
+          "nombre": "InstaDelivery",
+          "direccion": "Málaga 115, 7550144 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Pedidosya Market Las CONDES",
+          "direccion": "Av. Las Condes 11411, 7590992 Santiago, Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "PedidosYa Market",
+          "direccion": "7650692 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Región Metropolitana"
+        },
+        {
+          "nombre": "Lin Wey",
+          "direccion": "Huérfanos 1467, 8340431 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "PedidosYa",
+          "direccion": "Las Condes, Región Metropolitana, Chile",
+          "comuna": "Región Metropolitana"
+        }
+      ]
+    },
+    {
+      "restaurant": "BlackDrop Coffee",
+      "beneficio": "15%",
+      "descripcion": "Un 15% de descuento de lunes a jueves del mes pagando con tus Tarjetas Banco Ripley. No acumulable con otras promociones.&nbsp;",
+      "dias_validos": "lunes, martes, miercoles, jueves",
+      "sucursales": [
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Sector Ripley - Av. Vicuña Mackenna Ote. 7110, Local 113 PISO 1, 8240000 La Florida, Región Metropolitana, Chile",
+          "comuna": "La Florida"
+        },
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Av. La Dehesa 1445, Local 1050, 7690130 Lo Barnechea, Región Metropolitana, Chile",
+          "comuna": "Lo Barnechea"
+        },
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Av. Andrés Bello 2425, Gran Torre Santiago, Local 1174, 7690130 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Av. Pdte. Kennedy Lateral 9001, Local 2008, Piso 2, 7591567 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Av. Pdte. Kennedy 5413, Local 176, piso 1, 7560994 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        }
+      ]
+    },
+    {
+      "restaurant": "Sacacorchos",
+      "beneficio": "40%",
+      "descripcion": "Un 40% de descuento todos los días, en cajas de 6 y 12 vinos seleccionados. Pagando con tus Tarjetas Banco Ripley.&nbsp;",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Wine store Concha y Toro",
+          "direccion": "Alonso de Córdova 2391, 7550099 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Cherry Chile Importadora Spa - Manuel Montt 088",
+          "direccion": "Manuel Montt 088, Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Joe's",
+          "direccion": "Jorge VI 409, 7580183 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Bocanáriz",
+          "direccion": "José Victorino Lastarria 276, 8320126 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "CorchosChile",
+          "direccion": "San Francisco 2555, 8900012 San Miguel, Región Metropolitana, Chile",
+          "comuna": "San Miguel"
+        }
+      ]
+    },
+    {
+      "restaurant": "Barrio Chicken",
+      "beneficio": "30%",
+      "descripcion": "Un 30% de descuento los días miércoles en Totemps y App. Tope dcto. $40.000. No acumulable con ofertas y promociones",
+      "dias_validos": "miercoles",
+      "sucursales": [
+        {
+          "nombre": "Barrio Chicken",
+          "direccion": "Av. Andrés Bello, 7510689 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Barrio Chicken",
+          "direccion": "Av. Camilo Henríquez, Puente Alto, Región Metropolitana, Chile",
+          "comuna": "Puente Alto"
+        },
+        {
+          "nombre": "Barrio Chicken Florida Center",
+          "direccion": "Av. Vicuña Mackenna 6100, Local 3505, La Florida, Región Metropolitana, Chile",
+          "comuna": "La Florida"
+        },
+        {
+          "nombre": "La Crespita",
+          "direccion": "Av. Alameda Libertador Bernardo O'Higgins 1874, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        }
+      ]
+    },
+    {
+      "restaurant": "Castaño",
+      "beneficio": "30%",
+      "descripcion": "En productos Castaño en todos los locales. Tope dcto. $10.000. Pide tu descuento al pagar en caja.&nbsp;",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "El Castaño",
+          "direccion": "El Castaño, Quilicura, Región Metropolitana, Chile",
+          "comuna": "Quilicura"
+        }
+      ]
+    },
+    {
+      "restaurant": "HelloWine",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento en regalo de suscripciones 3, 6, 9 o 12 meses",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "HelloWine",
+          "direccion": "Sin dirección",
+          "comuna": ""
+        }
+      ]
+    },
+    {
+      "restaurant": "HelloBeer",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento en regalo de suscripciones 3, 6, 9 o 12 meses",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "HelloBeer",
+          "direccion": "Sin dirección",
+          "comuna": ""
+        }
+      ]
+    },
+    {
+      "restaurant": "Café FIKA",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento todos los días en locales. No acumulable con promociones y descuentos.",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Fika Coffeeshop Suecia",
+          "direccion": "Suecia 0104, 7500000 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        }
+      ]
+    },
+    {
+      "restaurant": "Marley Coffee",
+      "beneficio": "30%",
+      "descripcion": "En tiendas pagando con cualquiera de las tarjetas Banco Ripley Mastercard.",
+      "dias_validos": "miercoles",
+      "sucursales": [
+        {
+          "nombre": "Marley Coffee",
+          "direccion": "Valentín Letelier 1369, 8340667 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        }
+      ]
+    }
+  ],
+  "jueves": [
+    {
+      "restaurant": "Restofans",
+      "beneficio": "20%",
+      "descripcion": "Más información en la sección de Restaurantes",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Capogrossi",
+          "direccion": "Alonso de Córdova 4225, 7630524 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "CHAINI'S",
+          "direccion": "Santiaguillo 1220, 8320000 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Cabrera Chile Isidora",
+          "direccion": "Isidora Goyenechea 3275, 7550129 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Restaurant Flor de Fa (Pesa y Paga)",
+          "direccion": "Huérfanos 1052, 8320214 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Foodlays",
+          "direccion": "Artesanos 681, 8431692 Recoleta, Región Metropolitana, Chile",
+          "comuna": "Recoleta"
+        },
+        {
+          "nombre": "Pasta E Basta",
+          "direccion": "Isidora Goyenechea 2850, 7550023 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Las Vacas Gordas",
+          "direccion": "Cienfuegos 280, 8340461 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Pescados Capitales",
+          "direccion": "Av. Nueva Costanera 3723, 7630000 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Casaluz Restaurant",
+          "direccion": "Av. Italia 805, 7501184 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "La Bifería",
+          "direccion": "065 - Av. Pedro de Valdivia, 7501012 Providencia, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Fuente Italiana",
+          "direccion": "P.º Bulnes 251, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "El Rincón de Fanor",
+          "direccion": "Fanor Velasco 15, 8340556 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Santa Brasa Alonso de Córdova",
+          "direccion": "Alonso de Córdova 4260, 7630504 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Restaurant Viva La Vida",
+          "direccion": "Constitución 166, 7520367 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Castillo Forestal",
+          "direccion": "Av. Cardenal José María Caro 390, 8320054 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Piegari Chile",
+          "direccion": "Av. Nueva Costanera 4092, 7630191 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Los Vikingos Restaurant",
+          "direccion": "Av. Ricardo Cumming 166, 8350538 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Fuente Oficial",
+          "direccion": "P.º Bulnes 72, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Diana Restaurante",
+          "direccion": "Arturo Prat 435, 8330484 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Las Vacas Gordas",
+          "direccion": "Linneo 6393, Local 6, 7560903 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        }
+      ]
+    },
+    {
+      "restaurant": "Papa Johns",
+      "beneficio": "40%",
+      "descripcion": "En tiendas, app Papa Johns o papajohns.cl. Pide tu dcto. al pagar en caja. Para compras web, ingresa como código de descuento los primeros 6 dígitos de tu Tarjeta Banco Ripley antes del pago. Para opción delivery, monto mínimo de compra con descuento aplicado debe ser mayor a $15.000. No aplica sobre promociones.",
+      "dias_validos": "jueves",
+      "sucursales": [
+        {
+          "nombre": "Papa Johns Pizza",
+          "direccion": "Av. Padre Alberto Hurtado 60, 8320000 Santiago, Estación Central, Región Metropolitana, Chile",
+          "comuna": "Estación Central"
+        },
+        {
+          "nombre": "Papa Johns Pizza",
+          "direccion": "Av. Gladys Marín Millie 6475, 8320000 Santiago, Estación Central, Región Metropolitana, Chile",
+          "comuna": "Estación Central"
+        },
+        {
+          "nombre": "Papa Johns Pizza",
+          "direccion": "San Francisco 531, 8320000 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Papa Johns Pizza",
+          "direccion": "Gran Av. José Miguel Carrera 5001, 8920100 SANTIAGO, San Miguel, Región Metropolitana, Chile",
+          "comuna": "San Miguel"
+        },
+        {
+          "nombre": "Papa Johns Pizza",
+          "direccion": "Compañía de Jesus 1909, 8320000 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Papa Johns Pizza",
+          "direccion": "Bandera 208, 8320000 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Papa Johns Pizza",
+          "direccion": "Serrano 30, 8320000 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Papa Johns Pizza",
+          "direccion": "Toesca 1844, 8320000 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Papa Johns Pizza",
+          "direccion": "Av. Salvador 1822, 8320000 SANTIAGO, Ñuñoa, Región Metropolitana, Chile",
+          "comuna": "Ñuñoa"
+        },
+        {
+          "nombre": "Papa Johns Pizza",
+          "direccion": "Av. Tobalaba 201, 8010000 SANTIAGO, Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Papa John's Pizza",
+          "direccion": "Av. Alameda Libertador Bernardo O'Higgins 3250, 8320000 SANTIAGO, Estación Central, Región Metropolitana, Chile",
+          "comuna": "Estación Central"
+        },
+        {
+          "nombre": "Papa Johns Providencia",
+          "direccion": "Av. Providencia 1349, 7500000 SANTIAGO, Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Papa Johns Pizza",
+          "direccion": "Av. Perú 805, 1700000 Recoleta, Región Metropolitana, Chile",
+          "comuna": "Recoleta"
+        },
+        {
+          "nombre": "Papa Johns Pizza",
+          "direccion": "Av. Pedro de Valdivia 3774, 7750000 Ñuñoa, Región Metropolitana, Chile",
+          "comuna": "Ñuñoa"
+        },
+        {
+          "nombre": "Papa Johns Alameda",
+          "direccion": "Av. Alameda Libertador Bernardo O'Higgins, 9170429 Santiago, Estación Central, Región Metropolitana, Chile",
+          "comuna": "Estación Central"
+        },
+        {
+          "nombre": "Papa Johns Pizza",
+          "direccion": "Llano Subercaseaux 3259, 8320000 SANTIAGO, San Miguel, Región Metropolitana, Chile",
+          "comuna": "San Miguel"
+        },
+        {
+          "nombre": "Papa Johns Pizza",
+          "direccion": "Av. Recoleta 806, 8420000 SANTIAGO, Recoleta, Región Metropolitana, Chile",
+          "comuna": "Recoleta"
+        },
+        {
+          "nombre": "Papa Johns Pizza",
+          "direccion": "Av. Independencia 1946, 8380000 SANTIAGO, Independencia, Región Metropolitana, Chile",
+          "comuna": "Independencia"
+        },
+        {
+          "nombre": "Papa Johns Pizza",
+          "direccion": "Av. Recoleta 2746, 8420000 SANTIAGO, Recoleta, Región Metropolitana, Chile",
+          "comuna": "Recoleta"
+        },
+        {
+          "nombre": "Papa Johns Pizza",
+          "direccion": "Av. Tte. Cruz 570, 9020000 SANTIAGO, Pudahuel, Región Metropolitana, Chile",
+          "comuna": "Pudahuel"
+        }
+      ]
+    },
+    {
+      "restaurant": "Mamut",
+      "beneficio": "30%",
+      "descripcion": "En locales. Pide tu dcto al pagar en caja. Tope dcto. $30.000. Beneficio no acumulable con otras promociones o descuentos.",
+      "dias_validos": "jueves",
+      "sucursales": [
+        {
+          "nombre": "Mamut Mall Plaza Oeste",
+          "direccion": "Mallplaza Oeste, Piso 1 - Av. Américo Vespucio 1501, Local B137, Cerrillos, Región Metropolitana, Chile",
+          "comuna": "Cerrillos"
+        },
+        {
+          "nombre": "Mamut Mall Plaza Tobalaba",
+          "direccion": "Av. Camilo Henríquez 3296, 8020000 Santiago, Puente Alto, Región Metropolitana, Chile",
+          "comuna": "Puente Alto"
+        },
+        {
+          "nombre": "Mamut Mall Arauco Maipú",
+          "direccion": "Av. Américo Vespucio 399, 9250000 Maipú, Región Metropolitana, Chile",
+          "comuna": "Maipú"
+        },
+        {
+          "nombre": "Mamut Mall Plaza Egaña",
+          "direccion": "Av. Larraín 5862, 7870151 La Reina, Región Metropolitana, Chile",
+          "comuna": "La Reina"
+        },
+        {
+          "nombre": "Mamut Restaurante",
+          "direccion": "Cerro El Plomo 5680, 7560742 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Mamut Mall Plaza Vespucio",
+          "direccion": "Av. Vicuña Mackenna Ote. 7110, 8240000 La Florida, Región Metropolitana, Chile",
+          "comuna": "La Florida"
+        },
+        {
+          "nombre": "Mamut Mall Plaza Norte",
+          "direccion": "Calle Americo Vespucio 1737, Huechuraba, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Mammut Cenco Costanera",
+          "direccion": "Mall Costanera Center / Local 4157 - Avda Andres Bello 2465, Gran Torre Santiago, 7510689 Providencia, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Mamut Fijaciones",
+          "direccion": "Av. Gladys Marín Millie 5760, 9190157 Estación Central, Región Metropolitana, Chile",
+          "comuna": "Estación Central"
+        }
+      ]
+    },
+    {
+      "restaurant": "PedidosYa",
+      "beneficio": "30%",
+      "descripcion": "En categoria restaurantes ingresando código de descuento RIPLEYABR26 antes de pagar. Tope dcto. $4.000, máximo 1 compra mensual por usuario. Pagando con tus Tarjetas Banco Ripley.",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "PedidosYa Market San Miguel",
+          "direccion": "PG279-Parada - Gran Av. José Miguel Carrera 3, Paradero 17, 7970063 La Cisterna, Región Metropolitana, Chile",
+          "comuna": "La Cisterna"
+        },
+        {
+          "nombre": "InstaDelivery",
+          "direccion": "Málaga 115, 7550144 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Pedidosya Market Las CONDES",
+          "direccion": "Av. Las Condes 11411, 7590992 Santiago, Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "PedidosYa Market",
+          "direccion": "7650692 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Región Metropolitana"
+        },
+        {
+          "nombre": "Lin Wey",
+          "direccion": "Huérfanos 1467, 8340431 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "PedidosYa",
+          "direccion": "Las Condes, Región Metropolitana, Chile",
+          "comuna": "Región Metropolitana"
+        }
+      ]
+    },
+    {
+      "restaurant": "BlackDrop Coffee",
+      "beneficio": "15%",
+      "descripcion": "Un 15% de descuento de lunes a jueves del mes pagando con tus Tarjetas Banco Ripley. No acumulable con otras promociones.&nbsp;",
+      "dias_validos": "lunes, martes, miercoles, jueves",
+      "sucursales": [
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Sector Ripley - Av. Vicuña Mackenna Ote. 7110, Local 113 PISO 1, 8240000 La Florida, Región Metropolitana, Chile",
+          "comuna": "La Florida"
+        },
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Av. La Dehesa 1445, Local 1050, 7690130 Lo Barnechea, Región Metropolitana, Chile",
+          "comuna": "Lo Barnechea"
+        },
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Av. Andrés Bello 2425, Gran Torre Santiago, Local 1174, 7690130 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Av. Pdte. Kennedy Lateral 9001, Local 2008, Piso 2, 7591567 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Blackdrop Coffee",
+          "direccion": "Av. Pdte. Kennedy 5413, Local 176, piso 1, 7560994 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        }
+      ]
+    },
+    {
+      "restaurant": "Sacacorchos",
+      "beneficio": "40%",
+      "descripcion": "Un 40% de descuento todos los días, en cajas de 6 y 12 vinos seleccionados. Pagando con tus Tarjetas Banco Ripley.&nbsp;",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Wine store Concha y Toro",
+          "direccion": "Alonso de Córdova 2391, 7550099 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Cherry Chile Importadora Spa - Manuel Montt 088",
+          "direccion": "Manuel Montt 088, Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Joe's",
+          "direccion": "Jorge VI 409, 7580183 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Bocanáriz",
+          "direccion": "José Victorino Lastarria 276, 8320126 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "CorchosChile",
+          "direccion": "San Francisco 2555, 8900012 San Miguel, Región Metropolitana, Chile",
+          "comuna": "San Miguel"
+        }
+      ]
+    },
+    {
+      "restaurant": "Philia",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento de jueves a domingo desde la semana del día de la madre en toda la carta. Excluye menú almuerzo y combinado all day. Tope de $40.000",
+      "dias_validos": "jueves, viernes, sabado, domingo",
+      "sucursales": [
+        {
+          "nombre": "PHILIA Casa de Café",
+          "direccion": "Av. Apoquindo 3039, 7550000 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "PHILIA Casa de Café Alonso de Cordova",
+          "direccion": "Alonso de Córdova 5870, LOCAL 2, 7550000 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Philia Casa de Café Cerro El Plomo",
+          "direccion": "Cerro El Plomo 5630, local 106, 7550000 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        }
+      ]
+    },
+    {
+      "restaurant": "Castaño",
+      "beneficio": "30%",
+      "descripcion": "En productos Castaño en todos los locales. Tope dcto. $10.000. Pide tu descuento al pagar en caja.&nbsp;",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "El Castaño",
+          "direccion": "El Castaño, Quilicura, Región Metropolitana, Chile",
+          "comuna": "Quilicura"
+        }
+      ]
+    },
+    {
+      "restaurant": "HelloWine",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento en regalo de suscripciones 3, 6, 9 o 12 meses",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "HelloWine",
+          "direccion": "Sin dirección",
+          "comuna": ""
+        }
+      ]
+    },
+    {
+      "restaurant": "Coppelia",
+      "beneficio": "40%",
+      "descripcion": "Un 40% de descuento todos los jueves. Pagando con tus Tarjetas Banco Ripley.",
+      "dias_validos": "jueves",
+      "sucursales": [
+        {
+          "nombre": "Coppelia",
+          "direccion": "Coppelia, Maipú, Región Metropolitana, Chile",
+          "comuna": "Maipú"
+        }
+      ]
+    },
+    {
+      "restaurant": "HelloBeer",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento en regalo de suscripciones 3, 6, 9 o 12 meses",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "HelloBeer",
+          "direccion": "Sin dirección",
+          "comuna": ""
+        }
+      ]
+    },
+    {
+      "restaurant": "Café FIKA",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento todos los días en locales. No acumulable con promociones y descuentos.",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Fika Coffeeshop Suecia",
+          "direccion": "Suecia 0104, 7500000 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        }
+      ]
+    }
+  ],
+  "viernes": [
+    {
+      "restaurant": "Restofans",
+      "beneficio": "20%",
+      "descripcion": "Más información en la sección de Restaurantes",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Capogrossi",
+          "direccion": "Alonso de Córdova 4225, 7630524 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "CHAINI'S",
+          "direccion": "Santiaguillo 1220, 8320000 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Cabrera Chile Isidora",
+          "direccion": "Isidora Goyenechea 3275, 7550129 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Restaurant Flor de Fa (Pesa y Paga)",
+          "direccion": "Huérfanos 1052, 8320214 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Foodlays",
+          "direccion": "Artesanos 681, 8431692 Recoleta, Región Metropolitana, Chile",
+          "comuna": "Recoleta"
+        },
+        {
+          "nombre": "Pasta E Basta",
+          "direccion": "Isidora Goyenechea 2850, 7550023 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Las Vacas Gordas",
+          "direccion": "Cienfuegos 280, 8340461 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Pescados Capitales",
+          "direccion": "Av. Nueva Costanera 3723, 7630000 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Casaluz Restaurant",
+          "direccion": "Av. Italia 805, 7501184 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "La Bifería",
+          "direccion": "065 - Av. Pedro de Valdivia, 7501012 Providencia, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Fuente Italiana",
+          "direccion": "P.º Bulnes 251, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "El Rincón de Fanor",
+          "direccion": "Fanor Velasco 15, 8340556 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Santa Brasa Alonso de Córdova",
+          "direccion": "Alonso de Córdova 4260, 7630504 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Restaurant Viva La Vida",
+          "direccion": "Constitución 166, 7520367 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Castillo Forestal",
+          "direccion": "Av. Cardenal José María Caro 390, 8320054 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Piegari Chile",
+          "direccion": "Av. Nueva Costanera 4092, 7630191 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Los Vikingos Restaurant",
+          "direccion": "Av. Ricardo Cumming 166, 8350538 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Fuente Oficial",
+          "direccion": "P.º Bulnes 72, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Diana Restaurante",
+          "direccion": "Arturo Prat 435, 8330484 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Las Vacas Gordas",
+          "direccion": "Linneo 6393, Local 6, 7560903 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        }
+      ]
+    },
+    {
+      "restaurant": "PedidosYa",
+      "beneficio": "30%",
+      "descripcion": "En categoria restaurantes ingresando código de descuento RIPLEYABR26 antes de pagar. Tope dcto. $4.000, máximo 1 compra mensual por usuario. Pagando con tus Tarjetas Banco Ripley.",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "PedidosYa Market San Miguel",
+          "direccion": "PG279-Parada - Gran Av. José Miguel Carrera 3, Paradero 17, 7970063 La Cisterna, Región Metropolitana, Chile",
+          "comuna": "La Cisterna"
+        },
+        {
+          "nombre": "InstaDelivery",
+          "direccion": "Málaga 115, 7550144 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Pedidosya Market Las CONDES",
+          "direccion": "Av. Las Condes 11411, 7590992 Santiago, Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "PedidosYa Market",
+          "direccion": "7650692 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Región Metropolitana"
+        },
+        {
+          "nombre": "Lin Wey",
+          "direccion": "Huérfanos 1467, 8340431 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "PedidosYa",
+          "direccion": "Las Condes, Región Metropolitana, Chile",
+          "comuna": "Región Metropolitana"
+        }
+      ]
+    },
+    {
+      "restaurant": "Sacacorchos",
+      "beneficio": "40%",
+      "descripcion": "Un 40% de descuento todos los días, en cajas de 6 y 12 vinos seleccionados. Pagando con tus Tarjetas Banco Ripley.&nbsp;",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Wine store Concha y Toro",
+          "direccion": "Alonso de Córdova 2391, 7550099 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Cherry Chile Importadora Spa - Manuel Montt 088",
+          "direccion": "Manuel Montt 088, Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Joe's",
+          "direccion": "Jorge VI 409, 7580183 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Bocanáriz",
+          "direccion": "José Victorino Lastarria 276, 8320126 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "CorchosChile",
+          "direccion": "San Francisco 2555, 8900012 San Miguel, Región Metropolitana, Chile",
+          "comuna": "San Miguel"
+        }
+      ]
+    },
+    {
+      "restaurant": "Philia",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento de jueves a domingo desde la semana del día de la madre en toda la carta. Excluye menú almuerzo y combinado all day. Tope de $40.000",
+      "dias_validos": "jueves, viernes, sabado, domingo",
+      "sucursales": [
+        {
+          "nombre": "PHILIA Casa de Café",
+          "direccion": "Av. Apoquindo 3039, 7550000 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "PHILIA Casa de Café Alonso de Cordova",
+          "direccion": "Alonso de Córdova 5870, LOCAL 2, 7550000 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Philia Casa de Café Cerro El Plomo",
+          "direccion": "Cerro El Plomo 5630, local 106, 7550000 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        }
+      ]
+    },
+    {
+      "restaurant": "Castaño",
+      "beneficio": "30%",
+      "descripcion": "En productos Castaño en todos los locales. Tope dcto. $10.000. Pide tu descuento al pagar en caja.&nbsp;",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "El Castaño",
+          "direccion": "El Castaño, Quilicura, Región Metropolitana, Chile",
+          "comuna": "Quilicura"
+        }
+      ]
+    },
+    {
+      "restaurant": "HelloWine",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento en regalo de suscripciones 3, 6, 9 o 12 meses",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "HelloWine",
+          "direccion": "Sin dirección",
+          "comuna": ""
+        }
+      ]
+    },
+    {
+      "restaurant": "HelloBeer",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento en regalo de suscripciones 3, 6, 9 o 12 meses",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "HelloBeer",
+          "direccion": "Sin dirección",
+          "comuna": ""
+        }
+      ]
+    },
+    {
+      "restaurant": "Café FIKA",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento todos los días en locales. No acumulable con promociones y descuentos.",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Fika Coffeeshop Suecia",
+          "direccion": "Suecia 0104, 7500000 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        }
+      ]
+    }
+  ],
+  "sábado": [
+    {
+      "restaurant": "Restofans",
+      "beneficio": "20%",
+      "descripcion": "Más información en la sección de Restaurantes",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Capogrossi",
+          "direccion": "Alonso de Córdova 4225, 7630524 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "CHAINI'S",
+          "direccion": "Santiaguillo 1220, 8320000 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Cabrera Chile Isidora",
+          "direccion": "Isidora Goyenechea 3275, 7550129 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Restaurant Flor de Fa (Pesa y Paga)",
+          "direccion": "Huérfanos 1052, 8320214 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Foodlays",
+          "direccion": "Artesanos 681, 8431692 Recoleta, Región Metropolitana, Chile",
+          "comuna": "Recoleta"
+        },
+        {
+          "nombre": "Pasta E Basta",
+          "direccion": "Isidora Goyenechea 2850, 7550023 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Las Vacas Gordas",
+          "direccion": "Cienfuegos 280, 8340461 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Pescados Capitales",
+          "direccion": "Av. Nueva Costanera 3723, 7630000 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Casaluz Restaurant",
+          "direccion": "Av. Italia 805, 7501184 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "La Bifería",
+          "direccion": "065 - Av. Pedro de Valdivia, 7501012 Providencia, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Fuente Italiana",
+          "direccion": "P.º Bulnes 251, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "El Rincón de Fanor",
+          "direccion": "Fanor Velasco 15, 8340556 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Santa Brasa Alonso de Córdova",
+          "direccion": "Alonso de Córdova 4260, 7630504 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Restaurant Viva La Vida",
+          "direccion": "Constitución 166, 7520367 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Castillo Forestal",
+          "direccion": "Av. Cardenal José María Caro 390, 8320054 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Piegari Chile",
+          "direccion": "Av. Nueva Costanera 4092, 7630191 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Los Vikingos Restaurant",
+          "direccion": "Av. Ricardo Cumming 166, 8350538 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Fuente Oficial",
+          "direccion": "P.º Bulnes 72, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Diana Restaurante",
+          "direccion": "Arturo Prat 435, 8330484 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Las Vacas Gordas",
+          "direccion": "Linneo 6393, Local 6, 7560903 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        }
+      ]
+    },
+    {
+      "restaurant": "Carnes Premium",
+      "beneficio": "30%",
+      "descripcion": "Un 30% de descuento todos los sabados de abril de 2026 pagando con tus tarjetas Banco Ripley. Código: primeros 6 dígitos de tu tarjeta",
+      "dias_validos": "sabado",
+      "sucursales": [
+        {
+          "nombre": "CARNES 4X4",
+          "direccion": "Bismarck 1216, 8500000 SANTIAGO, Quinta Normal, Región Metropolitana, Chile",
+          "comuna": "Quinta Normal"
+        },
+        {
+          "nombre": "CARNES PREMIUM",
+          "direccion": "Carlos Peña Otaegui 11900, LOCAL, 14, 7550000 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "CARNES PREMIUM DELIVERY",
+          "direccion": "Av. Escuela Agrícola 2477, 7820214 Macul, Región Metropolitana, Chile",
+          "comuna": "Macul"
+        },
+        {
+          "nombre": "CARNES MI PARCELA",
+          "direccion": "San Pablo 2483, 5350000 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "CARNES PREMIUM LA REINA",
+          "direccion": "Carlos Silva Vildósola 9073, Local 9, 7860562 La Reina, Región Metropolitana, Chile",
+          "comuna": "La Reina"
+        },
+        {
+          "nombre": "El Gocho De Las Carnes",
+          "direccion": "Compañía de Jesus 2318, 8350440 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "W Carnes | Premium",
+          "direccion": "Moneda 1137, 6501020 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Carnes Bilbao",
+          "direccion": "Arauco 953, 8361103 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Carnes La Principal",
+          "direccion": "Club Hípico 531, 8370303 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Carnes Metropolitan Arturo Prat",
+          "direccion": "Arturo Prat 635, 8320000 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Carnes Victoria",
+          "direccion": "Victoria 1240, 8360535 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Carnes Premium",
+          "direccion": "Carretera Gral San Martin 19000, Local 06, Colina, Región Metropolitana, Chile",
+          "comuna": "Colina"
+        },
+        {
+          "nombre": "Carnes Zulia",
+          "direccion": "Eleuterio Ramírez 1033, 8330308 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Carniceria WAGYU cortes premium",
+          "direccion": "Nueve de Julio 5871, 8980152 Lo Prado, Región Metropolitana, Chile",
+          "comuna": "Lo Prado"
+        },
+        {
+          "nombre": "Carnes O'Campo",
+          "direccion": "Antonia López de Bello 743, Recoleta, Región Metropolitana, Chile",
+          "comuna": "Recoleta"
+        },
+        {
+          "nombre": "El Negro de las Carnes",
+          "direccion": "San Diego 209, 8330321 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Carnes Metropolitan San Francisco",
+          "direccion": "San Francisco 281, 8330099 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "BuenaCarne",
+          "direccion": "Av. El Salto 2635, 8441123 Recoleta, Región Metropolitana, Chile",
+          "comuna": "Recoleta"
+        },
+        {
+          "nombre": "Carnes A Punto",
+          "direccion": "Av. Luis Pasteur 6495, 7640298 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Imperio Carnes Premium",
+          "direccion": "Graciosa 7573, 9090552 Santiago, Cerro Navia, Región Metropolitana, Chile",
+          "comuna": "Cerro Navia"
+        }
+      ]
+    },
+    {
+      "restaurant": "PedidosYa",
+      "beneficio": "30%",
+      "descripcion": "En categoria restaurantes ingresando código de descuento RIPLEYABR26 antes de pagar. Tope dcto. $4.000, máximo 1 compra mensual por usuario. Pagando con tus Tarjetas Banco Ripley.",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "PedidosYa Market San Miguel",
+          "direccion": "PG279-Parada - Gran Av. José Miguel Carrera 3, Paradero 17, 7970063 La Cisterna, Región Metropolitana, Chile",
+          "comuna": "La Cisterna"
+        },
+        {
+          "nombre": "InstaDelivery",
+          "direccion": "Málaga 115, 7550144 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Pedidosya Market Las CONDES",
+          "direccion": "Av. Las Condes 11411, 7590992 Santiago, Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "PedidosYa Market",
+          "direccion": "7650692 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Región Metropolitana"
+        },
+        {
+          "nombre": "Lin Wey",
+          "direccion": "Huérfanos 1467, 8340431 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "PedidosYa",
+          "direccion": "Las Condes, Región Metropolitana, Chile",
+          "comuna": "Región Metropolitana"
+        }
+      ]
+    },
+    {
+      "restaurant": "Sacacorchos",
+      "beneficio": "40%",
+      "descripcion": "Un 40% de descuento todos los días, en cajas de 6 y 12 vinos seleccionados. Pagando con tus Tarjetas Banco Ripley.&nbsp;",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Wine store Concha y Toro",
+          "direccion": "Alonso de Córdova 2391, 7550099 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Cherry Chile Importadora Spa - Manuel Montt 088",
+          "direccion": "Manuel Montt 088, Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Joe's",
+          "direccion": "Jorge VI 409, 7580183 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Bocanáriz",
+          "direccion": "José Victorino Lastarria 276, 8320126 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "CorchosChile",
+          "direccion": "San Francisco 2555, 8900012 San Miguel, Región Metropolitana, Chile",
+          "comuna": "San Miguel"
+        }
+      ]
+    },
+    {
+      "restaurant": "Philia",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento de jueves a domingo desde la semana del día de la madre en toda la carta. Excluye menú almuerzo y combinado all day. Tope de $40.000",
+      "dias_validos": "jueves, viernes, sabado, domingo",
+      "sucursales": [
+        {
+          "nombre": "PHILIA Casa de Café",
+          "direccion": "Av. Apoquindo 3039, 7550000 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "PHILIA Casa de Café Alonso de Cordova",
+          "direccion": "Alonso de Córdova 5870, LOCAL 2, 7550000 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Philia Casa de Café Cerro El Plomo",
+          "direccion": "Cerro El Plomo 5630, local 106, 7550000 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        }
+      ]
+    },
+    {
+      "restaurant": "Castaño",
+      "beneficio": "30%",
+      "descripcion": "En productos Castaño en todos los locales. Tope dcto. $10.000. Pide tu descuento al pagar en caja.&nbsp;",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "El Castaño",
+          "direccion": "El Castaño, Quilicura, Región Metropolitana, Chile",
+          "comuna": "Quilicura"
+        }
+      ]
+    },
+    {
+      "restaurant": "HelloWine",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento en regalo de suscripciones 3, 6, 9 o 12 meses",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "HelloWine",
+          "direccion": "Sin dirección",
+          "comuna": ""
+        }
+      ]
+    },
+    {
+      "restaurant": "HelloBeer",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento en regalo de suscripciones 3, 6, 9 o 12 meses",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "HelloBeer",
+          "direccion": "Sin dirección",
+          "comuna": ""
+        }
+      ]
+    },
+    {
+      "restaurant": "Café FIKA",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento todos los días en locales. No acumulable con promociones y descuentos.",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Fika Coffeeshop Suecia",
+          "direccion": "Suecia 0104, 7500000 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        }
+      ]
+    }
+  ],
+  "domingo": [
+    {
+      "restaurant": "Restofans",
+      "beneficio": "20%",
+      "descripcion": "Más información en la sección de Restaurantes",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Capogrossi",
+          "direccion": "Alonso de Córdova 4225, 7630524 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "CHAINI'S",
+          "direccion": "Santiaguillo 1220, 8320000 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Cabrera Chile Isidora",
+          "direccion": "Isidora Goyenechea 3275, 7550129 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Restaurant Flor de Fa (Pesa y Paga)",
+          "direccion": "Huérfanos 1052, 8320214 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Foodlays",
+          "direccion": "Artesanos 681, 8431692 Recoleta, Región Metropolitana, Chile",
+          "comuna": "Recoleta"
+        },
+        {
+          "nombre": "Pasta E Basta",
+          "direccion": "Isidora Goyenechea 2850, 7550023 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Las Vacas Gordas",
+          "direccion": "Cienfuegos 280, 8340461 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Pescados Capitales",
+          "direccion": "Av. Nueva Costanera 3723, 7630000 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Casaluz Restaurant",
+          "direccion": "Av. Italia 805, 7501184 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "La Bifería",
+          "direccion": "065 - Av. Pedro de Valdivia, 7501012 Providencia, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Fuente Italiana",
+          "direccion": "P.º Bulnes 251, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "El Rincón de Fanor",
+          "direccion": "Fanor Velasco 15, 8340556 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Santa Brasa Alonso de Córdova",
+          "direccion": "Alonso de Córdova 4260, 7630504 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Restaurant Viva La Vida",
+          "direccion": "Constitución 166, 7520367 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Castillo Forestal",
+          "direccion": "Av. Cardenal José María Caro 390, 8320054 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Piegari Chile",
+          "direccion": "Av. Nueva Costanera 4092, 7630191 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Los Vikingos Restaurant",
+          "direccion": "Av. Ricardo Cumming 166, 8350538 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Fuente Oficial",
+          "direccion": "P.º Bulnes 72, Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "La Diana Restaurante",
+          "direccion": "Arturo Prat 435, 8330484 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "Las Vacas Gordas",
+          "direccion": "Linneo 6393, Local 6, 7560903 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        }
+      ]
+    },
+    {
+      "restaurant": "PedidosYa",
+      "beneficio": "30%",
+      "descripcion": "En categoria restaurantes ingresando código de descuento RIPLEYABR26 antes de pagar. Tope dcto. $4.000, máximo 1 compra mensual por usuario. Pagando con tus Tarjetas Banco Ripley.",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "PedidosYa Market San Miguel",
+          "direccion": "PG279-Parada - Gran Av. José Miguel Carrera 3, Paradero 17, 7970063 La Cisterna, Región Metropolitana, Chile",
+          "comuna": "La Cisterna"
+        },
+        {
+          "nombre": "InstaDelivery",
+          "direccion": "Málaga 115, 7550144 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Pedidosya Market Las CONDES",
+          "direccion": "Av. Las Condes 11411, 7590992 Santiago, Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "PedidosYa Market",
+          "direccion": "7650692 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Región Metropolitana"
+        },
+        {
+          "nombre": "Lin Wey",
+          "direccion": "Huérfanos 1467, 8340431 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "PedidosYa",
+          "direccion": "Las Condes, Región Metropolitana, Chile",
+          "comuna": "Región Metropolitana"
+        }
+      ]
+    },
+    {
+      "restaurant": "Sacacorchos",
+      "beneficio": "40%",
+      "descripcion": "Un 40% de descuento todos los días, en cajas de 6 y 12 vinos seleccionados. Pagando con tus Tarjetas Banco Ripley.&nbsp;",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Wine store Concha y Toro",
+          "direccion": "Alonso de Córdova 2391, 7550099 Vitacura, Región Metropolitana, Chile",
+          "comuna": "Vitacura"
+        },
+        {
+          "nombre": "Cherry Chile Importadora Spa - Manuel Montt 088",
+          "direccion": "Manuel Montt 088, Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        },
+        {
+          "nombre": "Joe's",
+          "direccion": "Jorge VI 409, 7580183 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Bocanáriz",
+          "direccion": "José Victorino Lastarria 276, 8320126 Santiago, Región Metropolitana, Chile",
+          "comuna": "Santiago"
+        },
+        {
+          "nombre": "CorchosChile",
+          "direccion": "San Francisco 2555, 8900012 San Miguel, Región Metropolitana, Chile",
+          "comuna": "San Miguel"
+        }
+      ]
+    },
+    {
+      "restaurant": "Philia",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento de jueves a domingo desde la semana del día de la madre en toda la carta. Excluye menú almuerzo y combinado all day. Tope de $40.000",
+      "dias_validos": "jueves, viernes, sabado, domingo",
+      "sucursales": [
+        {
+          "nombre": "PHILIA Casa de Café",
+          "direccion": "Av. Apoquindo 3039, 7550000 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "PHILIA Casa de Café Alonso de Cordova",
+          "direccion": "Alonso de Córdova 5870, LOCAL 2, 7550000 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        },
+        {
+          "nombre": "Philia Casa de Café Cerro El Plomo",
+          "direccion": "Cerro El Plomo 5630, local 106, 7550000 Las Condes, Región Metropolitana, Chile",
+          "comuna": "Las Condes"
+        }
+      ]
+    },
+    {
+      "restaurant": "Castaño",
+      "beneficio": "30%",
+      "descripcion": "En productos Castaño en todos los locales. Tope dcto. $10.000. Pide tu descuento al pagar en caja.&nbsp;",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "El Castaño",
+          "direccion": "El Castaño, Quilicura, Región Metropolitana, Chile",
+          "comuna": "Quilicura"
+        }
+      ]
+    },
+    {
+      "restaurant": "HelloWine",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento en regalo de suscripciones 3, 6, 9 o 12 meses",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "HelloWine",
+          "direccion": "Sin dirección",
+          "comuna": ""
+        }
+      ]
+    },
+    {
+      "restaurant": "HelloBeer",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento en regalo de suscripciones 3, 6, 9 o 12 meses",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "HelloBeer",
+          "direccion": "Sin dirección",
+          "comuna": ""
+        }
+      ]
+    },
+    {
+      "restaurant": "Café FIKA",
+      "beneficio": "20%",
+      "descripcion": "Un 20% de descuento todos los días en locales. No acumulable con promociones y descuentos.",
+      "dias_validos": "Todos los días",
+      "sucursales": [
+        {
+          "nombre": "Fika Coffeeshop Suecia",
+          "direccion": "Suecia 0104, 7500000 Providencia, Región Metropolitana, Chile",
+          "comuna": "Providencia"
+        }
+      ]
+    }
+  ]
+}
