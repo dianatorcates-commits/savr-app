@@ -184,6 +184,11 @@ export default function SavedBillsScreen() {
 
   const renderBillItem = ({ item }: { item: SavedBill }) => {
     const status = getBillGlobalStatus(item);
+    const consumedItems = item.consumedItems || [];
+    const totalCount = consumedItems.length;
+    const assignedCount = consumedItems.filter(i => i.status === 'Asignado').length;
+    const hasPendingAssignments = totalCount > 0 && assignedCount !== totalCount;
+
     return (
       <Animated.View entering={FadeInDown.duration(400)}>
         <TouchableOpacity
@@ -208,10 +213,19 @@ export default function SavedBillsScreen() {
           <View style={styles.separator} />
 
           <View style={styles.billCardFooter}>
-            <View style={[styles.statusBadge, { borderColor: status.color + '40', backgroundColor: status.color + '15' }]}>
-              <Text style={[styles.statusText, { color: status.color }]}>
-                {status.label}
-              </Text>
+            <View style={{ gap: 6, alignItems: 'flex-start', flex: 1 }}>
+              {hasPendingAssignments && (
+                <View style={[styles.statusBadge, { borderColor: '#DEB98D40', backgroundColor: '#DEB98D15' }]}>
+                  <Text style={[styles.statusText, { color: '#DEB98D' }]}>
+                    Pendiente ({assignedCount}/{totalCount} platos asignados) ⏳
+                  </Text>
+                </View>
+              )}
+              <View style={[styles.statusBadge, { borderColor: status.color + '40', backgroundColor: status.color + '15' }]}>
+                <Text style={[styles.statusText, { color: status.color }]}>
+                  {status.label}
+                </Text>
+              </View>
             </View>
             <Ionicons name="chevron-forward" size={18} color={Colors.primary} />
           </View>
