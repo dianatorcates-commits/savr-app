@@ -164,7 +164,15 @@ export default function SavedBillsScreen() {
         }
       }
     });
-    
+
+    const unassignedItems = bill.consumedItems?.filter(item => item.status === 'Sin Asignar') || [];
+    if (unassignedItems.length > 0) {
+      message += `\n📌 *Platos sin asignar:*\n`;
+      unassignedItems.forEach(item => {
+        message += `   • ${item.name}: $${Math.round(item.price).toLocaleString('es-CL')}\n`;
+      });
+    }
+
     message += `\n💰 Por favor transferir a mi cuenta. ¡Muchas gracias!`;
 
     try {
@@ -378,6 +386,27 @@ export default function SavedBillsScreen() {
                       );
                     })}
                   </View>
+
+                  {/* PLATOS SIN ASIGNAR */}
+                  {(() => {
+                    const unassigned = selectedBill.consumedItems?.filter(i => i.status === 'Sin Asignar') || [];
+                    if (unassigned.length === 0) return null;
+                    return (
+                      <View style={{ marginTop: 24 }}>
+                        <Text style={styles.participantsTitle}>Platos Sin Asignar</Text>
+                        <View style={styles.unassignedContainer}>
+                          {unassigned.map((item, idx) => (
+                            <View key={idx} style={styles.unassignedRow}>
+                              <Text style={styles.unassignedName} numberOfLines={1}>{item.name}</Text>
+                              <Text style={styles.unassignedPrice}>
+                                ${Math.round(item.price).toLocaleString('es-CL')}
+                              </Text>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                    );
+                  })()}
                 </ScrollView>
 
                 {/* BOTONES ACCIONES INFERIORES */}
@@ -751,5 +780,30 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 15,
     fontWeight: 'bold',
+  },
+  unassignedContainer: {
+    gap: 10,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+  },
+  unassignedRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  unassignedName: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.6)',
+    fontWeight: '500',
+    flex: 1,
+    paddingRight: 8,
+  },
+  unassignedPrice: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.5)',
+    fontWeight: '600',
   },
 });

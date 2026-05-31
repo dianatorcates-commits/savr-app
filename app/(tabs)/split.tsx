@@ -387,7 +387,7 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
     setSelectedFriendActions(friend);
   };
 
-  const allAssigned = items.every(i => i.assignedTo.length > 0);
+  const hasItems = items.length > 0;
 
   // STEP 3: Summary Logic
   const getFriendBaseTotals = () => {
@@ -568,6 +568,13 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
         };
       }).filter(detail => detail.totalAmount > 0 || detail.consumedItems.length > 0);
 
+      const billConsumedItems = items.map(item => ({
+        name: item.name,
+        price: item.price,
+        splitPrice: item.assignedTo.length > 0 ? (item.price / item.assignedTo.length) : item.price,
+        status: item.assignedTo.length > 0 ? ('Asignado' as const) : ('Sin Asignar' as const),
+      }));
+
       await saveBill({
         userId: user.uid,
         restaurantName: restaurantName.trim() || 'Restaurante sin nombre',
@@ -576,6 +583,7 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
         tipPercentage: effectiveTipPercentage,
         grandTotalTip,
         friends: friendDetails,
+        consumedItems: billConsumedItems,
       });
 
       setShowSuccess(true);
@@ -810,9 +818,9 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
             {/* Next Step Button */}
             <View style={styles.bottomNav}>
               <TouchableOpacity
-                style={[styles.primaryButton, !allAssigned && styles.buttonDisabled]}
+                style={[styles.primaryButton, !hasItems && styles.buttonDisabled]}
                 onPress={() => setStep(3)}
-                disabled={!allAssigned}
+                disabled={!hasItems}
               >
                 <Text style={styles.primaryButtonText}>Ver Resumen</Text>
               </TouchableOpacity>
