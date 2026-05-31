@@ -72,6 +72,7 @@ export default function SplitScreen() {
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [showSuccess, setShowSuccess] = useState<boolean>(false);
   const [isBillSaved, setIsBillSaved] = useState<boolean>(false);
+  const [isBillShared, setIsBillShared] = useState<boolean>(false);
 
 
   // State for expanded summaries per person (Issue #22)
@@ -603,6 +604,7 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
 
     try {
       await Share.share({ message });
+      setIsBillShared(true);
     } catch (error) {
       console.log(error);
     }
@@ -642,6 +644,7 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
     setManualTip('');
     setExpandedFriends({});
     setIsBillSaved(false);
+    setIsBillShared(false);
   };
 
   return (
@@ -1341,18 +1344,48 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
               </View>
               
               <Text style={styles.successModalTitle}>¡Éxito! 🎉</Text>
-              <Text style={styles.successModalText}>La cuenta ha sido guardada correctamente.</Text>
-              
-              <TouchableOpacity
-                style={styles.successModalButton}
-                onPress={() => {
-                  setShowSuccess(false);
-                  resetFlow();
-                }}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.successModalButtonText}>Aceptar</Text>
-              </TouchableOpacity>
+              {!isBillShared ? (
+                <>
+                  <Text style={styles.successModalText}>La cuenta ha sido guardada. ¿Deseas enviarla a tus amigos?</Text>
+                  
+                  <TouchableOpacity
+                    style={styles.successModalButton}
+                    onPress={() => {
+                      setShowSuccess(false);
+                      shareSummary();
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.successModalButtonText}>Compartir Cuenta 💬</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.successModalSecondaryButton}
+                    onPress={() => {
+                      setShowSuccess(false);
+                      resetFlow();
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.successModalSecondaryButtonText}>Finalizar</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.successModalText}>La cuenta ha sido guardada correctamente.</Text>
+                  
+                  <TouchableOpacity
+                    style={styles.successModalButton}
+                    onPress={() => {
+                      setShowSuccess(false);
+                      resetFlow();
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.successModalButtonText}>Empezar de nuevo</Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </Animated.View>
           </View>
         </Modal>
@@ -1673,6 +1706,21 @@ const styles = StyleSheet.create({
   },
   successModalButtonText: {
     color: Colors.background,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  successModalSecondaryButton: {
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    borderRadius: 16,
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+  },
+  successModalSecondaryButtonText: {
+    color: Colors.primary,
     fontSize: 16,
     fontWeight: 'bold',
   },
