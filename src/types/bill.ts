@@ -12,6 +12,13 @@ export interface FriendBillDetail {
   paymentStatus: 'pendiente' | 'pagado';
 }
 
+export interface BillConsumedItem {
+  name: string;
+  price: number;
+  splitPrice: number;
+  status: 'Sin Asignar' | 'Asignado';
+}
+
 export interface SavedBill {
   id?: string;
   userId: string;
@@ -21,5 +28,6 @@ export interface SavedBill {
   tipPercentage: number;
   grandTotalTip: number;
   friends: FriendBillDetail[];
+  consumedItems?: BillConsumedItem[];
   createdAt?: any;
 }

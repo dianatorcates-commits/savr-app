@@ -104,6 +104,7 @@ export async function getUserBills(userId: string): Promise<SavedBill[]> {
         tipPercentage: data.tipPercentage || 0,
         grandTotalTip: data.grandTotalTip || 0,
         friends: data.friends || [],
+        consumedItems: data.consumedItems || [],
         createdAt: data.createdAt,
       });
     });
