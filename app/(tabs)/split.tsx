@@ -71,6 +71,7 @@ export default function SplitScreen() {
   const [discount, setDiscount] = useState<number>(0);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [showSuccess, setShowSuccess] = useState<boolean>(false);
+  const [isBillSaved, setIsBillSaved] = useState<boolean>(false);
 
 
   // State for expanded summaries per person (Issue #22)
@@ -464,7 +465,79 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
 
   const totals = getFinalTotals();
 
+  const executeSaveBill = async (showAuthAlert = true) => {
+    const user = authService.getCurrentUser();
+    if (!user) {
+      if (showAuthAlert) {
+        Alert.alert('Sesión requerida', 'Debes iniciar sesión para guardar la cuenta.');
+      }
+      return false;
+    }
+
+    try {
+      const friendDetails = friends.map(f => {
+        const adjustedBase = adjustedBaseTotals[f.id] || 0;
+        const friendTipAmount = adjustedBase * (effectiveTipPercentage / 100);
+        const totalAmount = adjustedBase + friendTipAmount;
+
+        const consumedItems = items
+          .filter(item => item.assignedTo.includes(f.id))
+          .map(item => ({
+            name: item.name,
+            price: item.price,
+            splitPrice: item.price / item.assignedTo.length,
+          }));
+
+        return {
+          friendId: f.id,
+          name: f.name,
+          consumedItems,
+          baseAmount: adjustedBase,
+          tipAmount: friendTipAmount,
+          totalAmount: totalAmount,
+          paymentStatus: 'pendiente' as const,
+        };
+      }).filter(detail => detail.totalAmount > 0 || detail.consumedItems.length > 0);
+
+      const billConsumedItems = items.map(item => ({
+        name: item.name,
+        price: item.price,
+        splitPrice: item.assignedTo.length > 0 ? (item.price / item.assignedTo.length) : item.price,
+        status: item.assignedTo.length > 0 ? ('Asignado' as const) : ('Sin Asignar' as const),
+      }));
+
+      await saveBill({
+        userId: user.uid,
+        restaurantName: restaurantName.trim() || 'Restaurante sin nombre',
+        generalDiscount: discount,
+        grandTotal: grandTotal,
+        tipPercentage: effectiveTipPercentage,
+        grandTotalTip,
+        friends: friendDetails,
+        consumedItems: billConsumedItems,
+      });
+
+      setIsBillSaved(true);
+      return true;
+    } catch (error) {
+      console.error('Error al guardar la cuenta:', error);
+      if (showAuthAlert) {
+        Alert.alert('Error 🚨', 'No se pudo guardar la cuenta. Por favor intenta de nuevo.');
+      }
+      return false;
+    }
+  };
+
   const shareSummary = async () => {
+    if (!isBillSaved) {
+      const user = authService.getCurrentUser();
+      if (user) {
+        setIsSaving(true);
+        await executeSaveBill(false);
+        setIsSaving(false);
+      }
+    }
+
     let message = `🧾 *Resumen de la Cuenta*\n`;
     if (restaurantName) {
       message += `📍 Restaurante: *${restaurantName}*\n`;
@@ -536,62 +609,16 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
   };
 
   const handleSaveBill = async () => {
-    const user = authService.getCurrentUser();
-    if (!user) {
-      Alert.alert('Sesión requerida', 'Debes iniciar sesión para guardar la cuenta.');
+    if (isBillSaved) {
+      setShowSuccess(true);
       return;
     }
 
     setIsSaving(true);
-    try {
-      const friendDetails = friends.map(f => {
-        const adjustedBase = adjustedBaseTotals[f.id] || 0;
-        const friendTipAmount = adjustedBase * (effectiveTipPercentage / 100);
-        const totalAmount = adjustedBase + friendTipAmount;
-
-        const consumedItems = items
-          .filter(item => item.assignedTo.includes(f.id))
-          .map(item => ({
-            name: item.name,
-            price: item.price,
-            splitPrice: item.price / item.assignedTo.length,
-          }));
-
-        return {
-          friendId: f.id,
-          name: f.name,
-          consumedItems,
-          baseAmount: adjustedBase,
-          tipAmount: friendTipAmount,
-          totalAmount: totalAmount,
-          paymentStatus: 'pendiente' as const,
-        };
-      }).filter(detail => detail.totalAmount > 0 || detail.consumedItems.length > 0);
-
-      const billConsumedItems = items.map(item => ({
-        name: item.name,
-        price: item.price,
-        splitPrice: item.assignedTo.length > 0 ? (item.price / item.assignedTo.length) : item.price,
-        status: item.assignedTo.length > 0 ? ('Asignado' as const) : ('Sin Asignar' as const),
-      }));
-
-      await saveBill({
-        userId: user.uid,
-        restaurantName: restaurantName.trim() || 'Restaurante sin nombre',
-        generalDiscount: discount,
-        grandTotal: grandTotal,
-        tipPercentage: effectiveTipPercentage,
-        grandTotalTip,
-        friends: friendDetails,
-        consumedItems: billConsumedItems,
-      });
-
+    const success = await executeSaveBill(true);
+    setIsSaving(false);
+    if (success) {
       setShowSuccess(true);
-    } catch (error) {
-      console.error('Error al guardar la cuenta:', error);
-      Alert.alert('Error 🚨', 'No se pudo guardar la cuenta. Por favor intenta de nuevo.');
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -614,6 +641,7 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
     setIsTipPercentageMode(true);
     setManualTip('');
     setExpandedFriends({});
+    setIsBillSaved(false);
   };
 
   return (
