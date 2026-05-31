@@ -12,8 +12,10 @@ import { authService } from '../../src/services/auth';
 import { getRecentFriends } from '../../src/services/friends';
 import { Friend as DbFriend } from '../../src/types';
 import { Colors } from '../../constants/theme';
-import { saveBill } from '../../src/services/bills';
+import { saveBill, updateBillFull } from '../../src/services/bills';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useLocalSearchParams, router } from 'expo-router';
+import { SavedBill } from '../../src/types/bill';
 
 
 type Friend = { id: string; name: string; color: string; isGuest?: boolean };
@@ -73,6 +75,65 @@ export default function SplitScreen() {
   const [showSuccess, setShowSuccess] = useState<boolean>(false);
   const [isBillSaved, setIsBillSaved] = useState<boolean>(false);
   const [isBillShared, setIsBillShared] = useState<boolean>(false);
+  const [editBillId, setEditBillId] = useState<string | null>(null);
+
+  const params = useLocalSearchParams();
+
+  // useEffect to hydrate editBillData if present
+  React.useEffect(() => {
+    if (params.editBillData && typeof params.editBillData === 'string') {
+      try {
+        const billData: SavedBill = JSON.parse(params.editBillData);
+        if (billData.id) {
+          setEditBillId(billData.id);
+          setRestaurantName(billData.restaurantName || '');
+          setDiscount(billData.generalDiscount || 0);
+          setTipPercentage(billData.tipPercentage || 0);
+          setIsTipPercentageMode(true);
+
+          // Reconstruct friends
+          const recFriends: Friend[] = billData.friends.map((f, i) => ({
+            id: f.friendId,
+            name: f.name,
+            color: FRIEND_COLORS[i % FRIEND_COLORS.length],
+            isGuest: (f as any).isGuest || false,
+          }));
+          setFriends(recFriends);
+
+          // Reconstruct items
+          if (billData.consumedItems) {
+            const recItems: ReceiptItem[] = billData.consumedItems.map((cItem, i) => {
+              const assignedTo: string[] = [];
+              billData.friends.forEach(f => {
+                // If the friend has an item with matching name and splitPrice, they are assigned
+                const hasItem = f.consumedItems.some(fi => fi.name === cItem.name && Math.abs(fi.price - cItem.price) < 0.1);
+                if (hasItem) {
+                  assignedTo.push(f.friendId);
+                }
+              });
+              return {
+                id: `edit_${i}_${Date.now()}`,
+                name: cItem.name,
+                price: cItem.price,
+                assignedTo
+              };
+            });
+            setItems(recItems);
+          }
+
+          // Move directly to step 2 (assignment)
+          setStep(2);
+          setIsBillSaved(false);
+          setIsBillShared(false);
+          
+          // Clear params
+          router.setParams({ editBillData: '' });
+        }
+      } catch (err) {
+        console.error('Error parsing editBillData', err);
+      }
+    }
+  }, [params.editBillData]);
 
 
   // State for expanded summaries per person (Issue #22)
@@ -507,8 +568,7 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
         status: item.assignedTo.length > 0 ? ('Asignado' as const) : ('Sin Asignar' as const),
       }));
 
-      await saveBill({
-        userId: user.uid,
+      const billPayload = {
         restaurantName: restaurantName.trim() || 'Restaurante sin nombre',
         generalDiscount: discount,
         grandTotal: grandTotal,
@@ -516,7 +576,16 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
         grandTotalTip,
         friends: friendDetails,
         consumedItems: billConsumedItems,
-      });
+      };
+
+      if (editBillId) {
+        await updateBillFull(editBillId, billPayload);
+      } else {
+        await saveBill({
+          userId: user.uid,
+          ...billPayload,
+        });
+      }
 
       setIsBillSaved(true);
       return true;
@@ -645,6 +714,7 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
     setExpandedFriends({});
     setIsBillSaved(false);
     setIsBillShared(false);
+    setEditBillId(null);
   };
 
   return (
@@ -1074,7 +1144,9 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
                 {isSaving ? (
                   <ActivityIndicator size="small" color={Colors.primary} />
                 ) : (
-                  <Text style={styles.saveDbButtonText}>Guardar Cuenta en la App 💾</Text>
+                  <Text style={styles.saveDbButtonText}>
+                    {editBillId ? 'Guardar Cambios en la cuenta 💾' : 'Guardar Cuenta en la App 💾'}
+                  </Text>
                 )}
               </TouchableOpacity>
 
