@@ -421,18 +421,34 @@ export default function SavedBillsScreen() {
                       </View>
                     );
                   })()}
+                  {/* ACCIONES DEL SCROLL */}
+                  <View style={styles.modalScrollActions}>
+                    <TouchableOpacity
+                      style={styles.editBillBtn}
+                      onPress={() => {
+                        router.push({ 
+                          pathname: '/(tabs)/split', 
+                          params: { editBillData: JSON.stringify(selectedBill) } 
+                        });
+                        setSelectedBill(null);
+                      }}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={styles.editBillBtnText}>Editar Cuenta ✏️</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.shareSummaryBtn}
+                      onPress={() => handleShareAgain(selectedBill)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={styles.shareSummaryBtnText}>Compartir Detalle 💬</Text>
+                    </TouchableOpacity>
+                  </View>
                 </ScrollView>
 
                 {/* BOTONES ACCIONES INFERIORES */}
                 <View style={styles.modalFooterActions}>
-                  <TouchableOpacity
-                    style={styles.shareSummaryBtn}
-                    onPress={() => handleShareAgain(selectedBill)}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={styles.shareSummaryBtnText}>Compartir Detalle</Text>
-                  </TouchableOpacity>
-
                   <TouchableOpacity
                     style={styles.closeDetailsBtn}
                     onPress={() => setSelectedBill(null)}
@@ -761,13 +777,17 @@ const styles = StyleSheet.create({
   statusPendingText: {
     color: 'rgba(255, 255, 255, 0.6)',
   },
-  modalFooterActions: {
-    flexDirection: 'row',
+  modalScrollActions: {
+    flexDirection: 'column',
     gap: 12,
-    paddingTop: 8,
+    marginTop: 24,
+    marginBottom: 8,
   },
-  shareSummaryBtn: {
-    flex: 1,
+  modalFooterActions: {
+    paddingTop: 16,
+  },
+  editBillBtn: {
+    width: '100%',
     backgroundColor: Colors.primary,
     paddingVertical: 14,
     borderRadius: 16,
@@ -775,13 +795,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  shareSummaryBtnText: {
+  editBillBtnText: {
     color: Colors.background,
     fontSize: 15,
     fontWeight: 'bold',
   },
+  shareSummaryBtn: {
+    width: '100%',
+    backgroundColor: 'rgba(222, 185, 141, 0.15)',
+    paddingVertical: 14,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(222, 185, 141, 0.3)',
+  },
+  shareSummaryBtnText: {
+    color: Colors.primary,
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
   closeDetailsBtn: {
-    flex: 1,
+    width: '100%',
     backgroundColor: 'rgba(255,255,255,0.08)',
     paddingVertical: 14,
     borderRadius: 16,

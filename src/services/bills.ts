@@ -136,3 +136,34 @@ export async function updateBillFriends(billId: string, friends: FriendBillDetai
   }
 }
 
+/**
+ * Actualiza una cuenta dividida existente en Firestore
+ */
+export async function updateBillFull(billId: string, data: Partial<SavedBill>): Promise<void> {
+  try {
+    const billDocRef = doc(db, 'bills', billId);
+    
+    // Firestore no acepta valores 'undefined'.
+    const cleanObject = (obj: any): any => {
+      if (Array.isArray(obj)) {
+        return obj.map(cleanObject);
+      } else if (obj !== null && typeof obj === 'object') {
+        const cleaned: any = {};
+        Object.keys(obj).forEach((key) => {
+          const val = obj[key];
+          if (val !== undefined) {
+            cleaned[key] = cleanObject(val);
+          }
+        });
+        return cleaned;
+      }
+      return obj;
+    };
+
+    const cleanData = cleanObject(data);
+    await updateDoc(billDocRef, cleanData);
+  } catch (error) {
+    console.error('Error al actualizar la cuenta completa:', error);
+    throw error;
+  }
+}
