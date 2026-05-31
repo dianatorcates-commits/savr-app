@@ -7,10 +7,12 @@ import { authService } from '../services/auth';
 import { getUserProfile, updateUserProfile } from '../services/firebaseUsers';
 import { UserProfile } from '../types';
 import { getUserTotalVisitsCount } from '../services/visits';
+import { getUserBills } from '../services/bills';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { router } from 'expo-router';
 
 interface Bank {
   id: string;
@@ -44,6 +46,7 @@ export default function ProfileScreen() {
   const [selectedFoods, setSelectedFoods] = useState<string[]>([]);
   
   const [visitsCount, setVisitsCount] = useState(0);
+  const [billsCount, setBillsCount] = useState(0);
 
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertConfig, setAlertConfig] = useState({ title: '', message: '', isError: false });
@@ -92,6 +95,9 @@ export default function ProfileScreen() {
         
         const count = await getUserTotalVisitsCount(currentUser.uid);
         setVisitsCount(count);
+
+        const bills = await getUserBills(currentUser.uid);
+        setBillsCount(bills.length);
       }
     } catch (error) {
       console.error('Error fetching profile data:', error);
@@ -253,11 +259,31 @@ export default function ProfileScreen() {
               <Text style={styles.metricValue}>{visitsCount}</Text>
               <Text style={styles.metricLabel}>Visitas Registradas</Text>
             </View>
-            <View style={styles.metricBox}>
-              <Text style={styles.metricValue}>0</Text>
+            <TouchableOpacity 
+              style={styles.metricBox} 
+              onPress={() => router.push('/saved-bills')}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.metricValue}>{billsCount}</Text>
               <Text style={styles.metricLabel}>Cuentas Divididas</Text>
-            </View>
+            </TouchableOpacity>
           </View>
+        </BlurView>
+
+        {/* Sección de Historial */}
+        <BlurView intensity={40} tint="dark" style={styles.card}>
+          <Text style={styles.sectionTitle}>Historial</Text>
+          <TouchableOpacity 
+            style={styles.historyBtn} 
+            onPress={() => router.push('/saved-bills')}
+            activeOpacity={0.8}
+          >
+            <View style={styles.historyBtnContent}>
+              <Ionicons name="receipt-outline" size={24} color={Colors.primary} />
+              <Text style={styles.historyBtnText}>Ver mis cuentas divididas</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={Colors.primary} />
+          </TouchableOpacity>
         </BlurView>
 
         {/* Botón de Cerrar Sesión */}
@@ -501,6 +527,26 @@ const styles = StyleSheet.create({
     color: '#FF6B6B',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  historyBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  historyBtnContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  historyBtnText: {
+    color: Colors.white,
+    fontSize: 16,
+    fontWeight: '600',
   },
   modalOverlay: {
     flex: 1,
