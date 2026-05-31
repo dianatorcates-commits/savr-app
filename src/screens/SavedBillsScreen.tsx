@@ -12,7 +12,8 @@ import {
   Share,
   SafeAreaView,
   Platform,
-  StatusBar
+  StatusBar,
+  Alert
 } from 'react-native';
 import { router } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -23,7 +24,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Colors } from '../../constants/theme';
 import { authService } from '../services/auth';
-import { getUserBills, updateBillFriends } from '../services/bills';
+import { getUserBills, updateBillFriends, softDeleteBill } from '../services/bills';
 import { SavedBill } from '../types/bill';
 
 export default function SavedBillsScreen() {
@@ -55,6 +56,31 @@ export default function SavedBillsScreen() {
     setRefreshing(true);
     loadBills(false);
   };
+
+  const handleDeleteBill = useCallback((billId: string) => {
+    Alert.alert(
+      'Eliminar Cuenta',
+      '¿Estás seguro que deseas eliminar esta cuenta? Esta acción no se puede deshacer.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await softDeleteBill(billId);
+              setSelectedBill(null);
+              setBills((prev) => prev.filter((b) => b.id !== billId));
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            } catch (error) {
+              console.error('Error al eliminar cuenta:', error);
+              Alert.alert('Error', 'No se pudo eliminar la cuenta. Intenta nuevamente.');
+            }
+          },
+        },
+      ]
+    );
+  }, []);
 
   const getBillGlobalStatus = (bill: SavedBill) => {
     if (!bill.friends || bill.friends.length === 0) {
@@ -443,6 +469,14 @@ export default function SavedBillsScreen() {
                       activeOpacity={0.8}
                     >
                       <Text style={styles.shareSummaryBtnText}>Compartir Detalle 💬</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.shareSummaryBtn, { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}
+                      onPress={() => selectedBill.id && handleDeleteBill(selectedBill.id)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={[styles.shareSummaryBtnText, { color: '#ef4444' }]}>Eliminar Cuenta 🗑️</Text>
                     </TouchableOpacity>
                   </View>
                 </ScrollView>

@@ -29,5 +29,6 @@ export interface SavedBill {
   grandTotalTip: number;
   friends: FriendBillDetail[];
   consumedItems?: BillConsumedItem[];
+  isActive?: boolean;
   createdAt?: any;
 }
