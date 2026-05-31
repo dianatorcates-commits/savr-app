@@ -48,6 +48,13 @@ export default function SplitScreen() {
   const [showItemAssign, setShowItemAssign] = useState(false);
 
   const [tipPercentage, setTipPercentage] = useState<number>(0);
+  const [isTipPercentageMode, setIsTipPercentageMode] = useState<boolean>(true);
+  const [manualTip, setManualTip] = useState<string>('');
+
+  const handleManualTipChange = (text: string) => {
+    const cleaned = text.replace(/[^0-9]/g, '');
+    setManualTip(cleaned);
+  };
 
   // States for Manual Entry
   const [manualName, setManualName] = useState('');
@@ -391,14 +398,20 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
   const { base: friendBaseTotals, adjusted: adjustedBaseTotals, grandTotalBaseRaw, discountedBase } = getAdjustedBaseTotals();
 
   const grandTotalBase = grandTotalBaseRaw; // Keep it as raw for showing subtotal base in breakdown
-  const grandTotalTip = discountedBase * (tipPercentage / 100);
+  const grandTotalTip = isTipPercentageMode
+    ? discountedBase * (tipPercentage / 100)
+    : (parseInt(manualTip.replace(/\D/g, ''), 10) || 0);
   const grandTotal = discountedBase + grandTotalTip;
+
+  const effectiveTipPercentage = isTipPercentageMode
+    ? tipPercentage
+    : (discountedBase > 0 ? (grandTotalTip / discountedBase) * 100 : 0);
 
   const getFinalTotals = () => {
     const final: Record<string, number> = {};
     friends.forEach(f => {
       const adjustedBase = adjustedBaseTotals[f.id] || 0;
-      final[f.id] = adjustedBase * (1 + tipPercentage / 100);
+      final[f.id] = adjustedBase * (1 + effectiveTipPercentage / 100);
     });
     return final;
   };
@@ -415,7 +428,10 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
       message += `Descuento General: -$${Math.round(discount).toLocaleString('es-CL')}\n`;
       message += `Subtotal c/Desc: $${Math.round(discountedBase).toLocaleString('es-CL')}\n`;
     }
-    message += `Propina (${tipPercentage}%): $${Math.round(grandTotalTip).toLocaleString('es-CL')}\n`;
+    const formatTipPct = isTipPercentageMode
+      ? `${tipPercentage}%`
+      : `${Math.round(effectiveTipPercentage)}% manual`;
+    message += `Propina (${formatTipPct}): $${Math.round(grandTotalTip).toLocaleString('es-CL')}\n`;
     message += `*Total Final: $${Math.round(grandTotal).toLocaleString('es-CL')}*\n\n`;
     message += `👤 *Detalle por persona:*\n`;
     friends.forEach(f => {
@@ -433,14 +449,14 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
         
         const fBase = friendBaseTotals[f.id] || 0;
         const fAdjusted = adjustedBaseTotals[f.id] || 0;
-        const fTip = fAdjusted * (tipPercentage / 100);
+        const fTip = fAdjusted * (effectiveTipPercentage / 100);
         
         message += `   ----------------\n`;
         message += `   Consumo base: $${Math.round(fBase).toLocaleString('es-CL')}\n`;
         if (discount > 0) {
           message += `   Descuento: -$${Math.round(fBase - fAdjusted).toLocaleString('es-CL')}\n`;
         }
-        if (tipPercentage > 0) {
+        if (effectiveTipPercentage > 0) {
           message += `   Propina: $${Math.round(fTip).toLocaleString('es-CL')}\n`;
         }
       }
@@ -465,7 +481,7 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
     try {
       const friendDetails = friends.map(f => {
         const adjustedBase = adjustedBaseTotals[f.id] || 0;
-        const friendTipAmount = adjustedBase * (tipPercentage / 100);
+        const friendTipAmount = adjustedBase * (effectiveTipPercentage / 100);
         const totalAmount = adjustedBase + friendTipAmount;
 
         const consumedItems = items
@@ -492,7 +508,7 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
         restaurantName: restaurantName.trim() || 'Restaurante sin nombre',
         generalDiscount: discount,
         grandTotal: grandTotal,
-        tipPercentage,
+        tipPercentage: effectiveTipPercentage,
         grandTotalTip,
         friends: friendDetails,
       });
@@ -522,6 +538,8 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
     setRestaurantName('');
     setDiscount(0);
     setTipPercentage(0);
+    setIsTipPercentageMode(true);
+    setManualTip('');
     setExpandedFriends({});
   };
 
@@ -746,19 +764,47 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
                 </View>
               ) : null}
 
-              <View style={styles.tipSection}>
-                <Text style={styles.tipLabel}>Propina:</Text>
-                <View style={styles.tipButtonsRow}>
-                  {[0, 10, 15].map(pct => (
+              <View style={styles.tipSectionContainer}>
+                <View style={styles.tipSection}>
+                  <Text style={styles.tipLabel}>Propina:</Text>
+                  <View style={styles.tipButtonsRow}>
+                    {[0, 10, 15].map(pct => (
+                      <TouchableOpacity
+                        key={pct}
+                        style={[styles.tipBtn, isTipPercentageMode && tipPercentage === pct && styles.tipBtnActive]}
+                        onPress={() => {
+                          setTipPercentage(pct);
+                          setIsTipPercentageMode(true);
+                          setManualTip('');
+                        }}
+                      >
+                        <Text style={[styles.tipBtnText, isTipPercentageMode && tipPercentage === pct && styles.tipBtnTextActive]}>{pct}%</Text>
+                      </TouchableOpacity>
+                    ))}
                     <TouchableOpacity
-                      key={pct}
-                      style={[styles.tipBtn, tipPercentage === pct && styles.tipBtnActive]}
-                      onPress={() => setTipPercentage(pct)}
+                      style={[styles.tipBtn, !isTipPercentageMode && styles.tipBtnActive]}
+                      onPress={() => {
+                        setIsTipPercentageMode(false);
+                      }}
                     >
-                      <Text style={[styles.tipBtnText, tipPercentage === pct && styles.tipBtnTextActive]}>{pct}%</Text>
+                      <Text style={[styles.tipBtnText, !isTipPercentageMode && styles.tipBtnTextActive]}>Manual</Text>
                     </TouchableOpacity>
-                  ))}
+                  </View>
                 </View>
+
+                {!isTipPercentageMode && (
+                  <View style={styles.manualTipInputContainer}>
+                    <Text style={styles.manualTipInputLabel}>Monto de propina ($):</Text>
+                    <TextInput
+                      style={styles.manualTipInput}
+                      placeholder="Ej: 5000"
+                      placeholderTextColor="rgba(255,255,255,0.4)"
+                      keyboardType="numeric"
+                      value={manualTip}
+                      onChangeText={handleManualTipChange}
+                    />
+                  </View>
+                )}
               </View>
 
               {/* Desglose de Totales */}
@@ -774,7 +820,7 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
                   </View>
                 )}
                 <View style={styles.breakdownRow}>
-                  <Text style={styles.breakdownLabel}>Propina ({tipPercentage}%):</Text>
+                  <Text style={styles.breakdownLabel}>Propina ({isTipPercentageMode ? `${tipPercentage}%` : `${Math.round(effectiveTipPercentage)}% manual`}):</Text>
                   <Text style={styles.breakdownValue}>${Math.round(grandTotalTip).toLocaleString('es-CL')}</Text>
                 </View>
               </View>
@@ -854,11 +900,11 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
                                 </Text>
                               </View>
                             )}
-                            {tipPercentage > 0 && (
+                            {effectiveTipPercentage > 0 && (
                               <View style={styles.detailBreakdownRow}>
-                                <Text style={styles.detailBreakdownLabel}>Propina ({tipPercentage}%):</Text>
+                                <Text style={styles.detailBreakdownLabel}>Propina ({isTipPercentageMode ? `${tipPercentage}%` : `${Math.round(effectiveTipPercentage)}%`}):</Text>
                                 <Text style={styles.detailBreakdownValue}>
-                                  ${Math.round((adjustedBaseTotals[f.id] || 0) * (tipPercentage / 100)).toLocaleString('es-CL')}
+                                  ${Math.round((adjustedBaseTotals[f.id] || 0) * (effectiveTipPercentage / 100)).toLocaleString('es-CL')}
                                 </Text>
                               </View>
                             )}
@@ -1200,13 +1246,17 @@ const styles = StyleSheet.create({
   summaryCard: { flex: 1, borderRadius: 24, padding: 16, backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
   summaryTotalLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 14, textAlign: 'center', marginBottom: 2 },
   summaryTotalAmount: { color: Colors.primary, fontSize: 32, fontWeight: 'bold', textAlign: 'center' },
-  tipSection: { marginTop: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12 },
+  tipSectionContainer: { marginTop: 12, gap: 8, width: '100%' },
+  tipSection: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12 },
   tipLabel: { color: Colors.white, fontSize: 14, fontWeight: '500' },
   tipButtonsRow: { flexDirection: 'row', gap: 8 },
   tipBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' },
   tipBtnActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   tipBtnText: { color: Colors.white, fontSize: 13, fontWeight: '600' },
   tipBtnTextActive: { color: Colors.background },
+  manualTipInputContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 },
+  manualTipInputLabel: { color: 'rgba(255,255,255,0.7)', fontSize: 13 },
+  manualTipInput: { backgroundColor: 'rgba(255,255,255,0.08)', color: Colors.white, height: 44, width: 120, borderRadius: 8, paddingHorizontal: 10, fontSize: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', textAlign: 'center' },
   divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.1)', marginVertical: 16 },
   summaryList: { flex: 1, paddingHorizontal: 4 },
   summaryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, backgroundColor: 'rgba(255,255,255,0.08)', padding: 16, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },

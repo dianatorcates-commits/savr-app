@@ -6,10 +6,16 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "TU_ID_DE_CLIENTE_WEB_AQUI"
+      }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "TU_ID_DE_CLIENTE_WEB_AQUI"
+      }
     },
     "apk": {
       "extends": "preview",
@@ -18,7 +24,10 @@
       }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "TU_ID_DE_CLIENTE_WEB_AQUI"
+      }
     }
   },
   "submit": {

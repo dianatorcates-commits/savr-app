@@ -10,7 +10,11 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.savrapp.savr"
+      "bundleIdentifier": "com.savrapp.savr",
+      "config": {},
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.savrapp.savr",
@@ -35,7 +39,12 @@
           }
         }
       ],
-      "@react-native-google-signin/google-signin"
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.301787533350-ou9vr0qqgmfn9mr1a46661cte2tvvo1j"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
