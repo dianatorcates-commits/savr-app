@@ -1,6 +1,6 @@
-import { collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
-import { SavedBill } from '../types/bill';
+import { SavedBill, FriendBillDetail } from '../types/bill';
 
 /**
  * Guarda una nueva cuenta dividida en Firestore
@@ -80,6 +80,58 @@ export async function getUserMonthlySavings(userId: string): Promise<number> {
   } catch (error) {
     console.error('Error getting user monthly savings:', error);
     return 0;
+  }
+}
+
+/**
+ * Obtiene todas las cuentas divididas de un usuario ordenadas por fecha descendente
+ */
+export async function getUserBills(userId: string): Promise<SavedBill[]> {
+  try {
+    const billsCol = collection(db, 'bills');
+    const q = query(billsCol, where('userId', '==', userId));
+    const querySnapshot = await getDocs(q);
+    const bills: SavedBill[] = [];
+    
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      bills.push({
+        id: doc.id,
+        userId: data.userId,
+        restaurantName: data.restaurantName,
+        generalDiscount: data.generalDiscount || 0,
+        grandTotal: data.grandTotal || 0,
+        tipPercentage: data.tipPercentage || 0,
+        grandTotalTip: data.grandTotalTip || 0,
+        friends: data.friends || [],
+        createdAt: data.createdAt,
+      });
+    });
+
+    // Ordenar en memoria por fecha descendente
+    bills.sort((a, b) => {
+      const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+      const dateB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+      return dateB - dateA;
+    });
+
+    return bills;
+  } catch (error) {
+    console.error('Error al obtener las cuentas del usuario:', error);
+    return [];
+  }
+}
+
+/**
+ * Actualiza la lista de amigos (incluyendo sus estados de pago) en una cuenta guardada
+ */
+export async function updateBillFriends(billId: string, friends: FriendBillDetail[]): Promise<void> {
+  try {
+    const billDocRef = doc(db, 'bills', billId);
+    await updateDoc(billDocRef, { friends });
+  } catch (error) {
+    console.error('Error al actualizar amigos de la cuenta:', error);
+    throw error;
   }
 }
 

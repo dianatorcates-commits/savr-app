@@ -13,6 +13,7 @@ export default function TabLayout() {
       <Tabs.Screen name="split"   options={{ title: 'Dividir' }} />
       <Tabs.Screen name="friends" options={{ title: 'Amigos' }} />
       <Tabs.Screen name="profile" options={{ title: 'Tu' }} />
+      <Tabs.Screen name="saved-bills" options={{ href: null } as any} />
     </Tabs>
   );
 }
