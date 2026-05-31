@@ -30,6 +30,7 @@ export async function saveBill(bill: Omit<SavedBill, 'id' | 'createdAt'>): Promi
 
     const docRef = await addDoc(billsCol, {
       ...cleanBill,
+      isActive: true,
       createdAt: serverTimestamp(),
     });
     return docRef.id;
@@ -55,6 +56,7 @@ export async function getUserMonthlySavings(userId: string): Promise<number> {
     let totalSavings = 0;
     querySnapshot.forEach((doc) => {
       const data = doc.data();
+      if (data.isActive === false) return;
       if (data.createdAt) {
         let billDate: Date;
         if (typeof data.createdAt.toDate === 'function') {
@@ -95,6 +97,7 @@ export async function getUserBills(userId: string): Promise<SavedBill[]> {
     
     querySnapshot.forEach((doc) => {
       const data = doc.data();
+      if (data.isActive === false) return;
       bills.push({
         id: doc.id,
         userId: data.userId,
@@ -105,6 +108,7 @@ export async function getUserBills(userId: string): Promise<SavedBill[]> {
         grandTotalTip: data.grandTotalTip || 0,
         friends: data.friends || [],
         consumedItems: data.consumedItems || [],
+        isActive: data.isActive,
         createdAt: data.createdAt,
       });
     });
@@ -164,6 +168,19 @@ export async function updateBillFull(billId: string, data: Partial<SavedBill>): 
     await updateDoc(billDocRef, cleanData);
   } catch (error) {
     console.error('Error al actualizar la cuenta completa:', error);
+    throw error;
+  }
+}
+
+/**
+ * Realiza un borrado lógico (soft delete) de una cuenta en Firestore
+ */
+export async function softDeleteBill(billId: string): Promise<void> {
+  try {
+    const billDocRef = doc(db, 'bills', billId);
+    await updateDoc(billDocRef, { isActive: false });
+  } catch (error) {
+    console.error('Error al realizar borrado lógico de la cuenta:', error);
     throw error;
   }
 }
