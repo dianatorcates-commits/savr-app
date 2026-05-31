@@ -16,7 +16,7 @@ import { saveBill } from '../../src/services/bills';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 
-type Friend = { id: string; name: string; color: string };
+type Friend = { id: string; name: string; color: string; isGuest?: boolean };
 type ReceiptItem = { id: string; name: string; price: number; assignedTo: string[] }; // array of friend IDs
 
 const MOCK_ITEMS: ReceiptItem[] = [
@@ -43,6 +43,7 @@ export default function SplitScreen() {
 
   const [newFriendName, setNewFriendName] = useState('');
   const [showAddFriend, setShowAddFriend] = useState(false);
+  const [selectedFriendActions, setSelectedFriendActions] = useState<Friend | null>(null);
 
   const [selectedItem, setSelectedItem] = useState<ReceiptItem | null>(null);
   const [showItemAssign, setShowItemAssign] = useState(false);
@@ -358,6 +359,34 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
     setItems(items.map(i => i.id === updatedItem.id ? updatedItem : i));
   };
 
+  const toggleGuestStatus = (friendId: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setFriends(friends.map(f => f.id === friendId ? { ...f, isGuest: !f.isGuest } : f));
+  };
+
+  const removeFriendFromTable = (friendId: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setFriends(friends.filter(f => f.id !== friendId));
+    setItems(items.map(i => ({
+      ...i,
+      assignedTo: i.assignedTo.filter(id => id !== friendId)
+    })));
+    if (selectedItem) {
+      setSelectedItem({
+        ...selectedItem,
+        assignedTo: selectedItem.assignedTo.filter(id => id !== friendId)
+      });
+    }
+  };
+
+  const handleFriendPress = (friend: Friend) => {
+    if (friend.id === 'me') {
+      Alert.alert('Tú', 'Eres el organizador de la mesa y no puedes ser marcado como invitado.');
+      return;
+    }
+    setSelectedFriendActions(friend);
+  };
+
   const allAssigned = items.every(i => i.assignedTo.length > 0);
 
   // STEP 3: Summary Logic
@@ -365,12 +394,29 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
     const totals: Record<string, number> = {};
     friends.forEach(f => totals[f.id] = 0);
 
+    const hosts = friends.filter(f => !f.isGuest);
+    const hasHosts = hosts.length > 0;
+
     items.forEach(item => {
       if (item.assignedTo.length > 0) {
         const splitAmount = item.price / item.assignedTo.length;
-        item.assignedTo.forEach(fId => {
-          if (totals[fId] !== undefined) {
-            totals[fId] += splitAmount;
+        
+        // Find guests assigned to this item
+        const guestsAssignedCount = item.assignedTo.filter(id => {
+          const f = friends.find(friend => friend.id === id);
+          return f?.isGuest;
+        }).length;
+        
+        const guestShareTotal = splitAmount * guestsAssignedCount;
+        const guestSharePerHost = hasHosts ? (guestShareTotal / hosts.length) : 0;
+
+        friends.forEach(f => {
+          if (f.isGuest) {
+            totals[f.id] += 0; // Guest pays nothing
+          } else {
+            const isAssigned = item.assignedTo.includes(f.id);
+            const ownShare = isAssigned ? splitAmount : 0;
+            totals[f.id] += ownShare + guestSharePerHost;
           }
         });
       }
@@ -436,7 +482,23 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
     message += `👤 *Detalle por persona:*\n`;
     friends.forEach(f => {
       const amount = totals[f.id];
-      if (amount > 0) {
+      if (f.isGuest) {
+        message += `\n*${f.name} (Invitado): $0*\n`;
+        const friendItems = items.filter(item => item.assignedTo.includes(f.id));
+        if (friendItems.length > 0) {
+          friendItems.forEach(item => {
+            const isShared = item.assignedTo.length > 1;
+            const shareText = isShared ? ` (compartido c/${item.assignedTo.length})` : '';
+            message += `   • ${item.name}${shareText} (invitado): $0\n`;
+          });
+        }
+      } else if (amount > 0) {
+        const ownItemsBase = items
+          .filter(item => item.assignedTo.includes(f.id))
+          .reduce((sum, item) => sum + (item.price / item.assignedTo.length), 0);
+        const fBase = friendBaseTotals[f.id] || 0;
+        const guestContribution = Math.max(0, fBase - ownItemsBase);
+
         message += `\n*${f.name}: $${Math.round(amount).toLocaleString('es-CL')}*\n`;
         
         const friendItems = items.filter(item => item.assignedTo.includes(f.id));
@@ -446,8 +508,11 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
           const shareText = isShared ? ` (compartido c/${item.assignedTo.length})` : '';
           message += `   • ${item.name}${shareText}: $${Math.round(itemSharePrice).toLocaleString('es-CL')}\n`;
         });
+
+        if (guestContribution > 0) {
+          message += `   • Aporte Invitado(s) 🎁: $${Math.round(guestContribution).toLocaleString('es-CL')}\n`;
+        }
         
-        const fBase = friendBaseTotals[f.id] || 0;
         const fAdjusted = adjustedBaseTotals[f.id] || 0;
         const fTip = fAdjusted * (effectiveTipPercentage / 100);
         
@@ -618,12 +683,22 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
                   <Text style={styles.addFriendPlus}>+</Text>
                 </TouchableOpacity>
                 {friends.map(f => (
-                  <View key={f.id} style={styles.friendAvatarContainer}>
-                    <View style={[styles.friendAvatar, { backgroundColor: f.color }]}>
+                  <TouchableOpacity
+                    key={f.id}
+                    style={styles.friendAvatarContainer}
+                    onPress={() => handleFriendPress(f)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={[styles.friendAvatar, { backgroundColor: f.color }, f.isGuest && styles.friendAvatarGuest]}>
                       <Text style={styles.friendInitials}>{getInitials(f.name)}</Text>
+                      {f.isGuest && (
+                        <View style={styles.guestIconBadge}>
+                          <Text style={{ fontSize: 10 }}>🎁</Text>
+                        </View>
+                      )}
                     </View>
                     <Text style={styles.friendName} numberOfLines={1}>{f.name}</Text>
-                  </View>
+                  </TouchableOpacity>
                 ))}
               </ScrollView>
             </View>
@@ -830,7 +905,7 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
               <View style={styles.summaryList}>
                 {friends.map(f => {
                   const amount = totals[f.id];
-                  if (amount === 0) return null;
+                  if (amount === 0 && !f.isGuest) return null;
                   return (
                     <TouchableOpacity
                       key={f.id}
@@ -843,7 +918,7 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
                           <View style={[styles.miniAvatar, { backgroundColor: f.color, marginRight: 12, marginLeft: 0, width: 36, height: 36, borderRadius: 18 }]}>
                             <Text style={[styles.miniInitials, { fontSize: 14 }]}>{f.name.substring(0, 1).toUpperCase()}</Text>
                           </View>
-                          <Text style={styles.summaryName} numberOfLines={1}>{f.name}</Text>
+                          <Text style={styles.summaryName} numberOfLines={1}>{f.name} {f.isGuest && '🎁'}</Text>
                           <Ionicons
                             name={expandedFriends[f.id] ? "chevron-up" : "chevron-down"}
                             size={16}
@@ -851,66 +926,93 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
                             style={styles.summaryChevron}
                           />
                         </View>
-                        <Text style={styles.summaryUserAmount}>${Math.round(amount).toLocaleString('es-CL')}</Text>
+                        <Text style={styles.summaryUserAmount}>{f.isGuest ? 'Invitado 🎁' : `$${Math.round(amount).toLocaleString('es-CL')}`}</Text>
                       </View>
 
-                      {expandedFriends[f.id] && (
-                        <View style={styles.expandedDetailContainer}>
-                          <View style={styles.detailDivider} />
-                          
-                          <View style={styles.detailItemsList}>
-                            {items
-                              .filter(item => item.assignedTo.includes(f.id))
-                              .map(item => {
-                                const isShared = item.assignedTo.length > 1;
-                                const splitPrice = item.price / item.assignedTo.length;
-                                return (
-                                  <View key={item.id} style={styles.detailItemRow}>
-                                    <View style={{ flex: 1, paddingRight: 8 }}>
-                                      <Text style={styles.detailItemName} numberOfLines={1}>{item.name}</Text>
-                                      {isShared && (
-                                        <Text style={styles.detailItemSubtitle}>
-                                          Compartido con {item.assignedTo.length}
-                                        </Text>
-                                      )}
-                                    </View>
-                                    <Text style={[styles.detailItemPrice, item.price < 0 && { color: '#4ECDC4' }]}>
-                                      {item.price < 0
-                                        ? `-$${Math.round(Math.abs(splitPrice)).toLocaleString('es-CL')}`
-                                        : `$${Math.round(splitPrice).toLocaleString('es-CL')}`
-                                      }
-                                    </Text>
-                                  </View>
-                                );
-                              })}
-                          </View>
+                      {expandedFriends[f.id] && (() => {
+                        const ownItemsBase = items
+                          .filter(item => item.assignedTo.includes(f.id))
+                          .reduce((sum, item) => sum + (item.price / item.assignedTo.length), 0);
+                        const fBase = friendBaseTotals[f.id] || 0;
+                        const guestContribution = Math.max(0, fBase - ownItemsBase);
 
-                          <View style={styles.detailBreakdownContainer}>
-                            <View style={styles.detailBreakdownRow}>
-                              <Text style={styles.detailBreakdownLabel}>Consumo base:</Text>
-                              <Text style={styles.detailBreakdownValue}>
-                                ${Math.round(friendBaseTotals[f.id] || 0).toLocaleString('es-CL')}
+                        return (
+                          <View style={styles.expandedDetailContainer}>
+                            <View style={styles.detailDivider} />
+                            
+                            {f.isGuest && (
+                              <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, fontStyle: 'italic', marginBottom: 12 }}>
+                                Esta persona es un invitado. Su consumo es financiado por los demás integrantes de la mesa.
                               </Text>
+                            )}
+
+                            <View style={styles.detailItemsList}>
+                              {items
+                                .filter(item => item.assignedTo.includes(f.id))
+                                .map(item => {
+                                  const isShared = item.assignedTo.length > 1;
+                                  const splitPrice = item.price / item.assignedTo.length;
+                                  return (
+                                    <View key={item.id} style={styles.detailItemRow}>
+                                      <View style={{ flex: 1, paddingRight: 8 }}>
+                                        <Text style={styles.detailItemName} numberOfLines={1}>{item.name}</Text>
+                                        {isShared && (
+                                          <Text style={styles.detailItemSubtitle}>
+                                            Compartido con {item.assignedTo.length}
+                                          </Text>
+                                        )}
+                                      </View>
+                                      <Text style={[styles.detailItemPrice, item.price < 0 && { color: '#4ECDC4' }]}>
+                                        {f.isGuest ? '$0' : (
+                                          item.price < 0
+                                            ? `-$${Math.round(Math.abs(splitPrice)).toLocaleString('es-CL')}`
+                                            : `$${Math.round(splitPrice).toLocaleString('es-CL')}`
+                                        )}
+                                      </Text>
+                                    </View>
+                                  );
+                                })}
+
+                              {!f.isGuest && guestContribution > 0 && (
+                                <View style={styles.detailItemRow}>
+                                  <View style={{ flex: 1, paddingRight: 8 }}>
+                                    <Text style={styles.detailItemName} numberOfLines={1}>Cuota Invitado(s) 🎁</Text>
+                                    <Text style={styles.detailItemSubtitle}>Aporte de propina/platos de invitados</Text>
+                                  </View>
+                                  <Text style={styles.detailItemPrice}>
+                                    ${Math.round(guestContribution).toLocaleString('es-CL')}
+                                  </Text>
+                                </View>
+                              )}
                             </View>
-                            {discount > 0 && (
+
+                            <View style={styles.detailBreakdownContainer}>
                               <View style={styles.detailBreakdownRow}>
-                                <Text style={styles.detailBreakdownLabel}>Descuento:</Text>
-                                <Text style={[styles.detailBreakdownValue, { color: '#4ECDC4' }]}>
-                                  -${Math.round((friendBaseTotals[f.id] || 0) - (adjustedBaseTotals[f.id] || 0)).toLocaleString('es-CL')}
-                                </Text>
-                              </View>
-                            )}
-                            {effectiveTipPercentage > 0 && (
-                              <View style={styles.detailBreakdownRow}>
-                                <Text style={styles.detailBreakdownLabel}>Propina ({isTipPercentageMode ? `${tipPercentage}%` : `${Math.round(effectiveTipPercentage)}%`}):</Text>
+                                <Text style={styles.detailBreakdownLabel}>Consumo base:</Text>
                                 <Text style={styles.detailBreakdownValue}>
-                                  ${Math.round((adjustedBaseTotals[f.id] || 0) * (effectiveTipPercentage / 100)).toLocaleString('es-CL')}
+                                  ${Math.round(fBase).toLocaleString('es-CL')}
                                 </Text>
                               </View>
-                            )}
+                              {discount > 0 && (
+                                <View style={styles.detailBreakdownRow}>
+                                  <Text style={styles.detailBreakdownLabel}>Descuento:</Text>
+                                  <Text style={[styles.detailBreakdownValue, { color: '#4ECDC4' }]}>
+                                    -${Math.round((fBase) - (adjustedBaseTotals[f.id] || 0)).toLocaleString('es-CL')}
+                                  </Text>
+                                </View>
+                              )}
+                              {effectiveTipPercentage > 0 && (
+                                <View style={styles.detailBreakdownRow}>
+                                  <Text style={styles.detailBreakdownLabel}>Propina ({isTipPercentageMode ? `${tipPercentage}%` : `${Math.round(effectiveTipPercentage)}%`}):</Text>
+                                  <Text style={styles.detailBreakdownValue}>
+                                    ${Math.round((adjustedBaseTotals[f.id] || 0) * (effectiveTipPercentage / 100)).toLocaleString('es-CL')}
+                                  </Text>
+                                </View>
+                              )}
+                            </View>
                           </View>
-                        </View>
-                      )}
+                        );
+                      })()}
                     </TouchableOpacity>
                   );
                 })}
@@ -1054,6 +1156,58 @@ NO agregues texto antes ni después del JSON. NO uses formato markdown (como \`\
               </View>
             );
           })()}
+        </Modal>
+
+        {/* MODAL: FRIEND ACTIONS */}
+        <Modal visible={!!selectedFriendActions} transparent animationType="fade">
+          <View style={styles.modalOverlay}>
+            <BlurView intensity={40} tint="dark" style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{selectedFriendActions?.name}</Text>
+              <Text style={[styles.modalSubtitle, { marginBottom: 24 }]}>¿Qué deseas hacer con esta persona?</Text>
+              
+              <View style={{ gap: 12, marginBottom: 24 }}>
+                <TouchableOpacity
+                  style={styles.friendActionBtn}
+                  onPress={() => {
+                    if (selectedFriendActions) {
+                      toggleGuestStatus(selectedFriendActions.id);
+                      setSelectedFriendActions(null);
+                    }
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.friendActionBtnText}>
+                    {selectedFriendActions?.isGuest ? 'Quitar estado de Invitado 👤' : 'Marcar como Invitado 🎁'}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.friendActionBtn, { borderColor: '#FF6B6B' }]}
+                  onPress={() => {
+                    if (selectedFriendActions) {
+                      removeFriendFromTable(selectedFriendActions.id);
+                      setSelectedFriendActions(null);
+                    }
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.friendActionBtnText, { color: '#FF6B6B' }]}>
+                    Quitar de la mesa ❌
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.modalActions}>
+                <TouchableOpacity
+                  style={[styles.modalBtnCancel, { flex: 1 }]}
+                  onPress={() => setSelectedFriendActions(null)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.modalBtnText}>Cancelar</Text>
+                </TouchableOpacity>
+              </View>
+            </BlurView>
+          </View>
         </Modal>
 
         {/* MODAL: EDIT ITEM */}
@@ -1213,7 +1367,23 @@ const styles = StyleSheet.create({
   friendsScroll: { paddingVertical: 10, gap: 16 },
   friendAvatarContainer: { alignItems: 'center', width: 60 },
   friendAvatar: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', marginBottom: 6, borderWidth: 2, borderColor: 'rgba(255,255,255,0.2)' },
+  friendAvatarGuest: { borderColor: Colors.primaryLight, borderWidth: 2 },
+  guestIconBadge: { position: 'absolute', bottom: -4, right: -4, backgroundColor: Colors.primary, borderRadius: 8, width: 16, height: 16, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Colors.background },
   friendInitials: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
+  friendActionBtn: {
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  friendActionBtnText: {
+    color: Colors.white,
+    fontSize: 15,
+    fontWeight: '600',
+  },
   friendName: { color: Colors.white, fontSize: 12, opacity: 0.9 },
   addFriendBtn: { width: 48, height: 48, borderRadius: 24, borderStyle: 'dashed', borderWidth: 2, borderColor: Colors.primary, alignItems: 'center', justifyContent: 'center', marginHorizontal: 8 },
   addFriendPlus: { color: Colors.primary, fontSize: 24, fontWeight: '300' },
