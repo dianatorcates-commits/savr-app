@@ -2,7 +2,8 @@ import { createOrUpdateUser } from '../services/firebaseUsers';
 import { UserProfile } from '../types';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { auth } from './firebase'; // Import Firebase auth from our config
-import { GoogleAuthProvider, signInWithCredential, signOut } from 'firebase/auth';
+import { GoogleAuthProvider, OAuthProvider, signInWithCredential, signOut } from 'firebase/auth';
+import * as AppleAuthentication from 'expo-apple-authentication';
 
 // Inicializar Google Sign-In (PENDIENTE CLIENT ID)
 GoogleSignin.configure({
@@ -78,6 +79,63 @@ class AuthService {
 
   getCurrentUser(): UserProfile | null {
     return this._currentUser;
+  }
+
+  async signInWithApple(): Promise<UserProfile> {
+    try {
+      // 1. Iniciar el flujo nativo de Apple Authentication
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      const { identityToken, fullName, email } = credential;
+
+      if (!identityToken) {
+        throw new Error('No se obtuvo el Identity Token de Apple');
+      }
+
+      // 2. Crear una credencial de Firebase usando OAuthProvider
+      const provider = new OAuthProvider('apple.com');
+      const firebaseCredential = provider.credential({
+        idToken: identityToken,
+      });
+
+      // 3. Iniciar sesión en Firebase con la credencial
+      const userCredential = await signInWithCredential(auth, firebaseCredential);
+      const firebaseUser = userCredential.user;
+
+      // Intentar obtener el nombre a partir de fullName enviado por Apple (solo en el primer registro)
+      let name = firebaseUser.displayName;
+      if (fullName) {
+        const parts = [fullName.givenName, fullName.familyName].filter(Boolean);
+        if (parts.length > 0) {
+          name = parts.join(' ');
+        }
+      }
+      
+      const userEmail = email || firebaseUser.email || '';
+      const displayName = name || userEmail.split('@')[0] || 'Usuario Apple';
+
+      // 4. Crear o actualizar el perfil en Firestore
+      const userProfile = await createOrUpdateUser(
+        firebaseUser.uid,
+        displayName,
+        userEmail,
+        firebaseUser.photoURL,
+        'apple'
+      );
+
+      this._currentUser = userProfile;
+      this._listeners.forEach(callback => callback(userProfile));
+
+      return userProfile;
+    } catch (error) {
+      console.error('Error en Apple Sign-In:', error);
+      throw error;
+    }
   }
 }
 
