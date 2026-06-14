@@ -10,6 +10,7 @@ const { width, height } = Dimensions.get('window');
 
 export default function AuthScreen() {
   const [loading, setLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleGoogleSignIn = async () => {
@@ -23,6 +24,30 @@ export default function AuthScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       setError('No se pudo iniciar sesión. Intenta de nuevo.');
       setLoading(false);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setAppleLoading(true);
+    setError(null);
+    try {
+      await authService.signInWithApple();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (err: any) {
+      // Ignorar silenciosamente: cancelación del usuario (1001) o fallo en simulador (1000 / ERR_REQUEST_UNKNOWN)
+      if (
+        err?.code === 'ERR_REQUEST_CANCELED' ||
+        err?.code === 'ERR_REQUEST_UNKNOWN' ||
+        err?.code === '1001' ||
+        err?.code === '1000'
+      ) {
+        setAppleLoading(false);
+        return;
+      }
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      setError('No se pudo iniciar sesión con Apple. Intenta de nuevo.');
+      setAppleLoading(false);
     }
   };
 
@@ -53,9 +78,9 @@ export default function AuthScreen() {
               {error && <Text style={styles.error}>{error}</Text>}
 
               <TouchableOpacity
-                style={[styles.button, styles.googleButton, loading && styles.buttonDisabled]}
+                style={[styles.button, styles.googleButton, (loading || appleLoading) && styles.buttonDisabled]}
                 onPress={handleGoogleSignIn}
-                disabled={loading}
+                disabled={loading || appleLoading}
                 activeOpacity={0.8}
               >
                 {loading ? (
@@ -69,12 +94,19 @@ export default function AuthScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.button, styles.appleButton]}
-                disabled={true}
+                style={[styles.button, styles.appleButton, (loading || appleLoading) && styles.buttonDisabled]}
+                onPress={handleAppleSignIn}
+                disabled={loading || appleLoading}
                 activeOpacity={0.8}
               >
-                <Ionicons name="logo-apple" size={22} color="#FFFFFF" />
-                <Text style={styles.appleButtonText}>Continuar con Apple</Text>
+                {appleLoading ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <>
+                    <Ionicons name="logo-apple" size={22} color="#FFFFFF" />
+                    <Text style={styles.appleButtonText}>Continuar con Apple</Text>
+                  </>
+                )}
               </TouchableOpacity>
             </BlurView>
           </Animated.View>
