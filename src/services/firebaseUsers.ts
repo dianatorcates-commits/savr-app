@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
 import { UserProfile } from '../types';
 
@@ -109,6 +109,45 @@ export async function updateUserProfile(
     });
   } catch (error) {
     console.error('Error actualizando perfil de usuario:', error);
+    throw error;
+  }
+}
+
+/**
+ * Elimina por completo al usuario de la base de datos Firestore y todos sus registros asociados
+ */
+export async function deleteUserProfileAndData(uid: string): Promise<void> {
+  try {
+    // 1. Eliminar documentos de 'bills' donde userId == uid
+    const billsCol = collection(db, 'bills');
+    const billsQuery = query(billsCol, where('userId', '==', uid));
+    const billsSnapshot = await getDocs(billsQuery);
+    const deleteBillsPromises = billsSnapshot.docs.map((docSnap) => deleteDoc(docSnap.ref));
+    await Promise.all(deleteBillsPromises);
+    console.log(`✅ Cuentas divididas (${billsSnapshot.size}) eliminadas para el usuario:`, uid);
+
+    // 2. Eliminar documentos de 'visits' donde userId == uid
+    const visitsCol = collection(db, 'visits');
+    const visitsQuery = query(visitsCol, where('userId', '==', uid));
+    const visitsSnapshot = await getDocs(visitsQuery);
+    const deleteVisitsPromises = visitsSnapshot.docs.map((docSnap) => deleteDoc(docSnap.ref));
+    await Promise.all(deleteVisitsPromises);
+    console.log(`✅ Registro de visitas (${visitsSnapshot.size}) eliminadas para el usuario:`, uid);
+
+    // 3. Eliminar documentos de 'friends' donde userId == uid
+    const friendsCol = collection(db, 'friends');
+    const friendsQuery = query(friendsCol, where('userId', '==', uid));
+    const friendsSnapshot = await getDocs(friendsQuery);
+    const deleteFriendsPromises = friendsSnapshot.docs.map((docSnap) => deleteDoc(docSnap.ref));
+    await Promise.all(deleteFriendsPromises);
+    console.log(`✅ Amigos registrados (${friendsSnapshot.size}) eliminados para el usuario:`, uid);
+
+    // 4. Eliminar el documento de usuario en 'users'
+    const userRef = doc(db, 'users', uid);
+    await deleteDoc(userRef);
+    console.log('✅ Perfil de usuario eliminado de Firestore:', uid);
+  } catch (error) {
+    console.error('❌ Error al eliminar el perfil y los datos del usuario:', error);
     throw error;
   }
 }

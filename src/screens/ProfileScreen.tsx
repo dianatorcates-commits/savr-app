@@ -145,6 +145,35 @@ export default function ProfileScreen() {
     );
   };
 
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Eliminar Cuenta',
+      '¿Estás completamente seguro de que deseas eliminar tu cuenta? Esta acción es irreversible y borrará permanentemente todo tu perfil, historial de visitas y cuentas divididas.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Sí, eliminar', 
+          style: 'destructive', 
+          onPress: async () => {
+            setSaving(true);
+            try {
+              await authService.deleteAccount();
+            } catch (error) {
+              setAlertConfig({ 
+                title: 'Error', 
+                message: 'No se pudo eliminar tu cuenta. Si ha pasado mucho tiempo desde que iniciaste sesión, por favor cierra sesión, vuelve a ingresar e intenta nuevamente.', 
+                isError: true 
+              });
+              setAlertVisible(true);
+            } finally {
+              setSaving(false);
+            }
+          } 
+        }
+      ]
+    );
+  };
+
   const toggleFoodPreference = (food: string) => {
     setSelectedFoods((prev) =>
       prev.includes(food) ? prev.filter((f) => f !== food) : [...prev, food]
@@ -283,6 +312,22 @@ export default function ProfileScreen() {
               <Text style={styles.historyBtnText}>Ver mis cuentas divididas</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={Colors.primary} />
+          </TouchableOpacity>
+        </BlurView>
+
+        {/* Sección de Seguridad */}
+        <BlurView intensity={40} tint="dark" style={styles.card}>
+          <Text style={styles.sectionTitle}>Seguridad</Text>
+          <TouchableOpacity 
+            style={styles.dangerBtn} 
+            onPress={handleDeleteAccount}
+            activeOpacity={0.8}
+          >
+            <View style={styles.dangerBtnContent}>
+              <Ionicons name="trash-outline" size={24} color="#FF6B6B" />
+              <Text style={styles.dangerBtnText}>Eliminar cuenta</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#FF6B6B" />
           </TouchableOpacity>
         </BlurView>
 
@@ -610,5 +655,25 @@ const styles = StyleSheet.create({
     color: Colors.background,
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  dangerBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255,107,107,0.1)',
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,107,107,0.3)',
+  },
+  dangerBtnContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  dangerBtnText: {
+    color: '#FF6B6B',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

@@ -1,8 +1,8 @@
-import { createOrUpdateUser } from '../services/firebaseUsers';
+import { createOrUpdateUser, deleteUserProfileAndData } from '../services/firebaseUsers';
 import { UserProfile } from '../types';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { auth } from './firebase'; // Import Firebase auth from our config
-import { GoogleAuthProvider, OAuthProvider, signInWithCredential, signOut } from 'firebase/auth';
+import { GoogleAuthProvider, OAuthProvider, signInWithCredential, signOut, deleteUser } from 'firebase/auth';
 import * as AppleAuthentication from 'expo-apple-authentication';
 
 // Inicializar Google Sign-In (PENDIENTE CLIENT ID)
@@ -134,6 +134,35 @@ class AuthService {
       return userProfile;
     } catch (error) {
       console.error('Error en Apple Sign-In:', error);
+      throw error;
+    }
+  }
+
+  async deleteAccount(): Promise<void> {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('No hay un usuario autenticado para eliminar.');
+    }
+    const uid = user.uid;
+
+    try {
+      // 1. Eliminar todos los datos de Firestore
+      await deleteUserProfileAndData(uid);
+      
+      // 2. Eliminar el usuario de Firebase Auth
+      try {
+        await deleteUser(user);
+      } catch (authError: any) {
+        console.warn('No se pudo eliminar el usuario de Firebase Auth (puede requerir inicio de sesión reciente):', authError);
+        // Si falla por recent-login, de todas formas cerramos la sesión para limpiar el estado
+        await this.signOut();
+      }
+
+      // 3. Limpiar variables locales y notificar a los listeners
+      this._currentUser = null;
+      this._listeners.forEach(callback => callback(null));
+    } catch (error) {
+      console.error('Error al eliminar la cuenta:', error);
       throw error;
     }
   }
