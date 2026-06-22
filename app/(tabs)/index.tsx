@@ -27,7 +27,7 @@ export default function Index() {
         try {
           const userRef = doc(db, 'users', user.uid);
           const userDoc = await getDoc(userRef);
-          setOnboardingCompleted(userDoc.data()?.onboarding ?? false);
+          setOnboardingCompleted((userDoc.data()?.onboarding ?? false) && (userDoc.data()?.termsAccepted ?? false));
         } catch {
           setOnboardingCompleted(false);
         }

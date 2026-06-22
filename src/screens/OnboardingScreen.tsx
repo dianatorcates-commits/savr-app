@@ -6,6 +6,8 @@ import { authService } from '../services/auth';
 import { BlurView } from 'expo-blur';
 import Animated, { FadeIn, FadeInRight, FadeOutLeft, FadeInLeft } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
+import { openBrowserAsync, WebBrowserPresentationStyle } from 'expo-web-browser';
+import { Ionicons } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
 
@@ -17,7 +19,7 @@ interface Bank {
 }
 
 const FOOD_PREFERENCES = ['Pizza', 'Sushi', 'Italiana', 'Peruana', 'Mexicana', 'Ramen'];
-type OnboardingSection = 'banks' | 'food';
+type OnboardingSection = 'banks' | 'food' | 'consent';
 
 interface Props {
   onComplete: () => void;
@@ -28,6 +30,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
   const [banks, setBanks] = useState<Bank[]>([]);
   const [selectedBank, setSelectedBank] = useState<Bank | null>(null);
   const [selectedFoods, setSelectedFoods] = useState<string[]>([]);
+  const [consentAccepted, setConsentAccepted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -72,9 +75,15 @@ export default function OnboardingScreen({ onComplete }: Props) {
     setSection('food');
   };
 
+  const handleFoodNextSection = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (selectedFoods.length === 0) return;
+    setSection('consent');
+  };
+
   const handleCompleteOnboarding = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    if (!selectedBank || selectedFoods.length === 0) return;
+    if (!selectedBank || selectedFoods.length === 0 || !consentAccepted) return;
 
     setSaving(true);
     setSaveError(null);
@@ -98,6 +107,8 @@ export default function OnboardingScreen({ onComplete }: Props) {
         },
         onboarding: true,
         onboardingCompletedAt: new Date().toISOString(),
+        termsAccepted: true,
+        termsAcceptedAt: new Date().toISOString(),
       }, { merge: true });
       
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -188,7 +199,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
                 <Text style={styles.buttonText}>Continuar</Text>
               </TouchableOpacity>
             </Animated.View>
-          ) : (
+          ) : section === 'food' ? (
             <Animated.View entering={FadeInRight.duration(600).springify()} exiting={FadeOutLeft.duration(400)} style={styles.section}>
               <Text style={styles.sectionTitle}>¿Qué te gusta?</Text>
               <Text style={styles.sectionSubtitle}>Selecciona tu comida favorita</Text>
@@ -222,8 +233,6 @@ export default function OnboardingScreen({ onComplete }: Props) {
                 ))}
               </View>
 
-              {saveError && <Text style={styles.errorText}>{saveError}</Text>}
-
               <View style={styles.buttonRow}>
                 <TouchableOpacity
                   style={[styles.button, styles.backButton]}
@@ -238,8 +247,87 @@ export default function OnboardingScreen({ onComplete }: Props) {
 
                 <TouchableOpacity
                   style={[styles.button, { flex: 2 }, !selectedFoods.length && styles.buttonDisabled]}
+                  onPress={handleFoodNextSection}
+                  disabled={!selectedFoods.length}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.buttonText}>Continuar</Text>
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
+          ) : (
+            <Animated.View entering={FadeInRight.duration(600).springify()} exiting={FadeOutLeft.duration(400)} style={styles.section}>
+              <Text style={styles.sectionTitle}>Términos y Privacidad</Text>
+              <Text style={styles.sectionSubtitle}>Para poder continuar, lee y acepta los términos de servicio y políticas de privacidad de Savr.</Text>
+
+              {/* Botones para consultar documentos */}
+              <View style={{ gap: 16, marginBottom: 32 }}>
+                <TouchableOpacity
+                  style={styles.documentBtn}
+                  onPress={async () => {
+                    await openBrowserAsync('https://github.com/dianatorcates-commits/savr-app/wiki/Savr-Pol%C3%ADtica-de-Privacidad', {
+                      presentationStyle: WebBrowserPresentationStyle.AUTOMATIC,
+                    });
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="shield-checkmark-outline" size={24} color="#DEB98D" />
+                  <Text style={styles.documentBtnText}>Ver Políticas de Privacidad</Text>
+                  <Ionicons name="chevron-forward" size={20} color="#DEB98D" style={{ marginLeft: 'auto' }} />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.documentBtn}
+                  onPress={async () => {
+                    await openBrowserAsync('https://github.com/dianatorcates-commits/savr-app/wiki/T%C3%A9rminos-y-Condiciones-%E2%80%90-Savr', {
+                      presentationStyle: WebBrowserPresentationStyle.AUTOMATIC,
+                    });
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="document-text-outline" size={24} color="#DEB98D" />
+                  <Text style={styles.documentBtnText}>Ver Términos y Condiciones</Text>
+                  <Ionicons name="chevron-forward" size={20} color="#DEB98D" style={{ marginLeft: 'auto' }} />
+                </TouchableOpacity>
+              </View>
+
+              {/* Checkbox de consentimiento */}
+              <TouchableOpacity
+                onPress={() => {
+                  Haptics.selectionAsync();
+                  setConsentAccepted(!consentAccepted);
+                }}
+                activeOpacity={0.8}
+                style={styles.checkboxContainer}
+              >
+                <Ionicons
+                  name={consentAccepted ? "checkbox" : "square-outline"}
+                  size={28}
+                  color={consentAccepted ? "#DEB98D" : "rgba(255,255,255,0.4)"}
+                />
+                <Text style={styles.checkboxText}>
+                  Acepto las Políticas de Privacidad y confirmo que he leído los Términos y Condiciones.
+                </Text>
+              </TouchableOpacity>
+
+              {saveError && <Text style={styles.errorText}>{saveError}</Text>}
+
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  style={[styles.button, styles.backButton]}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setSection('food');
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.backButtonText}>Atrás</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.button, { flex: 2 }, !consentAccepted && styles.buttonDisabled]}
                   onPress={handleCompleteOnboarding}
-                  disabled={!selectedFoods.length || saving}
+                  disabled={!consentAccepted || saving}
                   activeOpacity={0.8}
                 >
                   {saving ? (
@@ -449,5 +537,34 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     marginBottom: 16,
+  },
+  documentBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    gap: 12,
+  },
+  documentBtnText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 32,
+    paddingHorizontal: 4,
+  },
+  checkboxText: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 14,
+    fontWeight: '500',
+    lineHeight: 20,
+    flex: 1,
   },
 });
