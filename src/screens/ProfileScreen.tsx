@@ -13,6 +13,8 @@ import { db } from '../services/firebase';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { router } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
+import { openBrowserAsync, WebBrowserPresentationStyle } from 'expo-web-browser';
 
 interface Bank {
   id: string;
@@ -39,12 +41,12 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  
+
   const [nombre, setNombre] = useState('');
   const [banksList, setBanksList] = useState<Bank[]>([]);
   const [selectedBank, setSelectedBank] = useState<Bank | null>(null);
   const [selectedFoods, setSelectedFoods] = useState<string[]>([]);
-  
+
   const [visitsCount, setVisitsCount] = useState(0);
   const [billsCount, setBillsCount] = useState(0);
 
@@ -79,7 +81,7 @@ export default function ProfileScreen() {
         if (userProfile) {
           setProfile(userProfile);
           setNombre(userProfile.nombre || '');
-          
+
           if (userProfile.preferences?.bank) {
             setSelectedBank({
               id: userProfile.preferences.bank.id,
@@ -92,7 +94,7 @@ export default function ProfileScreen() {
             setSelectedFoods(userProfile.preferences.foodPreferences);
           }
         }
-        
+
         const count = await getUserTotalVisitsCount(currentUser.uid);
         setVisitsCount(count);
 
@@ -137,12 +139,27 @@ export default function ProfileScreen() {
       '¿Estás seguro de que deseas salir?',
       [
         { text: 'Cancelar', style: 'cancel' },
-        { text: 'Sí, salir', style: 'destructive', onPress: async () => {
+        {
+          text: 'Sí, salir', style: 'destructive', onPress: async () => {
             await authService.signOut();
           }
         }
       ]
     );
+  };
+
+  const handleOpenPrivacyPolicy = async () => {
+    try {
+      await openBrowserAsync(
+        'https://github.com/dianatorcates-commits/savr-app/wiki/Savr-Pol%C3%ADtica-de-Privacidad',
+        {
+          presentationStyle: WebBrowserPresentationStyle.AUTOMATIC,
+        }
+      );
+    } catch (error) {
+      console.error('Error al abrir la política de privacidad:', error);
+      Alert.alert('Error', 'No se pudo abrir la política de privacidad.');
+    }
   };
 
   const handleDeleteAccount = () => {
@@ -151,24 +168,24 @@ export default function ProfileScreen() {
       '¿Estás completamente seguro de que deseas eliminar tu cuenta? Esta acción es irreversible y borrará permanentemente todo tu perfil, historial de visitas y cuentas divididas.',
       [
         { text: 'Cancelar', style: 'cancel' },
-        { 
-          text: 'Sí, eliminar', 
-          style: 'destructive', 
+        {
+          text: 'Sí, eliminar',
+          style: 'destructive',
           onPress: async () => {
             setSaving(true);
             try {
               await authService.deleteAccount();
             } catch (error) {
-              setAlertConfig({ 
-                title: 'Error', 
-                message: 'No se pudo eliminar tu cuenta. Si ha pasado mucho tiempo desde que iniciaste sesión, por favor cierra sesión, vuelve a ingresar e intenta nuevamente.', 
-                isError: true 
+              setAlertConfig({
+                title: 'Error',
+                message: 'No se pudo eliminar tu cuenta. Si ha pasado mucho tiempo desde que iniciaste sesión, por favor cierra sesión, vuelve a ingresar e intenta nuevamente.',
+                isError: true
               });
               setAlertVisible(true);
             } finally {
               setSaving(false);
             }
-          } 
+          }
         }
       ]
     );
@@ -211,7 +228,7 @@ export default function ProfileScreen() {
         {/* Sección de Modificar Información */}
         <BlurView intensity={40} tint="dark" style={styles.card}>
           <Text style={styles.sectionTitle}>Modificar Perfil</Text>
-          
+
           <Text style={styles.label}>Nombre de Usuario</Text>
           <TextInput
             style={styles.input}
@@ -240,7 +257,7 @@ export default function ProfileScreen() {
                       <Image source={{ uri: bank.logo }} style={styles.bankLogo} />
                     ) : (
                       <View style={styles.bankLogoPlaceholder}>
-                        <Text style={styles.bankLogoInitials}>{bank.name.substring(0,2).toUpperCase()}</Text>
+                        <Text style={styles.bankLogoInitials}>{bank.name.substring(0, 2).toUpperCase()}</Text>
                       </View>
                     )}
                     <Text style={styles.bankName}>{bank.name}</Text>
@@ -288,8 +305,8 @@ export default function ProfileScreen() {
               <Text style={styles.metricValue}>{visitsCount}</Text>
               <Text style={styles.metricLabel}>Visitas Registradas</Text>
             </View>
-            <TouchableOpacity 
-              style={styles.metricBox} 
+            <TouchableOpacity
+              style={styles.metricBox}
               onPress={() => router.push('/saved-bills')}
               activeOpacity={0.7}
             >
@@ -302,8 +319,8 @@ export default function ProfileScreen() {
         {/* Sección de Historial */}
         <BlurView intensity={40} tint="dark" style={styles.card}>
           <Text style={styles.sectionTitle}>Historial</Text>
-          <TouchableOpacity 
-            style={styles.historyBtn} 
+          <TouchableOpacity
+            style={styles.historyBtn}
             onPress={() => router.push('/saved-bills')}
             activeOpacity={0.8}
           >
@@ -319,7 +336,19 @@ export default function ProfileScreen() {
         <BlurView intensity={40} tint="dark" style={styles.card}>
           <Text style={styles.sectionTitle}>Seguridad</Text>
           <TouchableOpacity 
-            style={styles.dangerBtn} 
+            style={[styles.securityBtn, { marginBottom: 16 }]} 
+            onPress={handleOpenPrivacyPolicy}
+            activeOpacity={0.8}
+          >
+            <View style={styles.securityBtnContent}>
+              <Ionicons name="document-text-outline" size={24} color={Colors.primary} />
+              <Text style={styles.securityBtnText}>Términos y Condiciones</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={Colors.primary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.dangerBtn}
             onPress={handleDeleteAccount}
             activeOpacity={0.8}
           >
@@ -342,15 +371,15 @@ export default function ProfileScreen() {
       <Modal visible={alertVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFillObject} />
-          <Animated.View 
+          <Animated.View
             entering={FadeInDown.duration(400).springify()}
             style={[styles.modalContent, alertConfig.isError && { borderColor: 'rgba(255, 107, 107, 0.3)' }]}
           >
             <View style={[styles.successIconCircle, alertConfig.isError && { backgroundColor: 'rgba(255, 107, 107, 0.1)' }]}>
-              <Ionicons 
-                name={alertConfig.isError ? "alert-circle" : "checkmark-circle"} 
-                size={80} 
-                color={alertConfig.isError ? '#FF6B6B' : Colors.primary} 
+              <Ionicons
+                name={alertConfig.isError ? "alert-circle" : "checkmark-circle"}
+                size={80}
+                color={alertConfig.isError ? '#FF6B6B' : Colors.primary}
               />
             </View>
             <Text style={[styles.modalTitle, alertConfig.isError && { color: '#FF6B6B' }]}>
@@ -673,6 +702,26 @@ const styles = StyleSheet.create({
   },
   dangerBtnText: {
     color: '#FF6B6B',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  securityBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  securityBtnContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  securityBtnText: {
+    color: Colors.white,
     fontSize: 16,
     fontWeight: '600',
   },
