@@ -52,6 +52,7 @@ export default function ProfileScreen() {
 
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertConfig, setAlertConfig] = useState({ title: '', message: '', isError: false });
+  const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
 
   useEffect(() => {
     fetchProfileData();
@@ -177,32 +178,7 @@ export default function ProfileScreen() {
   };
 
   const handleDeleteAccount = () => {
-    Alert.alert(
-      'Eliminar Cuenta',
-      '¿Estás completamente seguro de que deseas eliminar tu cuenta? Esta acción es irreversible y borrará permanentemente todo tu perfil, historial de visitas y cuentas divididas.',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Sí, eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            setSaving(true);
-            try {
-              await authService.deleteAccount();
-            } catch (error) {
-              setAlertConfig({
-                title: 'Error',
-                message: 'No se pudo eliminar tu cuenta. Si ha pasado mucho tiempo desde que iniciaste sesión, por favor cierra sesión, vuelve a ingresar e intenta nuevamente.',
-                isError: true
-              });
-              setAlertVisible(true);
-            } finally {
-              setSaving(false);
-            }
-          }
-        }
-      ]
-    );
+    setConfirmDeleteVisible(true);
   };
 
   const toggleFoodPreference = (food: string) => {
@@ -419,6 +395,63 @@ export default function ProfileScreen() {
             >
               <Text style={styles.modalButtonText}>Aceptar</Text>
             </TouchableOpacity>
+          </Animated.View>
+        </View>
+      </Modal>
+
+      {/* Custom Confirm Delete Modal */}
+      <Modal visible={confirmDeleteVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFillObject} />
+          <Animated.View 
+            entering={FadeInDown.duration(400).springify()}
+            style={[styles.modalContent, { borderColor: 'rgba(255, 107, 107, 0.3)' }]}
+          >
+            <View style={[styles.successIconCircle, { backgroundColor: 'rgba(255, 107, 107, 0.1)' }]}>
+              <Ionicons 
+                name="alert-circle" 
+                size={80} 
+                color="#FF6B6B" 
+              />
+            </View>
+            <Text style={[styles.modalTitle, { color: '#FF6B6B' }]}>
+              Eliminar Cuenta
+            </Text>
+            <Text style={styles.modalMessage}>
+              ¿Estás completamente seguro de que deseas eliminar tu cuenta? Esta acción es irreversible y borrará permanentemente todo tu perfil, historial de visitas y cuentas divididas.
+            </Text>
+            <View style={{ width: '100%', gap: 12 }}>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: '#FF6B6B', shadowColor: '#FF6B6B' }]}
+                onPress={async () => {
+                  setConfirmDeleteVisible(false);
+                  setSaving(true);
+                  try {
+                    await authService.deleteAccount();
+                  } catch (error) {
+                    setAlertConfig({ 
+                      title: 'Error', 
+                      message: 'No se pudo eliminar tu cuenta. Si ha pasado mucho tiempo desde que iniciaste sesión, por favor cierra sesión, vuelve a ingresar e intenta nuevamente.', 
+                      isError: true 
+                    });
+                    setAlertVisible(true);
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.modalButtonText}>Sí, eliminar</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: 'rgba(255, 255, 255, 0.08)', shadowColor: 'transparent', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.1)' }]}
+                onPress={() => setConfirmDeleteVisible(false)}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.modalButtonText, { color: Colors.white }]}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
           </Animated.View>
         </View>
       </Modal>
