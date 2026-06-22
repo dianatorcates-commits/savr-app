@@ -162,6 +162,20 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleOpenTermsAndConditions = async () => {
+    try {
+      await openBrowserAsync(
+        'https://github.com/dianatorcates-commits/savr-app/wiki/T%C3%A9rminos-y-Condiciones-%E2%80%90-Savr',
+        {
+          presentationStyle: WebBrowserPresentationStyle.AUTOMATIC,
+        }
+      );
+    } catch (error) {
+      console.error('Error al abrir los términos y condiciones:', error);
+      Alert.alert('Error', 'No se pudo abrir los términos y condiciones.');
+    }
+  };
+
   const handleDeleteAccount = () => {
     Alert.alert(
       'Eliminar Cuenta',
@@ -338,6 +352,18 @@ export default function ProfileScreen() {
           <TouchableOpacity 
             style={[styles.securityBtn, { marginBottom: 16 }]} 
             onPress={handleOpenPrivacyPolicy}
+            activeOpacity={0.8}
+          >
+            <View style={styles.securityBtnContent}>
+              <Ionicons name="shield-checkmark-outline" size={24} color={Colors.primary} />
+              <Text style={styles.securityBtnText}>Políticas de Privacidad</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={Colors.primary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.securityBtn, { marginBottom: 16 }]} 
+            onPress={handleOpenTermsAndConditions}
             activeOpacity={0.8}
           >
             <View style={styles.securityBtnContent}>
