@@ -77,3 +77,34 @@ export async function getUserTotalVisitsCount(userId: string): Promise<number> {
   }
 }
 
+/**
+ * Obtiene todas las visitas de un usuario ordenadas por fecha
+ */
+export async function getUserVisits(userId: string): Promise<VisitReview[]> {
+  try {
+    const visitsCol = collection(db, 'visits');
+    const q = query(visitsCol, where('userId', '==', userId));
+    const querySnapshot = await getDocs(q);
+    const list: VisitReview[] = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      list.push({
+        id: doc.id,
+        userId: data.userId,
+        branchId: data.branchId,
+        restaurantId: data.restaurantId,
+        rating: data.rating,
+        likedIt: data.likedIt,
+        wouldReturn: data.wouldReturn,
+        serviceRating: data.serviceRating,
+        foodRating: data.foodRating,
+        createdAt: data.createdAt,
+      } as VisitReview);
+    });
+    return list;
+  } catch (error) {
+    console.error('Error fetching user visits:', error);
+    return [];
+  }
+}
+

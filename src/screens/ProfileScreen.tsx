@@ -349,6 +349,18 @@ export default function ProfileScreen() {
             <Ionicons name="chevron-forward" size={20} color={Colors.primary} />
           </TouchableOpacity>
 
+          <TouchableOpacity 
+            style={[styles.securityBtn, { marginBottom: 16 }]} 
+            onPress={() => router.push('/export-data')}
+            activeOpacity={0.8}
+          >
+            <View style={styles.securityBtnContent}>
+              <Ionicons name="download-outline" size={24} color={Colors.primary} />
+              <Text style={styles.securityBtnText}>Visualiza tus Datos</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={Colors.primary} />
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.dangerBtn}
             onPress={handleDeleteAccount}
