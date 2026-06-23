@@ -29,3 +29,4 @@ export interface Friend {
 }
 
 export * from './bill';
+export * from './visit';
