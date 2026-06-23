@@ -85,15 +85,16 @@ export function useDiscounts(pais?: string, region?: string, limitCount?: number
         const bStart = Date.now();
         let validRestaurantIds = new Set<string>();
         let fetchedBranchesFromNet = false;
-        if (pais || region) {
-          const cacheKey = `${pais || ''}|${region || ''}`;
+        if (region) {
+          const cacheKey = region;
           if (locationBranchCache.has(cacheKey)) {
             validRestaurantIds = locationBranchCache.get(cacheKey)!;
           } else {
             fetchedBranchesFromNet = true;
-            let branchQ = query(collection(db, 'branches'));
-            if (pais) branchQ = query(branchQ, where('pais', '==', pais));
-            if (region) branchQ = query(branchQ, where('region', '==', region));
+            let branchQ = query(
+              collection(db, 'branches'),
+              where('region', '==', region)
+            );
             
             // Limit the branches fetched to optimize speed when limitCount is provided
             if (limitCount) {
@@ -118,7 +119,7 @@ export function useDiscounts(pais?: string, region?: string, limitCount?: number
         let uniqueDocs = discountsDocs.filter((d) => {
           const rid = d.data().restaurant_id;
           if (!rid || seen.has(rid)) return false;
-          if ((pais || region) && !validRestaurantIds.has(rid)) return false;
+          if (region && !validRestaurantIds.has(rid)) return false;
           seen.add(rid);
           return true;
         });
