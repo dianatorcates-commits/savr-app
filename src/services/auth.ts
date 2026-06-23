@@ -1,8 +1,8 @@
-import { createOrUpdateUser, deleteUserProfileAndData } from '../services/firebaseUsers';
+import { createOrUpdateUser, deleteUserProfileAndData, getUserProfile } from '../services/firebaseUsers';
 import { UserProfile } from '../types';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { auth } from './firebase'; // Import Firebase auth from our config
-import { GoogleAuthProvider, OAuthProvider, signInWithCredential, signOut, deleteUser } from 'firebase/auth';
+import { GoogleAuthProvider, OAuthProvider, signInWithCredential, signOut, deleteUser, onAuthStateChanged } from 'firebase/auth';
 import * as AppleAuthentication from 'expo-apple-authentication';
 
 // Inicializar Google Sign-In (PENDIENTE CLIENT ID)
@@ -14,13 +14,32 @@ GoogleSignin.configure({
 class AuthService {
   private _currentUser: UserProfile | null = null;
   private _listeners = new Set<(user: UserProfile | null) => void>();
+  private _initialized = false;
+
+  constructor() {
+    onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        try {
+          const userProfile = await getUserProfile(firebaseUser.uid);
+          this._currentUser = userProfile;
+        } catch (error) {
+          console.error('Error restoring session:', error);
+          this._currentUser = null;
+        }
+      } else {
+        this._currentUser = null;
+      }
+      this._initialized = true;
+      this._listeners.forEach(callback => callback(this._currentUser));
+    });
+  }
 
   onAuthChange(callback: (user: UserProfile | null) => void) {
     this._listeners.add(callback);
     
-    setTimeout(() => {
+    if (this._initialized) {
       callback(this._currentUser);
-    }, 100);
+    }
     
     return () => {
       this._listeners.delete(callback);
